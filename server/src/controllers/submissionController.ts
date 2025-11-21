@@ -127,6 +127,28 @@ export const getSubmissions = async (req: AuthenticatedRequest, res: Response) =
       prisma.submission.count({ where })
     ]);
 
+    // Sign file URLs
+    await Promise.all(submissions.map(async (submission) => {
+      if (submission.files && submission.files.length > 0) {
+        await Promise.all(submission.files.map(async (file: any) => {
+          if (file.filePath && file.filePath.includes('/file/')) {
+            try {
+              const urlParts = file.filePath.split('/file/');
+              if (urlParts.length > 1) {
+                const pathParts = urlParts[1].split('/');
+                if (pathParts.length > 1) {
+                  const fileName = pathParts.slice(1).join('/');
+                  file.filePath = await backblazeService.getAuthorizedDownloadUrl(fileName);
+                }
+              }
+            } catch (error) {
+              console.error('Failed to sign file URL:', error);
+            }
+          }
+        }));
+      }
+    }));
+
     return res.json({
       success: true,
       data: submissions,
@@ -210,6 +232,50 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
         success: false,
         error: 'Access denied'
       });
+    }
+
+    // Sign file URLs
+    if (submission.files && submission.files.length > 0) {
+      await Promise.all(submission.files.map(async (file: any) => {
+        if (file.filePath && file.filePath.includes('/file/')) {
+          try {
+            const urlParts = file.filePath.split('/file/');
+            if (urlParts.length > 1) {
+              const pathParts = urlParts[1].split('/');
+              if (pathParts.length > 1) {
+                const fileName = pathParts.slice(1).join('/');
+                file.filePath = await backblazeService.getAuthorizedDownloadUrl(fileName);
+              }
+            }
+          } catch (error) {
+            console.error('Failed to sign file URL:', error);
+          }
+        }
+      }));
+    }
+
+    // Sign revision file URLs
+    if (submission.revisions && submission.revisions.length > 0) {
+      await Promise.all(submission.revisions.map(async (revision) => {
+        if (revision.files && revision.files.length > 0) {
+          await Promise.all(revision.files.map(async (file: any) => {
+            if (file.filePath && file.filePath.includes('/file/')) {
+              try {
+                const urlParts = file.filePath.split('/file/');
+                if (urlParts.length > 1) {
+                  const pathParts = urlParts[1].split('/');
+                  if (pathParts.length > 1) {
+                    const fileName = pathParts.slice(1).join('/');
+                    file.filePath = await backblazeService.getAuthorizedDownloadUrl(fileName);
+                  }
+                }
+              } catch (error) {
+                console.error('Failed to sign revision file URL:', error);
+              }
+            }
+          }));
+        }
+      }));
     }
 
     return res.json({

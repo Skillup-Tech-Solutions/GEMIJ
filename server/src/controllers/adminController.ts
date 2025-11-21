@@ -687,7 +687,8 @@ export const getSystemSettings = async (req: AuthenticatedRequest, res: Response
       'apc_currency': 'currency'
     };
 
-    settings.forEach(setting => {
+    // Process settings and generate signed URLs where needed
+    await Promise.all(settings.map(async (setting) => {
       let value: any = setting.value;
 
       // Parse value based on type
@@ -699,10 +700,27 @@ export const getSystemSettings = async (req: AuthenticatedRequest, res: Response
         value = parseFloat(setting.value);
       }
 
+      // Handle signed URLs for private assets
+      if (setting.key === 'payment_qr_code_url' && value && typeof value === 'string' && value.includes('/file/')) {
+        try {
+          const urlParts = value.split('/file/');
+          if (urlParts.length > 1) {
+            const pathParts = urlParts[1].split('/');
+            if (pathParts.length > 1) {
+              const fileName = pathParts.slice(1).join('/');
+              value = await backblazeService.getAuthorizedDownloadUrl(fileName);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to sign QR code URL:', error);
+          // Fallback to original URL if signing fails
+        }
+      }
+
       // Use mapped key if available, otherwise use original key
       const mappedKey = keyMap[setting.key] || setting.key;
       settingsObject[mappedKey] = value;
-    });
+    }));
 
     return res.json({
       success: true,

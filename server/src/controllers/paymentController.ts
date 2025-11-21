@@ -209,6 +209,21 @@ export const getPaymentStatus = async (req: AuthenticatedRequest, res: Response)
       });
     }
 
+    if (payment.proofUrl && payment.proofUrl.includes('/file/')) {
+      try {
+        const urlParts = payment.proofUrl.split('/file/');
+        if (urlParts.length > 1) {
+          const pathParts = urlParts[1].split('/');
+          if (pathParts.length > 1) {
+            const fileName = pathParts.slice(1).join('/');
+            payment.proofUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sign proof URL:', error);
+      }
+    }
+
     return res.json({
       success: true,
       data: payment
@@ -260,6 +275,21 @@ export const getPaymentById = async (req: AuthenticatedRequest, res: Response) =
       authorEmail: payment.submission.author.email,
       amount: payment.amount.toNumber ? payment.amount.toNumber() : payment.amount
     };
+
+    if (formattedPayment.proofUrl && formattedPayment.proofUrl.includes('/file/')) {
+      try {
+        const urlParts = formattedPayment.proofUrl.split('/file/');
+        if (urlParts.length > 1) {
+          const pathParts = urlParts[1].split('/');
+          if (pathParts.length > 1) {
+            const fileName = pathParts.slice(1).join('/');
+            formattedPayment.proofUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sign proof URL:', error);
+      }
+    }
 
     return res.json({
       success: true,
