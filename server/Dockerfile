@@ -24,16 +24,22 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install dumb-init and OpenSSL for proper signal handling and Prisma
+RUN apk add --no-cache dumb-init openssl
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001
 
+# Create uploads directory and set ownership
+RUN mkdir -p uploads && chown nodejs:nodejs uploads
+
 # Copy package files and install production dependencies only
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
+
+# Switch to nodejs user before installing dependencies
+USER nodejs
 RUN npm ci --only=production && npm cache clean --force
 
 # Generate Prisma client
@@ -41,12 +47,6 @@ RUN npx prisma generate
 
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-
-# Create uploads directory
-RUN mkdir -p uploads && chown nodejs:nodejs uploads
-
-# Switch to non-root user
-USER nodejs
 
 # Expose port
 EXPOSE 5000
