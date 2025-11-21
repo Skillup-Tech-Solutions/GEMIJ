@@ -39,9 +39,6 @@ RUN npm ci --only=production && npm cache clean --force
 # Generate Prisma client
 RUN npx prisma generate
 
-# Setup database
-RUN npx prisma migrate deploy
-
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 
@@ -60,4 +57,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Start the application
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
