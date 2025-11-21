@@ -33,11 +33,14 @@ RUN adduser -S nodejs -u 1001
 
 # Copy package files and install production dependencies only
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 RUN npm ci --only=production && npm cache clean --force
+
+# Generate Prisma client
+RUN npx prisma generate
 
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 
 # Create uploads directory
 RUN mkdir -p uploads && chown nodejs:nodejs uploads
