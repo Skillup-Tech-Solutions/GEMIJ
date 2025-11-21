@@ -74,10 +74,15 @@ class EditorService {
 
   // Initial Screening
   async performInitialScreening(id: string, data: {
-    decision: 'PROCEED_TO_REVIEW' | 'REJECT';
+    decision: 'PROCEED_TO_REVIEW' | 'RETURN_FOR_FORMATTING' | 'DESK_REJECT';
     comments: string;
-    plagiarismCheck?: boolean;
-    scopeCheck?: boolean;
+    editorComments?: string;
+    checks?: {
+      scopeCheck: boolean;
+      formatCheck: boolean;
+      plagiarismCheck: boolean;
+      qualityCheck: boolean;
+    };
   }): Promise<Submission> {
     const response = await axios.post<ApiResponse<Submission>>(`${API_URL}/editor/submissions/${id}/screen`, data);
     return response.data.data!;

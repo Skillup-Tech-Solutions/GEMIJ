@@ -43,6 +43,14 @@ export interface SystemSettings {
   submissionGuidelines: string;
   reviewGuidelines: string;
   ethicsPolicy: string;
+  bankAccountName?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
+  bankIfsc?: string;
+  upiId?: string;
+  enableBankTransfer?: boolean;
+  enableUpi?: boolean;
+  payment_qr_code_url?: string;
 }
 
 export interface IssueData {

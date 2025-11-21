@@ -47,6 +47,7 @@ export interface Submission {
   reviews: Review[];
   revisions?: Revision[];
   timeline?: TimelineEvent[];
+  manuscriptFile?: string;
   _count?: {
     reviews: number;
   };

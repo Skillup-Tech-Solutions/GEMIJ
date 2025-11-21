@@ -132,35 +132,35 @@ const UserManagement: React.FC = () => {
   };
 
   const toggleUserSelection = (userId: string) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
+    setSelectedUsers(prev =>
+      prev.includes(userId)
         ? prev.filter(id => id !== userId)
         : [...prev, userId]
     );
   };
 
   const toggleSelectAll = () => {
-    setSelectedUsers(prev => 
+    setSelectedUsers(prev =>
       prev.length === users.length ? [] : users.map(user => user.id)
     );
   };
 
-  const getRoleBadgeVariant = (role: string) => {
+  const getRoleBadgeVariant = (role: string): 'error' | 'warning' | 'info' | 'success' | 'neutral' => {
     switch (role) {
-      case 'ADMIN': return 'danger';
+      case 'ADMIN': return 'error';
       case 'EDITOR': return 'warning';
       case 'REVIEWER': return 'info';
       case 'AUTHOR': return 'success';
-      default: return 'secondary';
+      default: return 'neutral';
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
+  const getStatusBadgeVariant = (status: string): 'error' | 'warning' | 'info' | 'success' | 'neutral' => {
     switch (status) {
       case 'ACTIVE': return 'success';
-      case 'INACTIVE': return 'secondary';
-      case 'SUSPENDED': return 'danger';
-      default: return 'secondary';
+      case 'INACTIVE': return 'neutral';
+      case 'SUSPENDED': return 'error';
+      default: return 'neutral';
     }
   };
 
@@ -180,7 +180,7 @@ const UserManagement: React.FC = () => {
             </svg>
             Back to Dashboard
           </Button>
-          
+
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight">
@@ -203,387 +203,388 @@ const UserManagement: React.FC = () => {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      {message && (
-        <Alert
-          type={message.type}
-          message={message.text}
-          onClose={() => setMessage(null)}
-          className="mb-6"
-        />
-      )}
+        {message && (
+          <Alert
+            variant={message.type === 'success' ? 'success' : 'error'}
+            title={message.type === 'success' ? 'Success' : 'Error'}
+            onClose={() => setMessage(null)}
+            className="mb-6"
+          >
+            {message.text}
+          </Alert>
+        )}
 
-      {/* Filters */}
-      <div className="card mb-6">
-        <div className="card-body">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
-                Search
-              </label>
-              <input
-                type="text"
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                placeholder="Search by name or email..."
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
-                Role
-              </label>
-              <select
-                value={filters.role}
-                onChange={(e) => handleFilterChange('role', e.target.value)}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">All Roles</option>
-                <option value="AUTHOR">Author</option>
-                <option value="REVIEWER">Reviewer</option>
-                <option value="EDITOR">Editor</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
-                Status
-              </label>
-              <select
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-                <option value="SUSPENDED">Suspended</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
-                Sort By
-              </label>
-              <select
-                value={`${filters.sortBy}-${filters.sortOrder}`}
-                onChange={(e) => {
-                  const [sortBy, sortOrder] = e.target.value.split('-');
-                  handleFilterChange('sortBy', sortBy);
-                  handleFilterChange('sortOrder', sortOrder);
-                }}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="registrationDate-desc">Newest First</option>
-                <option value="registrationDate-asc">Oldest First</option>
-                <option value="name-asc">Name A-Z</option>
-                <option value="name-desc">Name Z-A</option>
-                <option value="lastLogin-desc">Last Login</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bulk Actions */}
-      {selectedUsers.length > 0 && (
+        {/* Filters */}
         <div className="card mb-6">
           <div className="card-body">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-secondary-600">
-                {selectedUsers.length} user{selectedUsers.length !== 1 ? 's' : ''} selected
-              </span>
-              <div className="flex space-x-2">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                  Search
+                </label>
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  placeholder="Search by name or email..."
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                  Role
+                </label>
                 <select
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      handleBulkUpdate({ role: e.target.value });
-                      e.target.value = '';
-                    }
-                  }}
-                  className="px-3 py-1 border border-secondary-300 rounded text-sm"
+                  value={filters.role}
+                  onChange={(e) => handleFilterChange('role', e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  <option value="">Change Role</option>
+                  <option value="">All Roles</option>
                   <option value="AUTHOR">Author</option>
                   <option value="REVIEWER">Reviewer</option>
                   <option value="EDITOR">Editor</option>
                   <option value="ADMIN">Admin</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                  Status
+                </label>
                 <select
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      handleBulkUpdate({ status: e.target.value });
-                      e.target.value = '';
-                    }
-                  }}
-                  className="px-3 py-1 border border-secondary-300 rounded text-sm"
+                  value={filters.status}
+                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  <option value="">Change Status</option>
+                  <option value="">All Statuses</option>
                   <option value="ACTIVE">Active</option>
                   <option value="INACTIVE">Inactive</option>
                   <option value="SUSPENDED">Suspended</option>
                 </select>
-                <button
-                  onClick={() => setSelectedUsers([])}
-                  className="px-3 py-1 text-sm text-secondary-600 hover:text-secondary-800"
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                  Sort By
+                </label>
+                <select
+                  value={`${filters.sortBy}-${filters.sortOrder}`}
+                  onChange={(e) => {
+                    const [sortBy, sortOrder] = e.target.value.split('-');
+                    handleFilterChange('sortBy', sortBy);
+                    handleFilterChange('sortOrder', sortOrder);
+                  }}
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  Clear Selection
-                </button>
+                  <option value="registrationDate-desc">Newest First</option>
+                  <option value="registrationDate-asc">Oldest First</option>
+                  <option value="name-asc">Name A-Z</option>
+                  <option value="name-desc">Name Z-A</option>
+                  <option value="lastLogin-desc">Last Login</option>
+                </select>
               </div>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Users Table */}
-      <div className="card">
-        <div className="card-body p-0">
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-              <p className="text-secondary-600 mt-2">Loading users...</p>
-            </div>
-          ) : users.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-secondary-600">No users found.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-secondary-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.length === users.length}
-                        onChange={toggleSelectAll}
-                        className="rounded border-secondary-300"
-                      />
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                      Activity
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                      Registered
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-secondary-200">
-                  {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-secondary-50">
-                      <td className="px-6 py-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedUsers.includes(user.id)}
-                          onChange={() => toggleUserSelection(user.id)}
-                          className="rounded border-secondary-300"
-                        />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div>
-                          <div className="text-sm font-medium text-secondary-900">
-                            {user.name}
-                          </div>
-                          <div className="text-sm text-secondary-500">
-                            {user.email}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={getRoleBadgeVariant(user.role)}>
-                          {user.role}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={getStatusBadgeVariant(user.status)}>
-                          {user.status}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-secondary-500">
-                        <div>
-                          {user.submissionsCount !== undefined && (
-                            <div>Submissions: {user.submissionsCount}</div>
-                          )}
-                          {user.reviewsCount !== undefined && (
-                            <div>Reviews: {user.reviewsCount}</div>
-                          )}
-                          {user.lastLogin && (
-                            <div>Last login: {new Date(user.lastLogin).toLocaleDateString()}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-secondary-500">
-                        {new Date(user.registrationDate).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <div className="flex space-x-2">
-                          <select
-                            value={user.role}
-                            onChange={(e) => handleUpdateUser(user.id, { role: e.target.value })}
-                            className="px-2 py-1 border border-secondary-300 rounded text-xs"
-                          >
-                            <option value="AUTHOR">Author</option>
-                            <option value="REVIEWER">Reviewer</option>
-                            <option value="EDITOR">Editor</option>
-                            <option value="ADMIN">Admin</option>
-                          </select>
-                          <select
-                            value={user.status}
-                            onChange={(e) => handleUpdateUser(user.id, { status: e.target.value })}
-                            className="px-2 py-1 border border-secondary-300 rounded text-xs"
-                          >
-                            <option value="ACTIVE">Active</option>
-                            <option value="INACTIVE">Inactive</option>
-                            <option value="SUSPENDED">Suspended</option>
-                          </select>
-                          <button
-                            onClick={() => handleDeleteUser(user.id)}
-                            className="text-red-600 hover:text-red-800 text-xs"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex justify-between items-center mt-6">
-          <div className="text-sm text-secondary-600">
-            Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to{' '}
-            {Math.min(pagination.currentPage * pagination.limit, pagination.total)} of{' '}
-            {pagination.total} users
-          </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleFilterChange('page', pagination.currentPage - 1)}
-              disabled={pagination.currentPage === 1}
-              className="px-3 py-1 border border-secondary-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-              const page = i + Math.max(1, pagination.currentPage - 2);
-              return (
-                <button
-                  key={page}
-                  onClick={() => handleFilterChange('page', page)}
-                  className={`px-3 py-1 border rounded text-sm ${
-                    page === pagination.currentPage
-                      ? 'bg-primary-600 text-white border-primary-600'
-                      : 'border-secondary-300 hover:bg-secondary-50'
-                  }`}
-                >
-                  {page}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => handleFilterChange('page', pagination.currentPage + 1)}
-              disabled={pagination.currentPage === pagination.totalPages}
-              className="px-3 py-1 border border-secondary-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Create User Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold text-secondary-900 mb-4">Create New User</h2>
-            <form onSubmit={handleCreateUser}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-1">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newUser.name}
-                    onChange={(e) => setNewUser(prev => ({ ...prev, name: e.target.value }))}
-                    required
-                    className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                    required
-                    className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-1">
-                    Role
-                  </label>
+        {/* Bulk Actions */}
+        {selectedUsers.length > 0 && (
+          <div className="card mb-6">
+            <div className="card-body">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-secondary-600">
+                  {selectedUsers.length} user{selectedUsers.length !== 1 ? 's' : ''} selected
+                </span>
+                <div className="flex space-x-2">
                   <select
-                    value={newUser.role}
-                    onChange={(e) => setNewUser(prev => ({ ...prev, role: e.target.value }))}
-                    className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleBulkUpdate({ role: e.target.value });
+                        e.target.value = '';
+                      }
+                    }}
+                    className="px-3 py-1 border border-secondary-300 rounded text-sm"
                   >
+                    <option value="">Change Role</option>
                     <option value="AUTHOR">Author</option>
                     <option value="REVIEWER">Reviewer</option>
                     <option value="EDITOR">Editor</option>
                     <option value="ADMIN">Admin</option>
                   </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
-                    required
-                    className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleBulkUpdate({ status: e.target.value });
+                        e.target.value = '';
+                      }
+                    }}
+                    className="px-3 py-1 border border-secondary-300 rounded text-sm"
+                  >
+                    <option value="">Change Status</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                    <option value="SUSPENDED">Suspended</option>
+                  </select>
+                  <button
+                    onClick={() => setSelectedUsers([])}
+                    className="px-3 py-1 text-sm text-secondary-600 hover:text-secondary-800"
+                  >
+                    Clear Selection
+                  </button>
                 </div>
               </div>
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-secondary-600 hover:text-secondary-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-                >
-                  Create User
-                </button>
+            </div>
+          </div>
+        )}
+
+        {/* Users Table */}
+        <div className="card">
+          <div className="card-body p-0">
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+                <p className="text-secondary-600 mt-2">Loading users...</p>
               </div>
-            </form>
+            ) : users.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-secondary-600">No users found.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-secondary-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left">
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.length === users.length}
+                          onChange={toggleSelectAll}
+                          className="rounded border-secondary-300"
+                        />
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        User
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        Role
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        Activity
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        Registered
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-secondary-200">
+                    {users.map((user) => (
+                      <tr key={user.id} className="hover:bg-secondary-50">
+                        <td className="px-6 py-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedUsers.includes(user.id)}
+                            onChange={() => toggleUserSelection(user.id)}
+                            className="rounded border-secondary-300"
+                          />
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="text-sm font-medium text-secondary-900">
+                              {user.name}
+                            </div>
+                            <div className="text-sm text-secondary-500">
+                              {user.email}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <Badge variant={getRoleBadgeVariant(user.role)}>
+                            {user.role}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4">
+                          <Badge variant={getStatusBadgeVariant(user.status)}>
+                            {user.status}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-secondary-500">
+                          <div>
+                            {user.submissionsCount !== undefined && (
+                              <div>Submissions: {user.submissionsCount}</div>
+                            )}
+                            {user.reviewsCount !== undefined && (
+                              <div>Reviews: {user.reviewsCount}</div>
+                            )}
+                            {user.lastLogin && (
+                              <div>Last login: {new Date(user.lastLogin).toLocaleDateString()}</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-secondary-500">
+                          {new Date(user.registrationDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex space-x-2">
+                            <select
+                              value={user.role}
+                              onChange={(e) => handleUpdateUser(user.id, { role: e.target.value })}
+                              className="px-2 py-1 border border-secondary-300 rounded text-xs"
+                            >
+                              <option value="AUTHOR">Author</option>
+                              <option value="REVIEWER">Reviewer</option>
+                              <option value="EDITOR">Editor</option>
+                              <option value="ADMIN">Admin</option>
+                            </select>
+                            <select
+                              value={user.status}
+                              onChange={(e) => handleUpdateUser(user.id, { status: e.target.value })}
+                              className="px-2 py-1 border border-secondary-300 rounded text-xs"
+                            >
+                              <option value="ACTIVE">Active</option>
+                              <option value="INACTIVE">Inactive</option>
+                              <option value="SUSPENDED">Suspended</option>
+                            </select>
+                            <button
+                              onClick={() => handleDeleteUser(user.id)}
+                              className="text-red-600 hover:text-red-800 text-xs"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
-      )}
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex justify-between items-center mt-6">
+            <div className="text-sm text-secondary-600">
+              Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to{' '}
+              {Math.min(pagination.currentPage * pagination.limit, pagination.total)} of{' '}
+              {pagination.total} users
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleFilterChange('page', pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1}
+                className="px-3 py-1 border border-secondary-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                const page = i + Math.max(1, pagination.currentPage - 2);
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handleFilterChange('page', page)}
+                    className={`px-3 py-1 border rounded text-sm ${page === pagination.currentPage
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'border-secondary-300 hover:bg-secondary-50'
+                      }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => handleFilterChange('page', pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages}
+                className="px-3 py-1 border border-secondary-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Create User Modal */}
+        {showCreateModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <h2 className="text-xl font-semibold text-secondary-900 mb-4">Create New User</h2>
+              <form onSubmit={handleCreateUser}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      value={newUser.name}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, name: e.target.value }))}
+                      required
+                      className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={newUser.email}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                      required
+                      className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      Role
+                    </label>
+                    <select
+                      value={newUser.role}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, role: e.target.value }))}
+                      className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    >
+                      <option value="AUTHOR">Author</option>
+                      <option value="REVIEWER">Reviewer</option>
+                      <option value="EDITOR">Editor</option>
+                      <option value="ADMIN">Admin</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                      required
+                      className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 text-secondary-600 hover:text-secondary-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                  >
+                    Create User
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

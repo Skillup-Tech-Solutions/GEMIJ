@@ -60,14 +60,14 @@ class APITester {
             };
         } catch (error: any) {
             const responseTime = Date.now() - startTime;
-            const axiosError = error as AxiosError;
+            const axiosError = error as AxiosError<{ message?: string }>;
 
             return {
                 endpoint: description || `${method} ${endpoint}`,
                 method,
                 status: 'failed',
                 statusCode: axiosError.response?.status,
-                message: axiosError.response?.data?.message || axiosError.message || 'Unknown error',
+                message: (axiosError.response?.data as any)?.message || axiosError.message || 'Unknown error',
                 responseTime,
             };
         }
@@ -297,7 +297,5 @@ class APITester {
 // Export for use in other files
 export const apiTester = new APITester();
 
-// For direct execution
-if (import.meta.url === `file://${process.argv[1]}`) {
-    apiTester.runAllTests().catch(console.error);
-}
+// Note: Direct execution is not supported in browser environment
+// To run tests, import apiTester and call runAllTests() manually
