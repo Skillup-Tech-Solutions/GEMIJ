@@ -342,14 +342,31 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
       prisma.payment.count({ where })
     ]);
 
-    const formattedPayments = payments.map(payment => {
+    const formattedPayments = await Promise.all(payments.map(async (payment) => {
       const amount = Number(payment.amount);
       const authorName = `${payment.user.firstName ?? ''} ${payment.user.lastName ?? ''}`.trim();
       const invoiceNumber = `INV-${payment.createdAt.getFullYear()}-${payment.id.substring(0, 6).toUpperCase()}`;
+
+      let proofUrl = payment.proofUrl;
+      if (proofUrl && proofUrl.includes('/file/')) {
+        try {
+          const urlParts = proofUrl.split('/file/');
+          if (urlParts.length > 1) {
+            const pathParts = urlParts[1].split('/');
+            if (pathParts.length > 1) {
+              const fileName = pathParts.slice(1).join('/');
+              proofUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to sign proof URL:', error);
+        }
+      }
+
       return {
         id: payment.id,
         submissionId: payment.submissionId,
-        authorId: payment.userId,
+        authorId: payment.user.id,
         authorName,
         authorEmail: payment.user.email,
         submissionTitle: payment.submission?.title ?? null,
@@ -360,9 +377,10 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
         createdAt: payment.createdAt.toISOString(),
         transactionId: payment.stripePaymentId ?? null,
         paymentMethod: payment.stripePaymentId ? 'ONLINE' : 'OFFLINE',
-        invoiceNumber
+        invoiceNumber,
+        proofUrl
       };
-    });
+    }));
 
     return res.json({
       success: true,
@@ -992,6 +1010,22 @@ export const getPaymentById = async (req: AuthenticatedRequest, res: Response) =
       });
     }
 
+    let proofUrl = payment.proofUrl;
+    if (proofUrl && proofUrl.includes('/file/')) {
+      try {
+        const urlParts = proofUrl.split('/file/');
+        if (urlParts.length > 1) {
+          const pathParts = urlParts[1].split('/');
+          if (pathParts.length > 1) {
+            const fileName = pathParts.slice(1).join('/');
+            proofUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sign proof URL:', error);
+      }
+    }
+
     const formattedPayment = {
       id: payment.id,
       submissionId: payment.submission.id,
@@ -1006,7 +1040,7 @@ export const getPaymentById = async (req: AuthenticatedRequest, res: Response) =
       paymentMethod: payment.paymentMethod,
       transactionId: payment.stripePaymentId,
       invoiceNumber: payment.invoiceNumber || 'N/A',
-      proofUrl: payment.proofUrl
+      proofUrl
     };
 
     return res.json({
