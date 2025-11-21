@@ -120,6 +120,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/submit-paper/:id"
+                  element={
+                    <ProtectedRoute>
+                      <SubmitPaper />
+                    </ProtectedRoute>
+                  }
+                />
                 {/* Author Routes */}
                 <Route
                   path="/submission/:id"
@@ -452,7 +460,7 @@ function App() {
           </div>
         </Router>
       </AuthProvider>
-    </QueryClientProvider>
+    </QueryClientProvider >
   );
 }
 

@@ -18,7 +18,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:visitor-flow": "tsx src/scripts/test-visitor-flow.ts",
-    "test-email": "tsx testEmail.ts"
+    "test-email": "tsx testEmail.ts",
+    "db:update": "tsx src/scripts/update-db.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.6.0",

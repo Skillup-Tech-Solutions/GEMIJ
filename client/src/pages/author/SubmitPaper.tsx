@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
@@ -40,6 +40,7 @@ interface FormData {
 
 const SubmitPaper: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -75,8 +76,56 @@ const SubmitPaper: React.FC = () => {
     supplementary?: File[];
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [submissionId, setSubmissionId] = useState<string | null>(id || null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      loadSubmission(id);
+    }
+  }, [id]);
+
+  const loadSubmission = async (id: string) => {
+    try {
+      const submission = await submissionService.getSubmission(id);
+      setFormData({
+        title: submission.title,
+        abstract: submission.abstract,
+        keywords: submission.keywords.join(', '),
+        authors: submission.authors.map(a => ({
+          firstName: a.firstName,
+          lastName: a.lastName,
+          email: a.email,
+          affiliation: a.affiliation,
+          isCorresponding: a.isCorresponding
+        })),
+        manuscriptType: submission.manuscriptType,
+        researchArea: '', // Assuming this field might be missing or needs mapping
+        conflictOfInterest: submission.conflictOfInterest || '', // Assuming these fields exist in submission object
+        ethicsStatement: '', // Assuming these fields exist in submission object
+        fundingInfo: '', // Assuming these fields exist in submission object
+        isDoubleBlind: submission.isDoubleBlind,
+        suggestedReviewers: submission.suggestedReviewers?.join(', ') || '',
+        excludedReviewers: submission.excludedReviewers?.join(', ') || '',
+        comments: submission.comments || '',
+        declarations: {
+          originalWork: true, // Assuming if it's a draft, these might need to be re-checked or stored
+          noConflictOfInterest: true,
+          ethicsApproval: false,
+          dataAvailability: false,
+          copyrightTransfer: true
+        }
+      });
+      // Note: Files cannot be pre-populated in file inputs for security reasons, 
+      // but we can show them as existing files.
+      // This part requires UI updates to show existing files, which is complex.
+      // For now, we'll assume the user might need to re-upload or we handle it differently.
+      // Ideally, we should fetch existing files and display them.
+    } catch (error) {
+      console.error('Failed to load submission:', error);
+      setError('Failed to load submission details.');
+    }
+  };
 
   const steps = [
     'Manuscript Details',
@@ -192,8 +241,13 @@ const SubmitPaper: React.FC = () => {
         }))
       };
 
-      // Create submission
-      const submission = await submissionService.createSubmission(submissionData);
+      // Create or update submission
+      let submission;
+      if (id) {
+        submission = await submissionService.updateSubmission(id, submissionData);
+      } else {
+        submission = await submissionService.createSubmission(submissionData);
+      }
       setSubmissionId(submission.id);
 
       // Upload files

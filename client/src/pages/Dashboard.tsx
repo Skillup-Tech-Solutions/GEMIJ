@@ -325,6 +325,14 @@ const Dashboard: React.FC = () => {
                               Pay APC Fee
                             </button>
                           )}
+                          {submission.status === 'DRAFT' && (
+                            <button
+                              onClick={() => navigate(`/submit-paper/${submission.id}`)}
+                              className="text-sm bg-primary-100 text-primary-700 px-3 py-1 rounded hover:bg-primary-200 transition-colors"
+                            >
+                              Continue Submission
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
