@@ -39,6 +39,9 @@ RUN npm ci --only=production && npm cache clean --force
 # Generate Prisma client
 RUN npx prisma generate
 
+# Setup database
+RUN npx prisma migrate deploy
+
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 

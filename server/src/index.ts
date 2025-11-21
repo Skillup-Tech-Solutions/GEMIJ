@@ -79,14 +79,15 @@ app.use('*', (req, res) => {
   });
 });
 
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
   console.error('Unhandled error:', error);
 
   if (error.type === 'entity.too.large') {
-    return res.status(413).json({
+    res.status(413).json({
       success: false,
       error: 'File too large'
     });
+    return;
   }
 
   res.status(500).json({
