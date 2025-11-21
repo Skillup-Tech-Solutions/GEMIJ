@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BookOpen, Calendar, FileText, ChevronRight, Filter } from 'lucide-react';
 import { publicService } from '@/services/publicService';
 import { Issue } from '@/types';
+import { buildServerUrl } from '@/utils/url';
 
 // Extended Issue type for display purposes
 interface DisplayIssue extends Issue {
@@ -178,7 +179,7 @@ const BrowseIssues: React.FC = () => {
                                 <div className="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                                     {issue.coverImage ? (
                                         <img
-                                            src={issue.coverImage}
+                                            src={buildServerUrl(issue.coverImage)}
                                             alt={`Volume ${issue.volume}, Issue ${issue.number}`}
                                             className="w-full h-full object-cover"
                                         />

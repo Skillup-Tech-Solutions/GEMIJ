@@ -78,6 +78,22 @@ async function main() {
             env: env
         });
 
+        // 6. Ask to seed
+        const shouldSeed = await question('\nDo you want to seed the database? (y/N): ');
+        if (shouldSeed.toLowerCase() === 'y') {
+            console.log('\nRunning database seed...');
+            try {
+                execSync('npm run seed', {
+                    stdio: 'inherit',
+                    cwd: path.resolve(__dirname, '../../'),
+                    env: env
+                });
+                console.log('Seeding completed successfully.');
+            } catch (seedError) {
+                console.error('Error during seeding:', seedError);
+            }
+        }
+
         console.log('\nDatabase update completed successfully!');
 
     } catch (error) {

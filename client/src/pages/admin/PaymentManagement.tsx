@@ -85,7 +85,7 @@ const PaymentManagement: React.FC = () => {
   const handleViewProof = (proofUrl: string) => {
     // Construct full URL if needed, assuming proofUrl is relative path from upload middleware
     // In a real app, you might need a specific endpoint to serve secure files
-    const fullUrl = `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${proofUrl}`;
+    const fullUrl = proofUrl.startsWith('http') ? proofUrl : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${proofUrl}`;
     window.open(fullUrl, '_blank');
   };
 

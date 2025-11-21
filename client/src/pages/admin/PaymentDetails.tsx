@@ -80,7 +80,7 @@ const PaymentDetails: React.FC = () => {
 
     const handleViewProof = () => {
         if (!payment?.proofUrl) return;
-        const fullUrl = `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${payment.proofUrl}`;
+        const fullUrl = payment.proofUrl.startsWith('http') ? payment.proofUrl : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${payment.proofUrl}`;
         window.open(fullUrl, '_blank');
     };
 

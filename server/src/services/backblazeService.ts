@@ -17,7 +17,7 @@ class BackblazeService {
             applicationKeyId: keyId!,
             applicationKey: appKey!,
         });
-        this.bucketName = process.env.B2_BUCKET_NAME || 'gemij-ahamed';
+        this.bucketName = process.env.B2_BUCKET_NAME!;
     }
 
     /**

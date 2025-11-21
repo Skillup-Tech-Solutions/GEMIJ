@@ -280,7 +280,7 @@ const PaymentSettings: React.FC = () => {
                                     {currentQrUrl && (
                                         <div className="w-24 h-24 border border-secondary-200 rounded-lg overflow-hidden bg-secondary-50">
                                             <img
-                                                src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${currentQrUrl}`}
+                                                src={currentQrUrl?.startsWith('http') ? currentQrUrl : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${currentQrUrl}`}
                                                 alt="Current QR"
                                                 className="w-full h-full object-contain"
                                             />

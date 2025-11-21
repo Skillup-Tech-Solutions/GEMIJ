@@ -266,7 +266,7 @@ const PaymentPage: React.FC = () => {
                       title="Click to view full size"
                     >
                       <img
-                        src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${settings.payment_qr_code_url}`}
+                        src={settings.payment_qr_code_url?.startsWith('http') ? settings.payment_qr_code_url : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${settings.payment_qr_code_url}`}
                         alt="UPI QR Code"
                         className="w-full h-full object-contain"
                       />
@@ -435,7 +435,7 @@ const PaymentPage: React.FC = () => {
 
             <div className="flex justify-center bg-secondary-50 p-6 rounded-lg">
               <img
-                src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/${settings.payment_qr_code_url}`}
+                src={settings.payment_qr_code_url?.startsWith('http') ? settings.payment_qr_code_url : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${settings.payment_qr_code_url}`}
                 alt="UPI QR Code - Full Size"
                 className="max-w-full max-h-[70vh] object-contain"
               />
