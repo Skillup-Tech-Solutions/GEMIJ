@@ -1,0 +1,431 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+}
+
+enum UserRole {
+  VISITOR
+  AUTHOR
+  REVIEWER
+  EDITOR
+  ADMIN
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  RETURNED_FOR_FORMATTING
+  INITIAL_REVIEW
+  UNDER_REVIEW
+  REVISION_REQUIRED
+  REVISED
+  ACCEPTED
+  PAYMENT_PENDING
+  REJECTED
+  PUBLISHED
+  WITHDRAWN
+}
+
+enum ReviewStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DECLINED
+  OVERDUE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PublicationDestination {
+  CURRENT_ISSUE
+  PAST_ISSUE
+  CONFERENCE
+  ONLINE_FIRST
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  password          String
+  firstName         String
+  lastName          String
+  title             String?
+  affiliation       String?
+  country           String?
+  orcid             String?
+  bio               String?
+  role              UserRole @default(AUTHOR)
+  isActive          Boolean  @default(true)
+  emailVerified     Boolean  @default(false)
+  emailVerifiedAt   DateTime?
+  passwordResetToken       String?
+  passwordResetExpires     DateTime?
+  lastLoginAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  submissions       Submission[]
+  reviews           Review[]
+  editorAssignments EditorAssignment[]
+  payments          Payment[]
+  notifications     Notification[]
+
+  @@map("users")
+}
+
+model Submission {
+  id                String           @id @default(cuid())
+  title             String
+  abstract          String
+  keywords          String[]
+  manuscriptType    String
+  status            SubmissionStatus @default(DRAFT)
+  isDoubleBlind     Boolean          @default(true)
+  suggestedReviewers String[]
+  excludedReviewers String[]
+  comments          String?
+  decisionType      String?
+  decisionComments  String?
+  submittedAt       DateTime?
+  acceptedAt        DateTime?
+  publishedAt       DateTime?
+  doi               String?
+  volume            Int?
+  issue             Int?
+  pages             String?
+  articleNumber     String?
+  
+  // Publication settings
+  publicationDestination PublicationDestination?
+  onlineFirst       Boolean          @default(false)
+  featuredArticle   Boolean          @default(false)
+  scheduledPublishAt DateTime?
+  requiresApproval  Boolean          @default(false)
+  showOnHomepage    Boolean          @default(false)
+  
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  authorId          String
+  author            User             @relation(fields: [authorId], references: [id])
+  
+  conferenceId      String?
+  conference        Conference?      @relation(fields: [conferenceId], references: [id])
+  
+  coAuthors         CoAuthor[]
+  files             SubmissionFile[]
+  reviews           Review[]
+  editorAssignments EditorAssignment[]
+  revisions         Revision[]
+  payments          Payment[]
+  notifications     Notification[]
+  timeline          SubmissionTimeline[]
+  publicationSettings PublicationSettings?
+
+  @@map("submissions")
+}
+
+model CoAuthor {
+  id           String @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String
+  affiliation  String?
+  isCorresponding Boolean @default(false)
+  order        Int
+
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("co_authors")
+}
+
+model SubmissionFile {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  fileType     String
+  fileSize     Int
+  filePath     String
+  description  String?
+  isMainFile   Boolean  @default(false)
+  uploadedAt   DateTime @default(now())
+
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("submission_files")
+}
+
+model Review {
+  id                String       @id @default(cuid())
+  status            ReviewStatus @default(PENDING)
+  recommendation    String?
+  confidentialComments String?
+  authorComments    String?
+  rating            Int?
+  invitedAt         DateTime     @default(now())
+  acceptedAt        DateTime?
+  submittedAt       DateTime?
+  dueDate           DateTime
+  remindersSent     Int          @default(0)
+
+  reviewerId    String
+  reviewer      User       @relation(fields: [reviewerId], references: [id])
+  submissionId  String
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  invitation    ReviewerInvitation?
+
+  @@map("reviews")
+}
+
+model EditorAssignment {
+  id           String   @id @default(cuid())
+  assignedAt   DateTime @default(now())
+  isChief      Boolean  @default(false)
+
+  editorId     String
+  editor       User       @relation(fields: [editorId], references: [id])
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("editor_assignments")
+}
+
+model Revision {
+  id              String   @id @default(cuid())
+  revisionNumber  Int
+  authorResponse  String?
+  submittedAt     DateTime @default(now())
+
+  submissionId    String
+  submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  files           RevisionFile[]
+
+  @@map("revisions")
+}
+
+model RevisionFile {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  fileType     String
+  fileSize     Int
+  filePath     String
+  uploadedAt   DateTime @default(now())
+
+  revisionId   String
+  revision     Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@map("revision_files")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  amount          Decimal       @db.Decimal(10, 2)
+  currency        String        @default("INR")
+  status          PaymentStatus @default(PENDING)
+  stripePaymentId String?
+  invoiceNumber   String?
+  invoiceUrl      String?
+  proofUrl        String?
+  paymentMethod   String?       @default("STRIPE")
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id])
+
+  @@map("payments")
+}
+
+model Issue {
+  id          String    @id @default(cuid())
+  volume      Int
+  number      Int
+  title       String?
+  description String?
+  coverImage  String?
+  publishedAt DateTime?
+  isCurrent   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles    Article[]
+
+  @@unique([volume, number])
+  @@map("issues")
+}
+
+model Article {
+  id           String   @id @default(cuid())
+  title        String
+  abstract     String
+  keywords     String[]
+  authors      Json
+  doi          String   @unique
+  pages        String
+  pdfPath      String
+  publishedAt  DateTime @default(now())
+  views        Int      @default(0)
+  downloads    Int      @default(0)
+
+  issueId      String
+  issue        Issue    @relation(fields: [issueId], references: [id])
+
+  @@map("articles")
+}
+
+model ReviewerInvitation {
+  id            String             @id @default(cuid())
+  status        InvitationStatus   @default(PENDING)
+  invitedAt     DateTime           @default(now())
+  respondedAt   DateTime?
+  responseNotes String?
+
+  reviewId      String             @unique
+  review        Review             @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("reviewer_invitations")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  submissionId String?
+  submission   Submission? @relation(fields: [submissionId], references: [id])
+
+  @@map("notifications")
+}
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  subject     String
+  htmlContent String
+  textContent String?
+  variables   String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("email_templates")
+}
+
+model SystemSettings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("string")
+
+  @@map("system_settings")
+}
+
+model SubmissionTimeline {
+  id           String   @id @default(cuid())
+  event        String
+  fromStatus   String?
+  toStatus     String?
+  description  String
+  performedBy  String?
+  createdAt    DateTime @default(now())
+
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("submission_timeline")
+}
+
+model Conference {
+  id              String   @id @default(cuid())
+  name            String
+  proceedingsNo   String?
+  category        String?
+  description     String?
+  year            Int
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  submissions     Submission[]
+
+  @@map("conferences")
+}
+
+model PublicationSettings {
+  id              String   @id @default(cuid())
+  
+  // Article Page Content
+  showTitle       Boolean  @default(true)
+  showAuthors     Boolean  @default(true)
+  showAbstract    Boolean  @default(true)
+  showKeywords    Boolean  @default(true)
+  showPublicationDate Boolean @default(true)
+  showDOI         Boolean  @default(true)
+  showConflicts   Boolean  @default(false)
+  showFunding     Boolean  @default(false)
+  showHistory     Boolean  @default(false)
+  showReferences  Boolean  @default(false)
+  showOrcid       Boolean  @default(false)
+  
+  // PDF Options
+  enablePdfDownload Boolean @default(true)
+  pdfWatermark    String?
+  showInlinePdf   Boolean  @default(false)
+  
+  // TOC Display
+  showInTOC       Boolean  @default(true)
+  showSequenceNo  Boolean  @default(true)
+  showPageNumbers Boolean  @default(true)
+  
+  // Search & Indexing
+  addToSearchIndex Boolean @default(true)
+  includeInSitemap Boolean @default(true)
+  includeInOAIPMH Boolean @default(true)
+  includeInRSS    Boolean  @default(true)
+  enableGoogleScholar Boolean @default(true)
+  embargoUntil    DateTime?
+  
+  // SEO & Metadata
+  metaDescription String?
+  canonicalUrl    String?
+  ogImage         String?
+  
+  // Additional Visibility
+  showViews       Boolean  @default(true)
+  showDownloads   Boolean  @default(true)
+  isPrivate       Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  submissionId    String   @unique
+  submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("publication_settings")
+}

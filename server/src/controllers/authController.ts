@@ -1,0 +1,363 @@
+import { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { hashPassword, comparePassword, generateToken } from '../utils/auth';
+import { CreateUserData, LoginData, AuthenticatedRequest } from '../types';
+import { z } from 'zod';
+
+import { EmailService } from '../services/emailService';
+import crypto from 'crypto';
+
+const prisma = new PrismaClient();
+
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  title: z.string().optional(),
+  affiliation: z.string().optional(),
+  country: z.string().optional(),
+  orcid: z.string().optional()
+});
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1)
+});
+
+export const register = async (req: Request, res: Response) => {
+  try {
+    const validatedData = registerSchema.parse(req.body);
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: validatedData.email }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'User with this email already exists'
+      });
+    }
+
+    const hashedPassword = await hashPassword(validatedData.password);
+
+    const user = await prisma.user.create({
+      data: {
+        ...validatedData,
+        password: hashedPassword
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        createdAt: true
+      }
+    });
+
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        user,
+        token
+      },
+      message: 'User registered successfully'
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: error.errors
+      });
+    }
+
+    console.error('Registration error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const validatedData = loginSchema.parse(req.body);
+
+    const user = await prisma.user.findUnique({
+      where: { email: validatedData.email }
+    });
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
+      });
+    }
+
+    const isPasswordValid = await comparePassword(validatedData.password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
+
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isActive: user.isActive
+        },
+        token
+      },
+      message: 'Login successful'
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: error.errors
+      });
+    }
+
+    console.error('Login error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const getProfile = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        title: true,
+        affiliation: true,
+        country: true,
+        orcid: true,
+        bio: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        lastLoginAt: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const updateProfile = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const updateSchema = z.object({
+      firstName: z.string().min(1).optional(),
+      lastName: z.string().min(1).optional(),
+      title: z.string().optional(),
+      affiliation: z.string().optional(),
+      country: z.string().optional(),
+      orcid: z.string().optional(),
+      bio: z.string().optional()
+    });
+
+    const validatedData = updateSchema.parse(req.body);
+
+    const user = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: validatedData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        title: true,
+        affiliation: true,
+        country: true,
+        orcid: true,
+        bio: true,
+        role: true,
+        isActive: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      data: user,
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: error.errors
+      });
+    }
+
+    console.error('Update profile error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required'
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetTokenExpiry
+      }
+    });
+
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    await EmailService.sendPasswordResetEmail(user.email, resetUrl, `${user.firstName} ${user.lastName}`);
+
+    return res.json({
+      success: true,
+      message: 'Password reset email sent'
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token and password are required'
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 8 characters long'
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpires: {
+          gt: new Date()
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired reset token'
+      });
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null
+      }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
