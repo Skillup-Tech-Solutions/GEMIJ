@@ -7,8 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY . .
@@ -31,10 +31,12 @@ RUN apk add --no-cache dumb-init
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001
 
+# Copy package files and install production dependencies only
+COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 
 # Create uploads directory
