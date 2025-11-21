@@ -88,28 +88,41 @@ const SubmitPaper: React.FC = () => {
   const loadSubmission = async (id: string) => {
     try {
       const submission = await submissionService.getSubmission(id);
+
+      // Combine author and co-authors
+      const allAuthors = [
+        {
+          firstName: submission.author.firstName,
+          lastName: submission.author.lastName,
+          email: submission.author.email,
+          affiliation: submission.author.affiliation || '',
+          isCorresponding: true // Assuming main author is corresponding by default or we need to check logic
+        },
+        ...(submission.coAuthors || []).map(a => ({
+          firstName: a.firstName,
+          lastName: a.lastName,
+          email: a.email,
+          affiliation: a.affiliation || '',
+          isCorresponding: a.isCorresponding
+        }))
+      ];
+
       setFormData({
         title: submission.title,
         abstract: submission.abstract,
         keywords: submission.keywords.join(', '),
-        authors: submission.authors.map(a => ({
-          firstName: a.firstName,
-          lastName: a.lastName,
-          email: a.email,
-          affiliation: a.affiliation,
-          isCorresponding: a.isCorresponding
-        })),
+        authors: allAuthors,
         manuscriptType: submission.manuscriptType,
-        researchArea: '', // Assuming this field might be missing or needs mapping
-        conflictOfInterest: submission.conflictOfInterest || '', // Assuming these fields exist in submission object
-        ethicsStatement: '', // Assuming these fields exist in submission object
-        fundingInfo: '', // Assuming these fields exist in submission object
+        researchArea: '', // Not in Submission type
+        conflictOfInterest: '', // Not in Submission type
+        ethicsStatement: '', // Not in Submission type
+        fundingInfo: '', // Not in Submission type
         isDoubleBlind: submission.isDoubleBlind,
         suggestedReviewers: submission.suggestedReviewers?.join(', ') || '',
         excludedReviewers: submission.excludedReviewers?.join(', ') || '',
         comments: submission.comments || '',
         declarations: {
-          originalWork: true, // Assuming if it's a draft, these might need to be re-checked or stored
+          originalWork: true,
           noConflictOfInterest: true,
           ethicsApproval: false,
           dataAvailability: false,
