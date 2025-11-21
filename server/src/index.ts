@@ -1,8 +1,8 @@
+import 'dotenv/config'; // Load env vars before any other imports
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import path from 'path';
 
 import authRoutes from './routes/auth';
@@ -17,10 +17,11 @@ import publicationRoutes from './routes/publication';
 import issueConferenceRoutes from './routes/issueConference';
 import feedRoutes from './routes/feed';
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Trust proxy headers (required for rate limiting behind reverse proxies)
+app.set('trust proxy', true);
 
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'),
@@ -44,12 +45,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 
-// Serve uploaded files with proper CORS headers
-app.use('/uploads', (req, res, next) => {
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  next();
-}, express.static(path.join(__dirname, '../uploads')));
+// Static file serving for uploads is removed as we now use Backblaze B2
+// app.use('/uploads', ...);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/submissions', submissionRoutes);

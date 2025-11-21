@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthenticatedRequest } from '../types';
-import fs from 'fs/promises';
 import path from 'path';
+import { backblazeService } from '../services/backblazeService';
 
 const prisma = new PrismaClient();
 
@@ -45,15 +45,25 @@ export const uploadFiles = async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
+    // Upload files to Backblaze B2 and create database records
     const fileRecords = await Promise.all(
       files.map(async (file, index) => {
+        // Upload to B2
+        const b2Result = await backblazeService.uploadFile(
+          file.buffer,
+          file.originalname,
+          file.mimetype
+        );
+
+        // Create database record with B2 file info
         return prisma.submissionFile.create({
           data: {
-            filename: file.filename,
+            filename: b2Result.fileName,
             originalName: file.originalname,
             fileType: path.extname(file.originalname).toLowerCase(),
             fileSize: file.size,
-            filePath: file.path,
+            filePath: b2Result.url, // Store B2 URL
+            b2FileId: b2Result.fileId,
             submissionId,
             isMainFile: index === 0
           }
@@ -107,10 +117,18 @@ export const deleteFile = async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
+    // Delete from Backblaze B2
     try {
-      await fs.unlink(file.filePath);
-    } catch (fsError) {
-      console.warn('Could not delete physical file:', fsError);
+      if (file.b2FileId) {
+        await backblazeService.deleteFile(file.filename, file.b2FileId);
+      } else {
+        console.warn('No B2 File ID found for file:', file.filename);
+        // Fallback: try to delete by filename if possible or just log warning
+        // Since we can't delete without ID easily, we might skip B2 deletion for legacy files
+      }
+    } catch (b2Error) {
+      console.warn('Could not delete file from B2:', b2Error);
+      // Continue with database deletion even if B2 deletion fails
     }
 
     await prisma.submissionFile.delete({
@@ -174,15 +192,15 @@ export const downloadFile = async (req: AuthenticatedRequest, res: Response) => 
       });
     }
 
-    try {
-      await fs.access(file.filePath);
-      return res.download(file.filePath, file.originalName);
-    } catch (fsError) {
-      return res.status(404).json({
-        success: false,
-        error: 'File not found on disk'
-      });
-    }
+    // Return the B2 file URL for download
+    // The filePath already contains the B2 URL
+    return res.json({
+      success: true,
+      data: {
+        url: file.filePath,
+        filename: file.originalName
+      }
+    });
   } catch (error) {
     console.error('Download file error:', error);
     return res.status(500).json({

@@ -5,6 +5,7 @@ import Stripe from 'stripe';
 import { TimelineService } from '../services/timelineService';
 import { createNotification } from './notificationController';
 import { EmailService } from '../services/emailService';
+import { backblazeService } from '../services/backblazeService';
 
 const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -470,6 +471,13 @@ export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
+    // Upload proof to Backblaze B2
+    const b2Result = await backblazeService.uploadFile(
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype
+    );
+
     // Check if there is already a pending or paid payment
     let payment = submission.payments.find(p => p.status === 'PENDING');
 
@@ -484,7 +492,8 @@ export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
       payment = await prisma.payment.update({
         where: { id: payment.id },
         data: {
-          proofUrl: req.file.path,
+          proofUrl: b2Result.url,
+          proofB2FileId: b2Result.fileId,
           paymentMethod: paymentMethod,
           // Status remains PENDING until admin verification
         }
@@ -498,7 +507,8 @@ export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
           invoiceNumber,
           userId: req.user!.id,
           submissionId,
-          proofUrl: req.file.path,
+          proofUrl: b2Result.url,
+          proofB2FileId: b2Result.fileId,
           paymentMethod: paymentMethod
         }
       });

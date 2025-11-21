@@ -163,6 +163,7 @@ model SubmissionFile {
   fileType     String
   fileSize     Int
   filePath     String
+  b2FileId     String?  // Backblaze B2 File ID
   description  String?
   isMainFile   Boolean  @default(false)
   uploadedAt   DateTime @default(now())
@@ -228,6 +229,7 @@ model RevisionFile {
   fileType     String
   fileSize     Int
   filePath     String
+  b2FileId     String?  // Backblaze B2 File ID
   uploadedAt   DateTime @default(now())
 
   revisionId   String
@@ -245,6 +247,7 @@ model Payment {
   invoiceNumber   String?
   invoiceUrl      String?
   proofUrl        String?
+  proofB2FileId   String?       // Backblaze B2 File ID for proof
   paymentMethod   String?       @default("STRIPE")
   paidAt          DateTime?
   createdAt       DateTime      @default(now())

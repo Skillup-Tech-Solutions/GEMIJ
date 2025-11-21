@@ -5,6 +5,7 @@ import { AuthenticatedRequest } from '../types';
 import { TimelineService } from '../services/timelineService';
 import { createNotification } from './notificationController';
 import { EmailService } from '../services/emailService';
+import { backblazeService } from '../services/backblazeService';
 
 const prisma = new PrismaClient();
 
@@ -888,21 +889,48 @@ export const uploadPaymentQrCode = async (req: AuthenticatedRequest, res: Respon
       });
     }
 
-    const filePath = req.file.path; // Assuming relative path is returned by upload middleware
+    // Get old file info to delete
+    const oldFileId = await prisma.systemSettings.findUnique({ where: { key: 'payment_qr_code_file_id' } });
+    const oldFileName = await prisma.systemSettings.findUnique({ where: { key: 'payment_qr_code_filename' } });
 
-    await prisma.systemSettings.upsert({
-      where: { key: 'payment_qr_code_url' },
-      update: { value: filePath, type: 'string' },
-      create: {
-        key: 'payment_qr_code_url',
-        value: filePath,
-        type: 'string'
+    // Upload QR code to Backblaze B2
+    const b2Result = await backblazeService.uploadFile(
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype
+    );
+
+    // Delete old file if exists
+    if (oldFileId && oldFileName) {
+      try {
+        await backblazeService.deleteFile(oldFileName.value, oldFileId.value);
+      } catch (e) {
+        console.warn('Failed to delete old QR code from B2:', e);
       }
-    });
+    }
+
+    // Update settings
+    await prisma.$transaction([
+      prisma.systemSettings.upsert({
+        where: { key: 'payment_qr_code_url' },
+        update: { value: b2Result.url, type: 'string' },
+        create: { key: 'payment_qr_code_url', value: b2Result.url, type: 'string' }
+      }),
+      prisma.systemSettings.upsert({
+        where: { key: 'payment_qr_code_file_id' },
+        update: { value: b2Result.fileId, type: 'string' },
+        create: { key: 'payment_qr_code_file_id', value: b2Result.fileId, type: 'string' }
+      }),
+      prisma.systemSettings.upsert({
+        where: { key: 'payment_qr_code_filename' },
+        update: { value: b2Result.fileName, type: 'string' },
+        create: { key: 'payment_qr_code_filename', value: b2Result.fileName, type: 'string' }
+      })
+    ]);
 
     return res.json({
       success: true,
-      data: { url: filePath },
+      data: { url: b2Result.url },
       message: 'QR code uploaded successfully'
     });
   } catch (error) {

@@ -4,8 +4,8 @@ import { AuthenticatedRequest, SubmissionData, PaginationParams } from '../types
 import { z } from 'zod';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs/promises';
 import { EmailService } from '../services/emailService';
+import { backblazeService } from '../services/backblazeService';
 
 const prisma = new PrismaClient();
 
@@ -645,55 +645,26 @@ export const uploadRevisionFile = async (req: AuthenticatedRequest, res: Respons
       });
     }
 
+    // Upload file to Backblaze B2
+    const b2Result = await backblazeService.uploadFile(
+      file.buffer,
+      file.originalname,
+      file.mimetype
+    );
+
     const revisionFile = await prisma.revisionFile.create({
       data: {
         revisionId,
-        filename: file.filename,
+        filename: b2Result.fileName,
         originalName: file.originalname,
         fileType: path.extname(file.originalname).toLowerCase(),
         fileSize: file.size,
-        filePath: file.path
+        filePath: b2Result.url,
+        b2FileId: b2Result.fileId
       }
     });
 
-    // If this is the revised manuscript, update submission status to REVISED (or keep as REVISION_REQUIRED until user explicitly submits? 
-    // The frontend flow seems to imply "Submit Revision" creates the revision object. 
-    // Let's assume the creation of the revision object is the "start" and we might need a "finalize" step or just assume uploading files completes it?
-    // Actually, looking at the frontend `SubmitRevision.tsx`, it calls `createRevision` then `uploadRevisionFile`. 
-    // It doesn't seem to have a final "submit" call after uploads. 
-    // So we should probably update the status to 'REVISED' or 'UNDER_REVIEW' (if auto-assigning back to editor) 
-    // maybe after the main manuscript is uploaded? 
-    // Or maybe `createRevision` should set it? 
-    // But `createRevision` is called first.
-    // Let's check `SubmitRevision.tsx` again. It navigates away after uploads.
-    // So we should probably update the status to 'REVISED' (or 'SUBMITTED' for re-review) when the revision is created or files uploaded.
-    // Let's update status to 'REVISED' in `createRevision` or `uploadRevisionFile`.
-    // Since `createRevision` is called first, let's update it there, but maybe better to wait until files?
-    // The frontend calls `createRevision` then uploads. 
-    // Let's update the status to 'REVISED' in `createRevision` for now, or maybe we need a separate `submitRevision` endpoint?
-    // The frontend doesn't call a final submit.
-    // Let's update status in `createRevision` to 'REVISED' so it moves out of 'REVISION_REQUIRED'.
 
-    // Wait, if I update to REVISED in createRevision, then subsequent file uploads might fail if I check for REVISION_REQUIRED?
-    // In `uploadRevisionFile`, I didn't check for status.
-    // Let's update status in `createRevision` to 'REVISED'.
-
-    // Re-reading `createRevision` logic above: I didn't update status there.
-    // I should update `createRevision` to set status to 'REVISED'.
-    // But wait, if I set it to REVISED, can they still upload files?
-    // Yes, as long as `uploadRevisionFile` doesn't block it.
-
-    // Actually, `SubmitRevision.tsx` says:
-    // // Create revision
-    // const revision = await submissionService.createRevision(...)
-    // // Upload revised manuscript
-    // await submissionService.uploadRevisionFile(...)
-
-    // So I should probably update the status to 'REVISED' in `createRevision`.
-
-    // Let's add that to `createRevision` above.
-
-    // Also implementing `approveProof`.
 
     return res.status(201).json({
       success: true,
