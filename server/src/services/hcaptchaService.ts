@@ -10,7 +10,15 @@ interface HCaptchaVerifyResponse {
 export class HCaptchaService {
     private static verifyUrl = 'https://hcaptcha.com/siteverify';
 
-    static async verifyToken(token: string): Promise<boolean> {
+    static async verifyToken(token: string, ip?: string): Promise<boolean> {
+        // Allow bypass for testing only from localhost
+        if (token === 'mock-captcha-token') {
+            const isLocalhost = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+            if (isLocalhost) {
+                return true;
+            }
+        }
+
         const secretKey = process.env.HCAPTCHA_SECRET_KEY;
 
         if (!secretKey) {

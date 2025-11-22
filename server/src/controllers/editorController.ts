@@ -21,7 +21,7 @@ async function getApcSettings() {
   const apcCurrency = settings.find(s => s.key === 'apc_currency');
 
   return {
-    amount: parseFloat(apcAmount?.value || '299.00'),
+    amount: parseFloat(apcAmount?.value || '0'),
     currency: apcCurrency?.value || 'INR'
   };
 }

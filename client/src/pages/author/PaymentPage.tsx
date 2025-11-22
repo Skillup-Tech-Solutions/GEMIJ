@@ -133,7 +133,7 @@ const PaymentPage: React.FC = () => {
     }).format(amount);
   };
 
-  const apcFee = settings?.apcFee || 299;
+  const apcFee = settings?.apcFee || 0;
 
   return (
     <div className="min-h-screen bg-secondary-50">

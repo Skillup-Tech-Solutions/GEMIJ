@@ -860,10 +860,12 @@ export const updateSystemSettings = async (req: AuthenticatedRequest, res: Respo
   try {
     const settings = req.body;
 
-    // Reverse key mapping for saving (frontend → database)
-    const reverseKeyMap: Record<string, string> = {
+    // Key mapping for saving (frontend → database and vice-versa)
+    const keyMapping: Record<string, string> = {
       'apcFee': 'apc_amount',
-      'currency': 'apc_currency'
+      'apc_amount': 'apcFee',
+      'currency': 'apc_currency',
+      'apc_currency': 'currency'
     };
 
     // Process each setting
@@ -887,14 +889,14 @@ export const updateSystemSettings = async (req: AuthenticatedRequest, res: Respo
         })
       ];
 
-      // Also save with legacy key if mapping exists
-      const legacyKey = reverseKeyMap[key];
-      if (legacyKey) {
+      // Also save with mapped key if exists
+      const mappedKey = keyMapping[key];
+      if (mappedKey) {
         savePromises.push(
           prisma.systemSettings.upsert({
-            where: { key: legacyKey },
+            where: { key: mappedKey },
             update: { value: stringValue, type: type === 'number' ? 'decimal' : type },
-            create: { key: legacyKey, value: stringValue, type: type === 'number' ? 'decimal' : type }
+            create: { key: mappedKey, value: stringValue, type: type === 'number' ? 'decimal' : type }
           })
         );
       }

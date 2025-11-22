@@ -33,7 +33,7 @@ export const register = async (req: Request, res: Response) => {
     const validatedData = registerSchema.parse(req.body);
 
     // Verify hCaptcha
-    const isCaptchaValid = await HCaptchaService.verifyToken(validatedData.captchaToken);
+    const isCaptchaValid = await HCaptchaService.verifyToken(validatedData.captchaToken, req.ip);
     if (!isCaptchaValid) {
       return res.status(400).json({
         success: false,
@@ -111,7 +111,7 @@ export const login = async (req: Request, res: Response) => {
     const validatedData = loginSchema.parse(req.body);
 
     // Verify hCaptcha
-    const isCaptchaValid = await HCaptchaService.verifyToken(validatedData.captchaToken);
+    const isCaptchaValid = await HCaptchaService.verifyToken(validatedData.captchaToken, req.ip);
     if (!isCaptchaValid) {
       return res.status(400).json({
         success: false,
