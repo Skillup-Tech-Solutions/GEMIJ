@@ -219,7 +219,7 @@ const PaymentPage: React.FC = () => {
         )}
 
         {/* Payment Methods Section */}
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Bank Transfer - Only show if enabled */}
           {settings?.enableBankTransfer !== false && (
             <div className="card">
@@ -233,23 +233,23 @@ const PaymentPage: React.FC = () => {
                 </p>
 
                 <div className="space-y-3 bg-secondary-50 p-4 rounded-lg border border-secondary-200">
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                     <span className="text-sm font-medium text-secondary-600">Bank Name:</span>
                     <span className="text-sm font-bold text-foreground">{settings?.bankName || 'Not configured'}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                     <span className="text-sm font-medium text-secondary-600">Account Name:</span>
                     <span className="text-sm font-bold text-foreground">{settings?.bankAccountName || 'Not configured'}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                     <span className="text-sm font-medium text-secondary-600">Account Number:</span>
                     <span className="text-sm font-bold text-foreground">{settings?.bankAccountNumber || 'Not configured'}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                     <span className="text-sm font-medium text-secondary-600">IFSC Code:</span>
                     <span className="text-sm font-bold text-foreground">{settings?.bankIfsc || 'Not configured'}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                     <span className="text-sm font-medium text-secondary-600">Reference:</span>
                     <span className="text-sm font-bold text-primary-600">{submission?.id.slice(0, 8)}</span>
                   </div>
@@ -272,7 +272,7 @@ const PaymentPage: React.FC = () => {
                 {settings?.payment_qr_code_url && (
                   <div className="flex justify-center">
                     <div
-                      className="w-48 h-48 bg-white p-3 border-2 border-secondary-200 rounded-lg cursor-pointer hover:border-primary-500 transition-colors"
+                      className="w-48 h-48 bg-white p-3 border-2 border-secondary-200 rounded-lg cursor-pointer hover:border-primary-500 transition-colors touch-target"
                       onClick={() => setShowQrModal(true)}
                       title="Click to view full size"
                     >
@@ -300,7 +300,7 @@ const PaymentPage: React.FC = () => {
           )}
 
           {/* Upload Proof Section */}
-          <div className="card">
+          <div className="card md:col-span-2">
             <div className="card-header border-b border-border p-4">
               <h3 className="text-lg font-semibold text-foreground">Upload Payment Proof</h3>
             </div>

@@ -352,8 +352,8 @@ const PaymentManagement: React.FC = () => {
                 <p className="text-secondary-600">No payments found.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="table-responsive">
+                <table className="w-full mobile-card-table">
                   <thead className="bg-secondary-50">
                     <tr>
                       <th className="px-6 py-3 text-left">
@@ -361,7 +361,7 @@ const PaymentManagement: React.FC = () => {
                           type="checkbox"
                           checked={selectedPayments.length === payments.length}
                           onChange={toggleSelectAll}
-                          className="rounded border-secondary-300"
+                          className="rounded border-secondary-300 touch-target-sm"
                         />
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
@@ -387,15 +387,15 @@ const PaymentManagement: React.FC = () => {
                   <tbody className="bg-white divide-y divide-secondary-200">
                     {payments.map((payment) => (
                       <tr key={payment.id} className="hover:bg-secondary-50">
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Select">
                           <input
                             type="checkbox"
                             checked={selectedPayments.includes(payment.id)}
                             onChange={() => togglePaymentSelection(payment.id)}
-                            className="rounded border-secondary-300"
+                            className="rounded border-secondary-300 touch-target-sm"
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Invoice">
                           <div className="text-sm font-medium text-secondary-900">
                             {payment.invoiceNumber}
                           </div>
@@ -403,7 +403,7 @@ const PaymentManagement: React.FC = () => {
                             Submission: {payment.submissionId.slice(0, 8)}...
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Author">
                           <div className="text-sm font-medium text-secondary-900">
                             {payment.authorName}
                           </div>
@@ -411,7 +411,7 @@ const PaymentManagement: React.FC = () => {
                             ID: {payment.authorId.slice(0, 8)}...
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Amount">
                           <div className="text-sm font-medium text-secondary-900">
                             {formatCurrency(payment.amount, payment.currency)}
                           </div>
@@ -421,7 +421,7 @@ const PaymentManagement: React.FC = () => {
                             </div>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Status">
                           <Badge variant={getStatusBadgeVariant(payment.status)}>
                             {payment.status}
                           </Badge>
@@ -433,7 +433,7 @@ const PaymentManagement: React.FC = () => {
                             </div>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-sm text-secondary-500">
+                        <td className="px-6 py-4 text-sm text-secondary-500" data-label="Payment Date">
                           {payment.paymentDate ? (
                             <div>
                               <div>Paid: {new Date(payment.paymentDate).toLocaleDateString()}</div>
@@ -447,14 +447,14 @@ const PaymentManagement: React.FC = () => {
                             'Pending'
                           )}
                         </td>
-                        <td className="px-6 py-4 text-sm">
-                          <div className="flex flex-wrap gap-1">
+                        <td className="px-6 py-4 text-sm" data-label="Actions">
+                          <div className="flex flex-col sm:flex-row flex-wrap gap-1">
 
 
                             {payment.proofUrl && (
                               <button
                                 onClick={() => handleViewProof(payment.proofUrl!)}
-                                className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200"
+                                className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200 touch-target-sm"
                               >
                                 View Proof
                               </button>
@@ -463,7 +463,7 @@ const PaymentManagement: React.FC = () => {
                             {payment.status === 'PENDING' && (
                               <button
                                 onClick={() => handleMarkAsPaid(payment.id)}
-                                className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
+                                className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 touch-target-sm"
                               >
                                 Mark Paid
                               </button>
@@ -472,24 +472,24 @@ const PaymentManagement: React.FC = () => {
                             {payment.status === 'PAID' && (
                               <button
                                 onClick={() => handleProcessRefund(payment.id)}
-                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 touch-target-sm"
                               >
                                 Refund
                               </button>
                             )}
                             <button
                               onClick={() => navigate(`/admin/payments/${payment.id}`)}
-                              className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200"
+                              className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 touch-target-sm"
                             >
                               View Details
                             </button>
                             <button
                               onClick={() => window.open(`/invoice/${payment.id}`, '_blank')}
-                              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 touch-target-sm"
                               title="View Invoice"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 0 01-2 2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z" />
                               </svg>
                             </button>
                           </div>

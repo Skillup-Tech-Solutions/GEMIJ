@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import HCaptchaComponent from '../../components/HCaptcha';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -96,8 +97,8 @@ const Login: React.FC = () => {
                 autoComplete="email"
                 required
                 className={`form-input ${emailTouched && !emailValidation.isValid
-                    ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                    : ''
+                  ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                  : ''
                   }`}
                 placeholder="you@example.com"
                 value={email}

@@ -1198,3 +1198,108 @@ export const updateUserRole = async (req: AuthenticatedRequest, res: Response) =
     });
   }
 };
+
+// Page Content Management
+export const getPageContent = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const key = `page_${slug}_content`;
+
+    const setting = await prisma.systemSettings.findUnique({
+      where: { key }
+    });
+
+    if (!setting) {
+      return res.status(404).json({
+        success: false,
+        error: 'Page content not found'
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        slug,
+        content: setting.value
+      }
+    });
+  } catch (error) {
+    console.error('Get page content error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const getAllPageContent = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const settings = await prisma.systemSettings.findMany({
+      where: {
+        key: {
+          startsWith: 'page_',
+          endsWith: '_content'
+        }
+      },
+      orderBy: { key: 'asc' }
+    });
+
+    const pages = settings.map(setting => {
+      // Extract slug from key (e.g., 'page_mission_content' -> 'mission')
+      const slug = setting.key.replace('page_', '').replace('_content', '');
+      return {
+        slug,
+        content: setting.value,
+        updatedAt: setting.id // Using id as a proxy for update tracking
+      };
+    });
+
+    return res.json({
+      success: true,
+      data: pages
+    });
+  } catch (error) {
+    console.error('Get all page content error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const updatePageContent = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const { content } = req.body;
+
+    if (!content || typeof content !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'Content is required and must be a string'
+      });
+    }
+
+    const key = `page_${slug}_content`;
+
+    await prisma.systemSettings.upsert({
+      where: { key },
+      update: { value: content, type: 'string' },
+      create: { key, value: content, type: 'string' }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Page content updated successfully',
+      data: {
+        slug,
+        content
+      }
+    });
+  } catch (error) {
+    console.error('Update page content error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};

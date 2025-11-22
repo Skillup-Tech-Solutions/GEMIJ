@@ -10,7 +10,8 @@ import {
   searchArticles,
   getJournalStats,
   getLandingPageConfig,
-  getPublicSettings
+  getPublicSettings,
+  getPageContent
 } from '../controllers/publicController';
 
 const router = Router();
@@ -26,5 +27,6 @@ router.get('/search', searchArticles);
 router.get('/stats', getJournalStats);
 router.get('/landing-page-config', getLandingPageConfig);
 router.get('/settings', getPublicSettings);
+router.get('/page-content/:slug', getPageContent);
 
 export default router;

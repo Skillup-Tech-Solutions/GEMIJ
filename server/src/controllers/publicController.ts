@@ -483,3 +483,35 @@ export const getPublicSettings = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getPageContent = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const key = `page_${slug}_content`;
+
+    const setting = await prisma.systemSettings.findUnique({
+      where: { key }
+    });
+
+    if (!setting) {
+      return res.status(404).json({
+        success: false,
+        error: 'Page content not found'
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        slug,
+        content: setting.value
+      }
+    });
+  } catch (error) {
+    console.error('Get page content error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};

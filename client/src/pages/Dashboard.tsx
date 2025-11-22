@@ -939,6 +939,12 @@ const Dashboard: React.FC = () => {
                       Landing Page Editor
                     </button>
                     <button
+                      onClick={() => navigate('/admin/page-content')}
+                      className="w-full text-left bg-emerald-50 text-emerald-700 px-3 py-2 rounded hover:bg-emerald-100 transition-colors"
+                    >
+                      Page Content Editor
+                    </button>
+                    <button
                       onClick={() => navigate('/admin/monitoring')}
                       className="w-full text-left bg-teal-50 text-teal-700 px-3 py-2 rounded hover:bg-teal-100 transition-colors"
                     >

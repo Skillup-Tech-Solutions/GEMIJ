@@ -313,4 +313,222 @@
       page-break-after: always;
     }
   }
+
+  /* Mobile-Specific Utilities */
+  
+  /* Touch Target Sizing - Minimum 44x44px for accessibility */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .touch-target-sm {
+    @apply min-h-[36px] min-w-[36px];
+  }
+
+  /* Responsive Table Wrapper */
+  .table-responsive {
+    @apply overflow-x-auto -mx-4 sm:mx-0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    @apply bg-secondary-100 rounded;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    @apply bg-secondary-300 rounded;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    @apply bg-secondary-400;
+  }
+
+  /* Mobile Card View for Tables */
+  @media (max-width: 768px) {
+    .mobile-card-table {
+      @apply block;
+    }
+
+    .mobile-card-table thead {
+      @apply hidden;
+    }
+
+    .mobile-card-table tbody {
+      @apply block;
+    }
+
+    .mobile-card-table tr {
+      @apply block mb-4 bg-white rounded-lg shadow-sm border border-secondary-200 p-4;
+    }
+
+    .mobile-card-table td {
+      @apply block text-left py-2 px-0 border-0;
+    }
+
+    .mobile-card-table td::before {
+      content: attr(data-label);
+      @apply block text-xs font-medium text-secondary-500 uppercase mb-1;
+    }
+  }
+
+  /* Mobile Typography Adjustments */
+  @media (max-width: 640px) {
+    .mobile-text-sm {
+      @apply text-sm;
+    }
+
+    .mobile-text-xs {
+      @apply text-xs;
+    }
+
+    /* Improve readability on mobile */
+    body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+  }
+
+  /* Mobile Form Controls */
+  @media (max-width: 640px) {
+    .form-input,
+    .form-textarea,
+    .form-select {
+      @apply text-base; /* Prevent zoom on iOS */
+      min-height: 44px; /* Touch-friendly */
+    }
+
+    select.form-select {
+      background-size: 16px 16px;
+      padding-right: 2.5rem;
+    }
+  }
+
+  /* Mobile Button Sizing */
+  @media (max-width: 640px) {
+    button,
+    .btn {
+      @apply min-h-[44px] px-4 py-2.5;
+    }
+
+    .btn-sm {
+      @apply min-h-[36px] px-3 py-2;
+    }
+  }
+
+  /* Mobile Spacing Utilities */
+  .mobile-px {
+    @apply px-4;
+  }
+
+  .mobile-py {
+    @apply py-4;
+  }
+
+  .mobile-p {
+    @apply p-4;
+  }
+
+  /* Safe Area Support for Notched Devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile Navigation Improvements */
+  @media (max-width: 1024px) {
+    .mobile-nav-item {
+      @apply block w-full text-left px-4 py-3 min-h-[44px];
+    }
+  }
+
+  /* Prevent Text Selection on Double Tap */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth Scrolling for Mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Mobile Modal Adjustments */
+  @media (max-width: 640px) {
+    .mobile-modal {
+      @apply fixed inset-0 m-0 rounded-none max-w-full max-h-full;
+    }
+  }
+
+  /* Horizontal Scroll Container */
+  .scroll-container {
+    @apply overflow-x-auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .scroll-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .scroll-container::-webkit-scrollbar-track {
+    @apply bg-secondary-100;
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb {
+    @apply bg-secondary-300 rounded-full;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile Grid Adjustments */
+  @media (max-width: 640px) {
+    .mobile-grid-1 {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .tablet-grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Sticky Mobile Header */
+  .sticky-mobile {
+    @apply sticky top-0 z-40;
+  }
+
+  /* Mobile-Friendly Shadows */
+  @media (max-width: 640px) {
+    .mobile-shadow-sm {
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+  }
 }

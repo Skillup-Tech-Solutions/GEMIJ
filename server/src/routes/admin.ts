@@ -14,7 +14,9 @@ import {
   updateLandingPageConfig,
   getPaymentById,
   markPaymentAsPaid,
-  updateUserRole
+  updateUserRole,
+  getAllPageContent,
+  updatePageContent
 } from '../controllers/adminController';
 import { authenticate, authorize } from '../middleware/auth';
 import { upload } from '../middleware/upload';
@@ -48,5 +50,9 @@ router.put('/landing-page-config', updateLandingPageConfig);
 
 // Issues
 router.get('/issues', getAdminIssues);
+
+// Page Content Management
+router.get('/page-content', getAllPageContent);
+router.put('/page-content/:slug', updatePageContent);
 
 export default router;

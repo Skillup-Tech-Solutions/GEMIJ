@@ -348,8 +348,8 @@ const UserManagement: React.FC = () => {
                 <p className="text-secondary-600">No users found.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="table-responsive">
+                <table className="w-full mobile-card-table">
                   <thead className="bg-secondary-50">
                     <tr>
                       <th className="px-6 py-3 text-left">
@@ -357,7 +357,7 @@ const UserManagement: React.FC = () => {
                           type="checkbox"
                           checked={selectedUsers.length === users.length}
                           onChange={toggleSelectAll}
-                          className="rounded border-secondary-300"
+                          className="rounded border-secondary-300 touch-target-sm"
                         />
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
@@ -383,15 +383,15 @@ const UserManagement: React.FC = () => {
                   <tbody className="bg-white divide-y divide-secondary-200">
                     {users.map((user) => (
                       <tr key={user.id} className="hover:bg-secondary-50">
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Select">
                           <input
                             type="checkbox"
                             checked={selectedUsers.includes(user.id)}
                             onChange={() => toggleUserSelection(user.id)}
-                            className="rounded border-secondary-300"
+                            className="rounded border-secondary-300 touch-target-sm"
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="User">
                           <div>
                             <div className="text-sm font-medium text-secondary-900">
                               {user.name}
@@ -401,17 +401,17 @@ const UserManagement: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Role">
                           <Badge variant={getRoleBadgeVariant(user.role)}>
                             {user.role}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" data-label="Status">
                           <Badge variant={getStatusBadgeVariant(user.status)}>
                             {user.status}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 text-sm text-secondary-500">
+                        <td className="px-6 py-4 text-sm text-secondary-500" data-label="Activity">
                           <div>
                             {user.submissionsCount !== undefined && (
                               <div>Submissions: {user.submissionsCount}</div>
@@ -424,15 +424,15 @@ const UserManagement: React.FC = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-secondary-500">
+                        <td className="px-6 py-4 text-sm text-secondary-500" data-label="Registered">
                           {new Date(user.registrationDate).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 text-sm">
-                          <div className="flex space-x-2">
+                        <td className="px-6 py-4 text-sm" data-label="Actions">
+                          <div className="flex flex-col sm:flex-row gap-2">
                             <select
                               value={user.role}
                               onChange={(e) => handleUpdateUser(user.id, { role: e.target.value })}
-                              className="px-2 py-1 border border-secondary-300 rounded text-xs"
+                              className="px-2 py-1 border border-secondary-300 rounded text-xs touch-target-sm"
                             >
                               <option value="AUTHOR">Author</option>
                               <option value="REVIEWER">Reviewer</option>
@@ -442,7 +442,7 @@ const UserManagement: React.FC = () => {
                             <select
                               value={user.status}
                               onChange={(e) => handleUpdateUser(user.id, { status: e.target.value })}
-                              className="px-2 py-1 border border-secondary-300 rounded text-xs"
+                              className="px-2 py-1 border border-secondary-300 rounded text-xs touch-target-sm"
                             >
                               <option value="ACTIVE">Active</option>
                               <option value="INACTIVE">Inactive</option>
@@ -450,7 +450,7 @@ const UserManagement: React.FC = () => {
                             </select>
                             <button
                               onClick={() => handleDeleteUser(user.id)}
-                              className="text-red-600 hover:text-red-800 text-xs"
+                              className="text-red-600 hover:text-red-800 text-xs touch-target-sm"
                             >
                               Delete
                             </button>
@@ -488,8 +488,8 @@ const UserManagement: React.FC = () => {
                     key={page}
                     onClick={() => handleFilterChange('page', page)}
                     className={`px-3 py-1 border rounded text-sm ${page === pagination.currentPage
-                        ? 'bg-primary-600 text-white border-primary-600'
-                        : 'border-secondary-300 hover:bg-secondary-50'
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'border-secondary-300 hover:bg-secondary-50'
                       }`}
                   >
                     {page}

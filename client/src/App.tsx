@@ -37,10 +37,18 @@ import ReportGeneration from '@/pages/admin/ReportGeneration';
 import SubmissionAnalytics from '@/pages/admin/SubmissionAnalytics';
 import AdminSubmissionDetails from '@/pages/admin/AdminSubmissionDetails';
 import LandingPageEditor from '@/pages/admin/LandingPageEditor';
+import PageContentEditor from '@/pages/admin/PageContentEditor';
 import CurrentIssue from '@/pages/CurrentIssue';
 import Archive from '@/pages/Archive';
 import ArticleView from '@/pages/ArticleView';
 import About from '@/pages/About';
+import Mission from '@/pages/Mission';
+import Vision from '@/pages/Vision';
+import AimScope from '@/pages/AimScope';
+import ProcessingCharge from '@/pages/ProcessingCharge';
+import Indexing from '@/pages/Indexing';
+import CallForPaper from '@/pages/CallForPaper';
+import Contact from '@/pages/Contact';
 import AuthorGuidelines from '@/pages/AuthorGuidelines';
 import PeerReview from '@/pages/PeerReview';
 import EditorialBoard from '@/pages/EditorialBoard';
@@ -91,6 +99,13 @@ function App() {
                 <Route path="/article-view/:id" element={<ArticleView />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/about/mission" element={<Mission />} />
+                <Route path="/about/vision" element={<Vision />} />
+                <Route path="/aim-scope" element={<AimScope />} />
+                <Route path="/processing-charge" element={<ProcessingCharge />} />
+                <Route path="/indexing" element={<Indexing />} />
+                <Route path="/call-for-paper" element={<CallForPaper />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/author-guidelines" element={<AuthorGuidelines />} />
                 <Route path="/peer-review" element={<PeerReview />} />
                 <Route path="/editorial-board" element={<EditorialBoard />} />
@@ -437,6 +452,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ConferenceManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/page-content"
+                  element={
+                    <ProtectedRoute>
+                      <PageContentEditor />
                     </ProtectedRoute>
                   }
                 />
