@@ -34,7 +34,18 @@ const limiter = rateLimit({
   skip: () => process.env.NODE_ENV !== 'production'
 });
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.googletagmanager.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "https://www.google-analytics.com"],
+      connectSrc: ["'self'", "https:", "https://www.google-analytics.com", "https://region1.google-analytics.com"],
+    },
+  },
+}));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.CLIENT_URL

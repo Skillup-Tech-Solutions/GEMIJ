@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/hooks/useAuth';
+import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Home from '@/pages/Home';
@@ -75,421 +76,431 @@ const queryClient = new QueryClient({
   },
 });
 
+// Separate component to use hooks that depend on Router context
+const AppContent: React.FC = () => {
+  // Initialize Google Analytics and track page views
+  useGoogleAnalytics();
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+      <main id="main-content" role="main" className="flex-grow">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/invoice/:paymentId" element={<Invoice />} />
+          <Route path="/certificate/:reviewId" element={<ReviewerCertificate />} />
+          <Route path="/current-issue" element={<CurrentIssue />} />
+          <Route path="/archive" element={<Archive />} />
+          <Route path="/article/:id" element={<ArticlePage />} />
+          <Route path="/issue/:id" element={<IssuePage />} />
+          <Route path="/browse" element={<BrowseIssues />} />
+          <Route path="/article-view/:id" element={<ArticleView />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/about/mission" element={<Mission />} />
+          <Route path="/about/vision" element={<Vision />} />
+          <Route path="/aim-scope" element={<AimScope />} />
+          <Route path="/processing-charge" element={<ProcessingCharge />} />
+          <Route path="/indexing" element={<Indexing />} />
+          <Route path="/call-for-paper" element={<CallForPaper />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/author-guidelines" element={<AuthorGuidelines />} />
+          <Route path="/peer-review" element={<PeerReview />} />
+          <Route path="/editorial-board" element={<EditorialBoard />} />
+          <Route path="/style-guide" element={<StyleGuide />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submit-paper"
+            element={
+              <ProtectedRoute>
+                <SubmitPaper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submit-paper/:id"
+            element={
+              <ProtectedRoute>
+                <SubmitPaper />
+              </ProtectedRoute>
+            }
+          />
+          {/* Author Routes */}
+          <Route
+            path="/submission/:id"
+            element={
+              <ProtectedRoute>
+                <SubmissionDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/author/submissions/:id"
+            element={
+              <ProtectedRoute>
+                <SubmissionDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submission/:id/revise"
+            element={
+              <ProtectedRoute>
+                <SubmitRevision />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/author/submissions/:id/revise"
+            element={
+              <ProtectedRoute>
+                <SubmitRevision />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submission/:id/payment"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/author/submissions/:id/payment"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submission/:id/proof"
+            element={
+              <ProtectedRoute>
+                <ProofReview />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Editor Routes */}
+          <Route
+            path="/editor/submission/:id/screen"
+            element={
+              <ProtectedRoute>
+                <SubmissionScreening />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submission/:id/assign-reviewers"
+            element={
+              <ProtectedRoute>
+                <ReviewerAssignment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submission/:id/reviews"
+            element={
+              <ProtectedRoute>
+                <ReviewTracking />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submission/:id/decision"
+            element={
+              <ProtectedRoute>
+                <EditorialDecision />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submission/:id/revision"
+            element={
+              <ProtectedRoute>
+                <RevisionHandling />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/production"
+            element={
+              <ProtectedRoute>
+                <ProductionWorkflow />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/decisions"
+            element={
+              <ProtectedRoute>
+                <ReviewTracking />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submissions"
+            element={
+              <ProtectedRoute>
+                <ReviewTracking />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submission/:id/notifications"
+            element={
+              <ProtectedRoute>
+                <EditorNotifications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submissions/new"
+            element={
+              <ProtectedRoute>
+                <SubmissionScreening />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/reviewers"
+            element={
+              <ProtectedRoute>
+                <ReviewerAssignment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/review/:id"
+            element={
+              <ProtectedRoute>
+                <EditorReviewDetail />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Reviewer Routes */}
+          <Route
+            path="/reviewer/invitations"
+            element={
+              <ProtectedRoute>
+                <PendingInvitations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/review/:reviewId"
+            element={
+              <ProtectedRoute>
+                <ReviewForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/review/:reviewId/confirmation"
+            element={
+              <ProtectedRoute>
+                <ReviewConfirmation />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/review-invitation/:reviewId"
+            element={
+              <ProtectedRoute>
+                <ReviewInvitation />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute>
+                <SystemSettings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/issues"
+            element={
+              <ProtectedRoute>
+                <IssueManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/payments"
+            element={
+              <ProtectedRoute>
+                <PaymentManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/payments/settings"
+            element={
+              <ProtectedRoute>
+                <PaymentSettings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/payments/:id"
+            element={
+              <ProtectedRoute>
+                <PaymentDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/monitoring"
+            element={
+              <ProtectedRoute>
+                <SystemMonitoring />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/complaints"
+            element={
+              <ProtectedRoute>
+                <ComplaintHandling />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <ProtectedRoute>
+                <ReportGeneration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/submissions"
+            element={
+              <ProtectedRoute>
+                <SubmissionAnalytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/submission/:id/details"
+            element={
+              <ProtectedRoute>
+                <AdminSubmissionDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/landing-page"
+            element={
+              <ProtectedRoute>
+                <LandingPageEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/publications"
+            element={
+              <ProtectedRoute>
+                <PublicationDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/issues"
+            element={
+              <ProtectedRoute>
+                <IssueManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/conferences"
+            element={
+              <ProtectedRoute>
+                <ConferenceManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/page-content"
+            element={
+              <ProtectedRoute>
+                <PageContentEditor />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch all route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <Footer />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            style: {
+              background: '#10b981',
+            },
+          },
+          error: {
+            style: {
+              background: '#ef4444',
+            },
+          },
+        }}
+      />
+    </div >
+  );
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen flex flex-col bg-white">
-            <Header />
-            <main id="main-content" role="main" className="flex-grow">
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/invoice/:paymentId" element={<Invoice />} />
-                <Route path="/certificate/:reviewId" element={<ReviewerCertificate />} />
-                <Route path="/current-issue" element={<CurrentIssue />} />
-                <Route path="/archive" element={<Archive />} />
-                <Route path="/article/:id" element={<ArticlePage />} />
-                <Route path="/issue/:id" element={<IssuePage />} />
-                <Route path="/browse" element={<BrowseIssues />} />
-                <Route path="/article-view/:id" element={<ArticleView />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/about/mission" element={<Mission />} />
-                <Route path="/about/vision" element={<Vision />} />
-                <Route path="/aim-scope" element={<AimScope />} />
-                <Route path="/processing-charge" element={<ProcessingCharge />} />
-                <Route path="/indexing" element={<Indexing />} />
-                <Route path="/call-for-paper" element={<CallForPaper />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/author-guidelines" element={<AuthorGuidelines />} />
-                <Route path="/peer-review" element={<PeerReview />} />
-                <Route path="/editorial-board" element={<EditorialBoard />} />
-                <Route path="/style-guide" element={<StyleGuide />} />
-
-                {/* Protected Routes */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/submit-paper"
-                  element={
-                    <ProtectedRoute>
-                      <SubmitPaper />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/submit-paper/:id"
-                  element={
-                    <ProtectedRoute>
-                      <SubmitPaper />
-                    </ProtectedRoute>
-                  }
-                />
-                {/* Author Routes */}
-                <Route
-                  path="/submission/:id"
-                  element={
-                    <ProtectedRoute>
-                      <SubmissionDetails />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/author/submissions/:id"
-                  element={
-                    <ProtectedRoute>
-                      <SubmissionDetails />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/submission/:id/revise"
-                  element={
-                    <ProtectedRoute>
-                      <SubmitRevision />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/author/submissions/:id/revise"
-                  element={
-                    <ProtectedRoute>
-                      <SubmitRevision />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/submission/:id/payment"
-                  element={
-                    <ProtectedRoute>
-                      <PaymentPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/author/submissions/:id/payment"
-                  element={
-                    <ProtectedRoute>
-                      <PaymentPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/submission/:id/proof"
-                  element={
-                    <ProtectedRoute>
-                      <ProofReview />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Editor Routes */}
-                <Route
-                  path="/editor/submission/:id/screen"
-                  element={
-                    <ProtectedRoute>
-                      <SubmissionScreening />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/submission/:id/assign-reviewers"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewerAssignment />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/submission/:id/reviews"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewTracking />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/submission/:id/decision"
-                  element={
-                    <ProtectedRoute>
-                      <EditorialDecision />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/submission/:id/revision"
-                  element={
-                    <ProtectedRoute>
-                      <RevisionHandling />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/production"
-                  element={
-                    <ProtectedRoute>
-                      <ProductionWorkflow />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/decisions"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewTracking />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/submissions"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewTracking />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/submission/:id/notifications"
-                  element={
-                    <ProtectedRoute>
-                      <EditorNotifications />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/submissions/new"
-                  element={
-                    <ProtectedRoute>
-                      <SubmissionScreening />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/reviewers"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewerAssignment />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editor/review/:id"
-                  element={
-                    <ProtectedRoute>
-                      <EditorReviewDetail />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Reviewer Routes */}
-                <Route
-                  path="/reviewer/invitations"
-                  element={
-                    <ProtectedRoute>
-                      <PendingInvitations />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/review/:reviewId"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewForm />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/review/:reviewId/confirmation"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewConfirmation />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/review-invitation/:reviewId"
-                  element={
-                    <ProtectedRoute>
-                      <ReviewInvitation />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Admin Routes */}
-                <Route
-                  path="/admin/users"
-                  element={
-                    <ProtectedRoute>
-                      <UserManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/settings"
-                  element={
-                    <ProtectedRoute>
-                      <SystemSettings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/issues"
-                  element={
-                    <ProtectedRoute>
-                      <IssueManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/payments"
-                  element={
-                    <ProtectedRoute>
-                      <PaymentManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/payments/settings"
-                  element={
-                    <ProtectedRoute>
-                      <PaymentSettings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/payments/:id"
-                  element={
-                    <ProtectedRoute>
-                      <PaymentDetails />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/monitoring"
-                  element={
-                    <ProtectedRoute>
-                      <SystemMonitoring />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/complaints"
-                  element={
-                    <ProtectedRoute>
-                      <ComplaintHandling />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/reports"
-                  element={
-                    <ProtectedRoute>
-                      <ReportGeneration />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/submissions"
-                  element={
-                    <ProtectedRoute>
-                      <SubmissionAnalytics />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/submission/:id/details"
-                  element={
-                    <ProtectedRoute>
-                      <AdminSubmissionDetails />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/landing-page"
-                  element={
-                    <ProtectedRoute>
-                      <LandingPageEditor />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/publications"
-                  element={
-                    <ProtectedRoute>
-                      <PublicationDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/issues"
-                  element={
-                    <ProtectedRoute>
-                      <IssueManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/conferences"
-                  element={
-                    <ProtectedRoute>
-                      <ConferenceManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/page-content"
-                  element={
-                    <ProtectedRoute>
-                      <PageContentEditor />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Catch all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-                success: {
-                  style: {
-                    background: '#10b981',
-                  },
-                },
-                error: {
-                  style: {
-                    background: '#ef4444',
-                  },
-                },
-              }}
-            />
-          </div>
+          <AppContent />
         </Router>
       </AuthProvider>
     </QueryClientProvider >
