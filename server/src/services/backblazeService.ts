@@ -164,7 +164,8 @@ class BackblazeService {
             });
 
             const authToken = response.data.authorizationToken;
-            return `${this.downloadUrl}/file/${this.bucketName}/${fileName}?Authorization=${authToken}`;
+            const signedUrl = `${this.downloadUrl}/file/${this.bucketName}/${fileName}?Authorization=${authToken}`;
+            return signedUrl;
         } catch (error) {
             console.error('B2 Get authorized URL error:', error);
             throw new Error('Failed to get authorized download URL from Backblaze B2');

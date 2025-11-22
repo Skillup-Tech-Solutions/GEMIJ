@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthenticatedRequest } from '../types';
+import { backblazeService } from '../services/backblazeService';
 
 const prisma = new PrismaClient();
 
@@ -156,7 +157,6 @@ export const getArticle = async (req: Request, res: Response) => {
 export const getArticleById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    console.log('getArticleById called with id:', id);
 
     const article = await prisma.article.findUnique({
       where: { id },
@@ -164,8 +164,6 @@ export const getArticleById = async (req: Request, res: Response) => {
         issue: true
       }
     });
-
-    console.log('Article found:', article ? 'Yes' : 'No');
 
     if (!article) {
       return res.status(404).json({
@@ -456,6 +454,22 @@ export const getPublicSettings = async (req: Request, res: Response) => {
       const mappedKey = keyMap[setting.key] || setting.key;
       settingsObject[mappedKey] = value;
     });
+
+    // Sign the payment QR code URL if it exists and is a B2 URL
+    if (settingsObject.payment_qr_code_url && settingsObject.payment_qr_code_url.includes('/file/')) {
+      try {
+        const urlParts = settingsObject.payment_qr_code_url.split('/file/');
+        if (urlParts.length > 1) {
+          const pathParts = urlParts[1].split('/');
+          if (pathParts.length > 1) {
+            const fileName = pathParts.slice(1).join('/');
+            settingsObject.payment_qr_code_url = await backblazeService.getAuthorizedDownloadUrl(fileName);
+          }
+        }
+      } catch (error) {
+        console.error('[Public] Failed to sign QR code URL:', error);
+      }
+    }
 
     return res.json({
       success: true,

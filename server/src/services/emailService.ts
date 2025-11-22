@@ -5,6 +5,25 @@ import { EmailTemplateData } from '../types';
 
 const prisma = new PrismaClient();
 
+// Helper function to fetch APC settings from database
+async function getApcSettings() {
+  const settings = await prisma.systemSettings.findMany({
+    where: {
+      key: {
+        in: ['apc_amount', 'apc_currency']
+      }
+    }
+  });
+
+  const apcAmount = settings.find(s => s.key === 'apc_amount');
+  const apcCurrency = settings.find(s => s.key === 'apc_currency');
+
+  return {
+    amount: apcAmount?.value || '299.00',
+    currency: apcCurrency?.value || 'INR'
+  };
+}
+
 // Initialize SendGrid with API key
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 if (SENDGRID_API_KEY) {
@@ -199,6 +218,8 @@ export class EmailService {
     if (!submission) return;
 
     const paymentUrl = `${process.env.JOURNAL_URL}/author/submissions/${submission.id}/payment`;
+    // Fetch APC settings from database instead of environment variables
+    const { amount: apcAmount, currency } = await getApcSettings();
 
     await this.sendEmail({
       to: submission.author.email,
@@ -207,8 +228,8 @@ export class EmailService {
       variables: {
         authorName: `${submission.author.firstName} ${submission.author.lastName}`,
         submissionTitle: submission.title,
-        apcAmount: process.env.APC_AMOUNT,
-        currency: process.env.APC_CURRENCY,
+        apcAmount,
+        currency,
         paymentUrl,
         journalName: process.env.JOURNAL_NAME
       }
@@ -231,8 +252,16 @@ export class EmailService {
     if (!submission) return;
 
     const payment = submission.payments[0];
-    const amount = payment ? payment.amount : process.env.APC_AMOUNT;
-    const currency = payment ? payment.currency : process.env.APC_CURRENCY;
+    // Use payment amount if available, otherwise fetch from system settings
+    let amount, currency;
+    if (payment) {
+      amount = payment.amount;
+      currency = payment.currency;
+    } else {
+      const settings = await getApcSettings();
+      amount = settings.amount;
+      currency = settings.currency;
+    }
 
     await this.sendEmail({
       to: submission.author.email,
@@ -435,6 +464,9 @@ export class EmailService {
       ? `${process.env.JOURNAL_URL}/author/submissions/${submission.id}/payment`
       : null;
 
+    // Fetch APC settings from database instead of environment variables
+    const { amount: apcAmount, currency } = await getApcSettings();
+
     await this.sendEmail({
       to: submission.author.email,
       subject: `Congratulations! Your Submission Has Been Accepted`,
@@ -444,8 +476,8 @@ export class EmailService {
         submissionTitle: submission.title,
         submissionId: submission.id,
         requiresPayment: hasPayment,
-        apcAmount: process.env.APC_AMOUNT,
-        currency: process.env.APC_CURRENCY,
+        apcAmount,
+        currency,
         paymentUrl,
         journalName: process.env.JOURNAL_NAME
       }

@@ -12,6 +12,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16'
 });
 
+// Helper function to fetch APC settings from database
+async function getApcSettings() {
+  const settings = await prisma.systemSettings.findMany({
+    where: {
+      key: {
+        in: ['apc_amount', 'apc_currency']
+      }
+    }
+  });
+
+  const apcAmount = settings.find(s => s.key === 'apc_amount');
+  const apcCurrency = settings.find(s => s.key === 'apc_currency');
+
+  return {
+    amount: parseFloat(apcAmount?.value || '299.00'),
+    currency: apcCurrency?.value || 'INR'
+  };
+}
+
 export const createPaymentIntent = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { submissionId } = req.params;
@@ -53,8 +72,8 @@ export const createPaymentIntent = async (req: AuthenticatedRequest, res: Respon
       });
     }
 
-    const amount = parseFloat(process.env.APC_AMOUNT || '299.00');
-    const currency = process.env.APC_CURRENCY || 'INR';
+    // Fetch APC settings from database instead of environment variables
+    const { amount, currency } = await getApcSettings();
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
@@ -203,6 +222,7 @@ export const getPaymentStatus = async (req: AuthenticatedRequest, res: Response)
     });
 
     if (!payment) {
+      console.log(`[Payment] No payment found for submission ${submissionId} and user ${req.user!.id}`);
       return res.status(404).json({
         success: false,
         error: 'No payment found for this submission'
@@ -511,8 +531,8 @@ export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
     // Check if there is already a pending or paid payment
     let payment = submission.payments.find(p => p.status === 'PENDING');
 
-    const amount = parseFloat(process.env.APC_AMOUNT || '299.00');
-    const currency = process.env.APC_CURRENCY || 'INR';
+    // Fetch APC settings from database instead of environment variables
+    const { amount, currency } = await getApcSettings();
     const invoiceNumber = `INV-${Date.now()}-${submission.id.substring(0, 8).toUpperCase()}`;
 
     // Get payment method from request body (sent from frontend)

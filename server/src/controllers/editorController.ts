@@ -6,6 +6,25 @@ import { EmailService } from '../services/emailService';
 
 const prisma = new PrismaClient();
 
+// Helper function to fetch APC settings from database
+async function getApcSettings() {
+  const settings = await prisma.systemSettings.findMany({
+    where: {
+      key: {
+        in: ['apc_amount', 'apc_currency']
+      }
+    }
+  });
+
+  const apcAmount = settings.find(s => s.key === 'apc_amount');
+  const apcCurrency = settings.find(s => s.key === 'apc_currency');
+
+  return {
+    amount: parseFloat(apcAmount?.value || '299.00'),
+    currency: apcCurrency?.value || 'INR'
+  };
+}
+
 const assignReviewerSchema = z.object({
   reviewerId: z.string(),
   dueDate: z.string().datetime()
@@ -383,8 +402,8 @@ export const makeDecision = async (req: AuthenticatedRequest, res: Response) => 
 
     // If ACCEPT and APC enabled, create payment invoice
     if (validatedData.decision === 'ACCEPT' && apcEnabled) {
-      const apcAmount = parseFloat(process.env.APC_AMOUNT || '299.00');
-      const currency = process.env.APC_CURRENCY || 'INR';
+      // Fetch APC settings from database instead of environment variables
+      const { amount: apcAmount, currency } = await getApcSettings();
       const invoiceNumber = `INV-${Date.now()}-${submissionId.substring(0, 8).toUpperCase()}`;
 
       await prisma.payment.create({
@@ -1472,8 +1491,8 @@ export const handleRevision = async (req: AuthenticatedRequest, res: Response) =
     if (decision === 'ACCEPT_REVISION') {
       // Create payment if APC enabled
       if (apcEnabled) {
-        const apcAmount = parseFloat(process.env.APC_AMOUNT || '299.00');
-        const currency = process.env.APC_CURRENCY || 'INR';
+        // Fetch APC settings from database instead of environment variables
+        const { amount: apcAmount, currency } = await getApcSettings();
         const invoiceNumber = `INV-${Date.now()}-${submissionId.substring(0, 8).toUpperCase()}`;
 
         await prisma.payment.create({

@@ -348,6 +348,7 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
       const invoiceNumber = `INV-${payment.createdAt.getFullYear()}-${payment.id.substring(0, 6).toUpperCase()}`;
 
       let proofUrl = payment.proofUrl;
+
       if (proofUrl && proofUrl.includes('/file/')) {
         try {
           const urlParts = proofUrl.split('/file/');
@@ -359,7 +360,7 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
             }
           }
         } catch (error) {
-          console.error('Failed to sign proof URL:', error);
+          console.error('[Admin] Failed to sign proof URL:', error);
         }
       }
 
