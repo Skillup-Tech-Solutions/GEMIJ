@@ -20,6 +20,14 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
       },
+      '/oai': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+      '/feeds': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
     },
   },
   build: {
