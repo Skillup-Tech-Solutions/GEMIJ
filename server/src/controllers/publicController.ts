@@ -489,17 +489,22 @@ export const getPageContent = async (req: Request, res: Response) => {
     const { slug } = req.params;
     const key = `page_${slug}_content`;
 
+    console.log(`Fetching page content for slug: ${slug}, key: ${key}`);
+
     const setting = await prisma.systemSettings.findUnique({
       where: { key }
     });
 
     if (!setting) {
+      console.log(`Page content not found for key: ${key}`);
       return res.status(404).json({
         success: false,
-        error: 'Page content not found'
+        error: 'Page content not found',
+        message: `No content found for page: ${slug}. Please run the seed script to populate page content.`
       });
     }
 
+    console.log(`Page content found for ${slug}`);
     return res.json({
       success: true,
       data: {
@@ -511,7 +516,8 @@ export const getPageContent = async (req: Request, res: Response) => {
     console.error('Get page content error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
