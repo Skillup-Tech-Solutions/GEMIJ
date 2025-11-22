@@ -5,6 +5,7 @@ import { CreateUserData, LoginData, AuthenticatedRequest } from '../types';
 import { z } from 'zod';
 
 import { EmailService } from '../services/emailService';
+import { HCaptchaService } from '../services/hcaptchaService';
 import crypto from 'crypto';
 
 const prisma = new PrismaClient();
@@ -17,17 +18,31 @@ const registerSchema = z.object({
   title: z.string().optional(),
   affiliation: z.string().optional(),
   country: z.string().optional(),
-  orcid: z.string().optional()
+  orcid: z.string().optional(),
+  captchaToken: z.string().min(1, "Captcha verification is required")
 });
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1)
+  password: z.string().min(1),
+  captchaToken: z.string().min(1, "Captcha verification is required")
 });
 
 export const register = async (req: Request, res: Response) => {
   try {
     const validatedData = registerSchema.parse(req.body);
+
+    // Verify hCaptcha
+    const isCaptchaValid = await HCaptchaService.verifyToken(validatedData.captchaToken);
+    if (!isCaptchaValid) {
+      return res.status(400).json({
+        success: false,
+        error: 'Captcha verification failed'
+      });
+    }
+
+    // Remove captchaToken from data before creating user
+    const { captchaToken, ...userData } = validatedData;
 
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email }
@@ -44,7 +59,7 @@ export const register = async (req: Request, res: Response) => {
 
     const user = await prisma.user.create({
       data: {
-        ...validatedData,
+        ...userData,
         password: hashedPassword
       },
       select: {
@@ -94,6 +109,15 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const validatedData = loginSchema.parse(req.body);
+
+    // Verify hCaptcha
+    const isCaptchaValid = await HCaptchaService.verifyToken(validatedData.captchaToken);
+    if (!isCaptchaValid) {
+      return res.status(400).json({
+        success: false,
+        error: 'Captcha verification failed'
+      });
+    }
 
     const user = await prisma.user.findUnique({
       where: { email: validatedData.email }

@@ -49,7 +49,7 @@ class AuthService {
     this.token = token;
   }
 
-  async login(credentials: { email: string; password: string }): Promise<AuthResponse> {
+  async login(credentials: { email: string; password: string; captchaToken: string }): Promise<AuthResponse> {
     try {
       const response = await axios.post<ApiResponse<AuthResponse>>(`${API_URL}/auth/login`, credentials);
       return response.data.data!;
@@ -78,6 +78,7 @@ class AuthService {
     affiliation?: string;
     country?: string;
     orcid?: string;
+    captchaToken: string;
   }): Promise<AuthResponse> {
     try {
       const response = await axios.post<ApiResponse<AuthResponse>>(`${API_URL}/auth/register`, userData);

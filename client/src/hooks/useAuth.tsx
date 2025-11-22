@@ -5,7 +5,7 @@ import { authService } from '@/services/authService';
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, captchaToken: string) => Promise<void>;
   register: (userData: any) => Promise<void>;
   logout: () => void;
   requestPasswordReset: (email: string) => Promise<void>;
@@ -53,9 +53,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, captchaToken: string) => {
     try {
-      const response = await authService.login({ email, password });
+      const response = await authService.login({ email, password, captchaToken });
       setUser(response.user);
       setToken(response.token);
       localStorage.setItem('token', response.token);

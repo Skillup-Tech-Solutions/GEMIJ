@@ -11,6 +11,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [showTroubleshootingTips, setShowTroubleshootingTips] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -44,10 +45,19 @@ const Login: React.FC = () => {
       return;
     }
 
+    if (!captchaToken) {
+      setError('Please complete the captcha verification');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await login(email, password);
+      await login(email, password, captchaToken);
       navigate('/dashboard');
     } catch (err: any) {
+      // Reset captcha on error
+      setCaptchaToken('');
+
       // Provide more helpful error messages
       const errorMessage = err.message || 'Invalid email or password';
       if (errorMessage.includes('password') || errorMessage.includes('credentials') || errorMessage.includes('Invalid')) {
@@ -55,6 +65,8 @@ const Login: React.FC = () => {
         setShowTroubleshootingTips(true);
       } else if (errorMessage.includes('account') || errorMessage.includes('active')) {
         setError('Your account may be inactive. Please contact support.');
+      } else if (errorMessage.includes('captcha')) {
+        setError('Captcha verification failed. Please try again.');
       } else {
         setError(errorMessage);
       }
@@ -209,11 +221,18 @@ const Login: React.FC = () => {
             </div>
           )}
 
+          {/* hCaptcha */}
+          <HCaptchaComponent
+            onVerify={(token) => setCaptchaToken(token)}
+            onExpire={() => setCaptchaToken('')}
+            onError={() => setCaptchaToken('')}
+          />
+
           {/* Submit Button */}
           <div>
             <button
               type="submit"
-              disabled={isLoading || (emailTouched && !emailValidation.isValid)}
+              disabled={isLoading || (emailTouched && !emailValidation.isValid) || !captchaToken}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (

@@ -88,7 +88,15 @@ async function main() {
                     cwd: path.resolve(__dirname, '../../'),
                     env: env
                 });
-                console.log('Seeding completed successfully.');
+                console.log('Main seeding completed successfully.');
+
+                console.log('\nRunning page content seed...');
+                execSync('npx tsx src/scripts/seed-page-content.ts', {
+                    stdio: 'inherit',
+                    cwd: path.resolve(__dirname, '../../'),
+                    env: env
+                });
+                console.log('Page content seeding completed successfully.');
             } catch (seedError) {
                 console.error('Error during seeding:', seedError);
             }

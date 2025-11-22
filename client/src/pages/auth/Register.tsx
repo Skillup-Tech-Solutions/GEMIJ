@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import HCaptchaComponent from '../../components/HCaptcha';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const Register: React.FC = () => {
   const [error, setError] = useState('');
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -83,10 +85,18 @@ const Register: React.FC = () => {
       return;
     }
 
+    if (!captchaToken) {
+      setError('Please complete the captcha verification');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await register(formData);
+      await register({ ...formData, captchaToken });
       navigate('/dashboard');
     } catch (err: any) {
+      // Reset captcha on error
+      setCaptchaToken('');
       setError(err.message || 'Registration failed');
     } finally {
       setIsLoading(false);
@@ -241,8 +251,8 @@ const Register: React.FC = () => {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-medium text-secondary-600">Password Strength:</span>
                       <span className={`text-xs font-medium ${passwordStrength.level === 1 ? 'text-red-600' :
-                          passwordStrength.level === 2 ? 'text-yellow-600' :
-                            'text-green-600'
+                        passwordStrength.level === 2 ? 'text-yellow-600' :
+                          'text-green-600'
                         }`}>
                         {passwordStrength.label}
                       </span>
@@ -297,10 +307,17 @@ const Register: React.FC = () => {
             <div className="text-red-600 text-sm text-center">{error}</div>
           )}
 
+          {/* hCaptcha */}
+          <HCaptchaComponent
+            onVerify={(token) => setCaptchaToken(token)}
+            onExpire={() => setCaptchaToken('')}
+            onError={() => setCaptchaToken('')}
+          />
+
           <div>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !captchaToken}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             >
               {isLoading ? 'Creating account...' : 'Create account'}
