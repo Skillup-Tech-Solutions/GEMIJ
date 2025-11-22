@@ -16,6 +16,7 @@ import notificationRoutes from './routes/notifications';
 import publicationRoutes from './routes/publication';
 import issueConferenceRoutes from './routes/issueConference';
 import feedRoutes from './routes/feed';
+import { getOAIPMH } from './controllers/feedController';
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
@@ -59,6 +60,9 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/publication', publicationRoutes);
 app.use('/api/admin', issueConferenceRoutes);
 app.use('/feeds', feedRoutes);
+
+// OAI-PMH endpoint at root level for standard compliance
+app.get('/oai', getOAIPMH);
 
 app.get('/api/health', (req, res) => {
   res.json({
