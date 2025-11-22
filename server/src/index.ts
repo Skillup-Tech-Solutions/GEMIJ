@@ -25,12 +25,12 @@ app.set('trust proxy', 1);
 
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'),
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000'),
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '10000'),
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again later.'
   },
-  skip: (req) => process.env.NODE_ENV !== 'production' || req.path.startsWith('/api/public')
+  skip: () => process.env.NODE_ENV !== 'production'
 });
 
 app.use(helmet());
