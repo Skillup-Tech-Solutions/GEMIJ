@@ -30,7 +30,7 @@ const limiter = rateLimit({
     success: false,
     error: 'Too many requests from this IP, please try again later.'
   },
-  skip: () => process.env.NODE_ENV !== 'production'
+  skip: (req) => process.env.NODE_ENV !== 'production' || req.path.startsWith('/api/public')
 });
 
 app.use(helmet());
