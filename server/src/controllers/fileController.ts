@@ -192,12 +192,14 @@ export const downloadFile = async (req: AuthenticatedRequest, res: Response) => 
       });
     }
 
-    // Return the B2 file URL for download
-    // The filePath already contains the B2 URL
+    // Generate an authorized download URL for the B2 file (valid for 1 hour)
+    // This is required for private buckets
+    const authorizedUrl = await backblazeService.getAuthorizedDownloadUrl(file.filename, 3600);
+
     return res.json({
       success: true,
       data: {
-        url: file.filePath,
+        url: authorizedUrl,
         filename: file.originalName
       }
     });

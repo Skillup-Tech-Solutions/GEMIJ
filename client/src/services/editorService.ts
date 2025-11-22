@@ -249,6 +249,26 @@ class EditorService {
     const response = await axios.post<ApiResponse<any>>(`${API_URL}/editor/submissions/${submissionId}/quality-check`);
     return response.data.data!;
   }
+
+  // File Management
+  async downloadFile(submissionId: string, fileId: string): Promise<void> {
+    try {
+      const response = await axios.get<ApiResponse<{ url: string; filename: string }>>(`${API_URL}/submissions/${submissionId}/files/${fileId}/download`);
+      const { url, filename } = response.data.data!;
+
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Download file error:', error);
+      throw error;
+    }
+  }
 }
 
 export const editorService = new EditorService();

@@ -4,6 +4,7 @@ import { AuthenticatedRequest, ReviewData } from '../types';
 import { z } from 'zod';
 import PDFDocument from 'pdfkit';
 import { EmailService } from '../services/emailService';
+import { createNotification } from './notificationController';
 
 const prisma = new PrismaClient();
 
@@ -584,6 +585,36 @@ export const acceptInvitation = async (req: AuthenticatedRequest, res: Response)
       })
     ]);
 
+    // Notify editors
+    const editors = updatedInvitation.review.submission.editorAssignments?.map((ea: any) => ea.editor) || [];
+    // If editorAssignments not included, we might need to fetch them or rely on what's available.
+    // The include in update only has submission: true. We need to fetch editors.
+    // Let's fetch editors separately or update the include.
+    // Updating the include is cleaner.
+
+    const submissionWithEditors = await prisma.submission.findUnique({
+      where: { id: updatedInvitation.review.submissionId },
+      include: {
+        editorAssignments: {
+          include: {
+            editor: true
+          }
+        }
+      }
+    });
+
+    if (submissionWithEditors) {
+      for (const assignment of submissionWithEditors.editorAssignments) {
+        await createNotification(
+          assignment.editorId,
+          'REVIEW_ACCEPTED',
+          'Review Invitation Accepted',
+          `Reviewer has accepted the invitation to review "${submissionWithEditors.title}".`,
+          submissionWithEditors.id
+        );
+      }
+    }
+
     return res.json({
       success: true,
       data: updatedInvitation,
@@ -654,6 +685,30 @@ export const declineInvitation = async (req: AuthenticatedRequest, res: Response
         }
       })
     ]);
+
+    // Notify editors
+    const submissionWithEditors = await prisma.submission.findUnique({
+      where: { id: invitation.review.submissionId },
+      include: {
+        editorAssignments: {
+          include: {
+            editor: true
+          }
+        }
+      }
+    });
+
+    if (submissionWithEditors) {
+      for (const assignment of submissionWithEditors.editorAssignments) {
+        await createNotification(
+          assignment.editorId,
+          'REVIEW_DECLINED',
+          'Review Invitation Declined',
+          `Reviewer has declined the invitation to review "${submissionWithEditors.title}".`,
+          submissionWithEditors.id
+        );
+      }
+    }
 
     return res.json({
       success: true,

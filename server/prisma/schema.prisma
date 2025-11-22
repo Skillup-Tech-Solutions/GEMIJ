@@ -137,6 +137,8 @@ model Submission {
   notifications     Notification[]
   timeline          SubmissionTimeline[]
   publicationSettings PublicationSettings?
+  plagiarismChecks    PlagiarismCheck[]
+  qualityAssessments  QualityAssessment[]
 
   @@map("submissions")
 }
@@ -431,4 +433,57 @@ model PublicationSettings {
   submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@map("publication_settings")
+}
+
+model PlagiarismCheck {
+  id                String   @id @default(cuid())
+  submissionId      String
+  submission        Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  similarityScore   Float    // Overall similarity percentage
+  status            String   // COMPLETED, FAILED, PROCESSING
+  provider          String   @default("INTERNAL") // INTERNAL, COPYSCAPE, TURNITIN
+  
+  // Detailed results
+  matchedSources    Json?    // Array of matched sources with URLs and similarity
+  reportUrl         String?  // External report URL if applicable
+  rawResponse       Json?    // Full API response
+  errorMessage      String?  // Error details if failed
+  
+  // Metadata
+  checkedAt         DateTime @default(now())
+  checkedBy         String?  // User ID who initiated check
+  
+  @@map("plagiarism_checks")
+}
+
+model QualityAssessment {
+  id                String   @id @default(cuid())
+  submissionId      String
+  submission        Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  overallScore      Int      // 0-100
+  
+  // Individual metrics
+  structureScore    Int
+  formattingScore   Int
+  readabilityScore  Int
+  completenessScore Int
+  
+  // Detailed analysis
+  wordCount         Int
+  abstractLength    Int
+  referenceCount    Int
+  figureCount       Int
+  tableCount        Int
+  
+  // Issues and recommendations
+  issues            Json     // Array of identified issues
+  recommendations   Json     // Array of improvement suggestions
+  
+  // Metadata
+  assessedAt        DateTime @default(now())
+  assessedBy        String?  // User ID who initiated assessment
+  
+  @@map("quality_assessments")
 }

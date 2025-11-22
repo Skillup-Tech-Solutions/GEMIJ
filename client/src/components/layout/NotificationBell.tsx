@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { notificationService } from '@/services/notificationService';
 import { Notification } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '@/hooks/useAuth';
 
 const NotificationBell: React.FC = () => {
     const navigate = useNavigate();
@@ -68,13 +69,26 @@ const NotificationBell: React.FC = () => {
         }
     };
 
+    const { user } = useAuth();
+
     const handleNotificationClick = async (notification: Notification) => {
         if (!notification.isRead) {
             await handleMarkAsRead(notification.id);
         }
 
         if (notification.submissionId) {
-            navigate(`/submission/${notification.submissionId}`);
+            if (user?.role === 'EDITOR' || user?.role === 'ADMIN') {
+                navigate(`/editor/submission/${notification.submissionId}/screen`);
+            } else if (user?.role === 'REVIEWER') {
+                // For reviewers, we might need to check if it's a review invitation or active review
+                // But usually they go to the review dashboard or specific review page
+                // For now, let's send them to the dashboard or a safe review route if we have the reviewId
+                // Since we only have submissionId here, sending to dashboard or list might be safer, 
+                // or if we have a route like /reviewer/submission/:id
+                navigate('/dashboard');
+            } else {
+                navigate(`/submission/${notification.submissionId}`);
+            }
             setIsOpen(false);
         }
     };

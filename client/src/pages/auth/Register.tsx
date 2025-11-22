@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -14,15 +14,56 @@ const Register: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  // Password strength calculation
+  const passwordStrength = useMemo(() => {
+    const password = formData.password;
+    if (!password) return { level: 0, label: '', color: '' };
+
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+    if (strength <= 1) return { level: 1, label: 'Weak', color: 'bg-red-500' };
+    if (strength <= 3) return { level: 2, label: 'Medium', color: 'bg-yellow-500' };
+    return { level: 3, label: 'Strong', color: 'bg-green-500' };
+  }, [formData.password]);
+
+  // Password validation checks
+  const passwordValidation = useMemo(() => {
+    const password = formData.password;
+    return {
+      minLength: password.length >= 8,
+      hasUpperCase: /[A-Z]/.test(password),
+      hasLowerCase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecialChar: /[^a-zA-Z0-9]/.test(password)
+    };
+  }, [formData.password]);
+
+  const passwordsMatch = formData.password === formData.confirmPassword;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handlePasswordBlur = () => {
+    setPasswordTouched(true);
+  };
+
+  const handleConfirmPasswordBlur = () => {
+    setConfirmPasswordTouched(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,6 +73,12 @@ const Register: React.FC = () => {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
       setIsLoading(false);
       return;
     }
@@ -95,7 +142,7 @@ const Register: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div>
               <label htmlFor="email" className="form-label">
                 Email Address
@@ -157,7 +204,58 @@ const Register: React.FC = () => {
                 className="form-input"
                 value={formData.password}
                 onChange={handleChange}
+                onBlur={handlePasswordBlur}
               />
+
+              {/* Password Requirements */}
+              <div className="mt-2 space-y-2">
+                <div className="text-xs text-secondary-600">
+                  <p className="font-medium mb-1">Password must contain:</p>
+                  <ul className="space-y-1">
+                    <li className={`flex items-center ${passwordValidation.minLength ? 'text-green-600' : 'text-secondary-500'}`}>
+                      <span className="mr-2">{passwordValidation.minLength ? '✓' : '○'}</span>
+                      At least 8 characters
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-secondary-400'}`}>
+                      <span className="mr-2">{passwordValidation.hasUpperCase ? '✓' : '○'}</span>
+                      One uppercase letter (recommended)
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-secondary-400'}`}>
+                      <span className="mr-2">{passwordValidation.hasLowerCase ? '✓' : '○'}</span>
+                      One lowercase letter (recommended)
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.hasNumber ? 'text-green-600' : 'text-secondary-400'}`}>
+                      <span className="mr-2">{passwordValidation.hasNumber ? '✓' : '○'}</span>
+                      One number (recommended)
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-secondary-400'}`}>
+                      <span className="mr-2">{passwordValidation.hasSpecialChar ? '✓' : '○'}</span>
+                      One special character (recommended)
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Password Strength Indicator */}
+                {formData.password && (
+                  <div className="mt-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-secondary-600">Password Strength:</span>
+                      <span className={`text-xs font-medium ${passwordStrength.level === 1 ? 'text-red-600' :
+                          passwordStrength.level === 2 ? 'text-yellow-600' :
+                            'text-green-600'
+                        }`}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                    <div className="w-full bg-secondary-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                        style={{ width: `${(passwordStrength.level / 3) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -173,7 +271,25 @@ const Register: React.FC = () => {
                 className="form-input"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                onBlur={handleConfirmPasswordBlur}
               />
+
+              {/* Password Match Indicator */}
+              {confirmPasswordTouched && formData.confirmPassword && (
+                <div className={`mt-1 text-xs ${passwordsMatch ? 'text-green-600' : 'text-red-600'}`}>
+                  {passwordsMatch ? (
+                    <span className="flex items-center">
+                      <span className="mr-1">✓</span>
+                      Passwords match
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <span className="mr-1">✗</span>
+                      Passwords do not match
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

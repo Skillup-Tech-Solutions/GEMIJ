@@ -13,7 +13,8 @@ import {
   getAdminIssues,
   updateLandingPageConfig,
   getPaymentById,
-  markPaymentAsPaid
+  markPaymentAsPaid,
+  updateUserRole
 } from '../controllers/adminController';
 import { authenticate, authorize } from '../middleware/auth';
 import { upload } from '../middleware/upload';
@@ -37,6 +38,7 @@ router.put('/payments/:paymentId/paid', markPaymentAsPaid);
 
 // Users
 router.get('/users', getAdminUsers);
+router.put('/users/:id/role', updateUserRole);
 
 // Settings
 router.get('/settings', getSystemSettings);

@@ -707,15 +707,19 @@ const Dashboard: React.FC = () => {
                                 onClick={() => {
                                   if (submission.status === SubmissionStatus.INITIAL_REVIEW) {
                                     navigate(`/editor/submission/${submission.id}/screen`);
+                                  } else if (submission.status === SubmissionStatus.REVISED) {
+                                    navigate(`/editor/submission/${submission.id}/screen`);
                                   } else {
                                     navigate(`/editor/submission/${submission.id}/reviews`);
                                   }
                                 }}
                                 className="text-sm bg-primary-100 text-primary-700 px-3 py-1 rounded hover:bg-primary-200 transition-colors"
                               >
-                                Review Submission
+                                {submission.status === SubmissionStatus.INITIAL_REVIEW ? 'Initial Screening' :
+                                  submission.status === SubmissionStatus.REVISED ? 'Revision Screening' :
+                                    'Track Reviews'}
                               </button>
-                              {submission.status === SubmissionStatus.INITIAL_REVIEW && (
+                              {(submission.status === SubmissionStatus.INITIAL_REVIEW || submission.status === SubmissionStatus.UNDER_REVIEW) && (
                                 <button
                                   onClick={() => navigate(`/editor/submission/${submission.id}/assign-reviewers`)}
                                   className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 transition-colors"
@@ -725,12 +729,6 @@ const Dashboard: React.FC = () => {
                               )}
                               {submission.status === SubmissionStatus.UNDER_REVIEW && (
                                 <>
-                                  <button
-                                    onClick={() => navigate(`/editor/submission/${submission.id}/reviews`)}
-                                    className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded hover:bg-yellow-200 transition-colors"
-                                  >
-                                    Track Reviews
-                                  </button>
                                   {/* Check if all reviews are completed */}
                                   {submission.reviews && submission.reviews.length > 0 &&
                                     submission.reviews.every(r => r.status === 'COMPLETED') && (

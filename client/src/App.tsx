@@ -35,6 +35,7 @@ import SystemMonitoring from '@/pages/admin/SystemMonitoring';
 import ComplaintHandling from '@/pages/admin/ComplaintHandling';
 import ReportGeneration from '@/pages/admin/ReportGeneration';
 import SubmissionAnalytics from '@/pages/admin/SubmissionAnalytics';
+import AdminSubmissionDetails from '@/pages/admin/AdminSubmissionDetails';
 import LandingPageEditor from '@/pages/admin/LandingPageEditor';
 import CurrentIssue from '@/pages/CurrentIssue';
 import Archive from '@/pages/Archive';
@@ -396,6 +397,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <SubmissionAnalytics />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/submission/:id/details"
+                  element={
+                    <ProtectedRoute>
+                      <AdminSubmissionDetails />
                     </ProtectedRoute>
                   }
                 />

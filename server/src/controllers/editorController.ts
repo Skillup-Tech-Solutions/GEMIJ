@@ -3,6 +3,7 @@ import { PrismaClient, SubmissionStatus } from '@prisma/client';
 import { AuthenticatedRequest } from '../types';
 import { z } from 'zod';
 import { EmailService } from '../services/emailService';
+import { createNotification } from './notificationController';
 
 const prisma = new PrismaClient();
 
@@ -294,6 +295,15 @@ export const assignReviewer = async (req: AuthenticatedRequest, res: Response) =
     } catch (emailError) {
       console.error('Failed to send reviewer invitation email:', emailError);
     }
+
+    // Create notification for reviewer
+    await createNotification(
+      validatedData.reviewerId,
+      'REVIEW_ASSIGNED',
+      'New Review Assignment',
+      `You have been invited to review the manuscript "${submission.title}".`,
+      submissionId
+    );
 
     return res.json({
       success: true,
@@ -736,6 +746,14 @@ export const getSubmissionForEditor = async (req: AuthenticatedRequest, res: Res
         },
         coAuthors: true,
         files: true,
+        revisions: {
+          include: {
+            files: true
+          },
+          orderBy: {
+            submittedAt: 'desc'
+          }
+        },
         reviews: {
           include: {
             reviewer: {
@@ -853,10 +871,10 @@ export const performInitialScreening = async (req: AuthenticatedRequest, res: Re
       });
     }
 
-    if (submission.status !== 'SUBMITTED') {
+    if (submission.status !== 'SUBMITTED' && submission.status !== 'INITIAL_REVIEW') {
       return res.status(400).json({
         success: false,
-        error: 'Submission is not in submitted status'
+        error: 'Submission is not in submitted or initial review status'
       });
     }
 
@@ -906,7 +924,7 @@ export const performInitialScreening = async (req: AuthenticatedRequest, res: Re
       data: {
         submissionId,
         event: 'INITIAL_CHECK_COMPLETED',
-        fromStatus: 'SUBMITTED',
+        fromStatus: submission.status,
         toStatus: newStatus,
         description: `Initial check completed: ${decision.replace(/_/g, ' ').toLowerCase()}`,
         performedBy: `${req.user!.firstName} ${req.user!.lastName}`
@@ -1791,7 +1809,10 @@ export const runPlagiarismCheck = async (req: AuthenticatedRequest, res: Respons
     const { submissionId } = req.params;
 
     const submission = await prisma.submission.findUnique({
-      where: { id: submissionId }
+      where: { id: submissionId },
+      include: {
+        files: true
+      }
     });
 
     if (!submission) {
@@ -1801,14 +1822,63 @@ export const runPlagiarismCheck = async (req: AuthenticatedRequest, res: Respons
       });
     }
 
+    // Find the main manuscript file
+    const mainFile = submission.files.find(f => f.isMainFile) || submission.files[0];
+
+    if (!mainFile) {
+      return res.status(400).json({
+        success: false,
+        error: 'No manuscript file found for plagiarism check'
+      });
+    }
+
+    // Import services
+    const { plagiarismService } = await import('../services/plagiarismService');
+    const { backblazeService } = await import('../services/backblazeService');
+
+    let text: string;
+
+    // Check if file is stored in B2 (has b2FileId or filePath is a URL)
+    if (mainFile.b2FileId || mainFile.filePath.startsWith('http')) {
+      // Download file from B2 using backblaze service
+      const fileName = mainFile.filePath.split('/').pop() || mainFile.originalName;
+      const fileBuffer = await backblazeService.downloadFile(fileName);
+
+      // Extract text from buffer
+      const pdfParse = (await import('pdf-parse')).default;
+      const pdfData = await pdfParse(fileBuffer);
+      text = pdfData.text;
+    } else {
+      // Local file - use direct extraction
+      text = await plagiarismService.extractTextFromPDF(mainFile.filePath);
+    }
+
+    // Run plagiarism check with extracted text
+    const result = await plagiarismService.checkPlagiarism(mainFile.filePath, text);
+
+    // Store result in database
+    const plagiarismCheck = await prisma.plagiarismCheck.create({
+      data: {
+        submissionId,
+        similarityScore: result.similarityScore,
+        status: result.status,
+        provider: 'INTERNAL',
+        matchedSources: result.matchedSources || [],
+        errorMessage: result.errorMessage,
+        checkedBy: req.user?.id
+      }
+    });
+
     return res.json({
       success: true,
       data: {
-        similarity: Math.floor(Math.random() * 30),
+        similarity: result.similarityScore,
+        status: result.status,
+        matchedSources: result.matchedSources,
         report: {
-          status: 'completed',
-          timestamp: new Date(),
-          checkId: `check_${submissionId}`
+          status: result.status,
+          timestamp: plagiarismCheck.checkedAt,
+          checkId: plagiarismCheck.id
         }
       }
     });
@@ -1826,7 +1896,10 @@ export const performQualityCheck = async (req: AuthenticatedRequest, res: Respon
     const { submissionId } = req.params;
 
     const submission = await prisma.submission.findUnique({
-      where: { id: submissionId }
+      where: { id: submissionId },
+      include: {
+        files: true
+      }
     });
 
     if (!submission) {
@@ -1836,12 +1909,82 @@ export const performQualityCheck = async (req: AuthenticatedRequest, res: Respon
       });
     }
 
+    // Find the main manuscript file
+    const mainFile = submission.files.find(f => f.isMainFile) || submission.files[0];
+
+    if (!mainFile) {
+      return res.status(400).json({
+        success: false,
+        error: 'No manuscript file found for quality check'
+      });
+    }
+
+    // Import services
+    const { qualityService } = await import('../services/qualityService');
+    const { backblazeService } = await import('../services/backblazeService');
+
+    let text: string;
+
+    // Check if file is stored in B2 (has b2FileId or filePath is a URL)
+    if (mainFile.b2FileId || mainFile.filePath.startsWith('http')) {
+      // Download file from B2 using backblaze service
+      const fileName = mainFile.filePath.split('/').pop() || mainFile.originalName;
+      const fileBuffer = await backblazeService.downloadFile(fileName);
+
+      // Extract text from buffer
+      const pdfParse = (await import('pdf-parse')).default;
+      const pdfData = await pdfParse(fileBuffer);
+      text = pdfData.text;
+    } else {
+      // Local file - use direct extraction
+      const { plagiarismService } = await import('../services/plagiarismService');
+      text = await plagiarismService.extractTextFromPDF(mainFile.filePath);
+    }
+
+    // Run quality assessment
+    const metrics = await qualityService.assessQuality(text, submission.abstract);
+
+    // Store result in database
+    const qualityAssessment = await prisma.qualityAssessment.create({
+      data: {
+        submissionId,
+        overallScore: metrics.overallScore,
+        structureScore: metrics.structureScore,
+        formattingScore: metrics.formattingScore,
+        readabilityScore: metrics.readabilityScore,
+        completenessScore: metrics.completenessScore,
+        wordCount: metrics.wordCount,
+        abstractLength: metrics.abstractLength,
+        referenceCount: metrics.referenceCount,
+        figureCount: metrics.figureCount,
+        tableCount: metrics.tableCount,
+        issues: metrics.issues,
+        recommendations: metrics.recommendations,
+        assessedBy: req.user?.id
+      }
+    });
+
     return res.json({
       success: true,
       data: {
-        score: Math.floor(Math.random() * 100),
-        issues: ['Check abstract length', 'Add more references'],
-        recommendations: ['Improve figure quality', 'Add more details to methodology']
+        score: metrics.overallScore,
+        metrics: {
+          structure: metrics.structureScore,
+          formatting: metrics.formattingScore,
+          readability: metrics.readabilityScore,
+          completeness: metrics.completenessScore
+        },
+        statistics: {
+          wordCount: metrics.wordCount,
+          abstractLength: metrics.abstractLength,
+          references: metrics.referenceCount,
+          figures: metrics.figureCount,
+          tables: metrics.tableCount
+        },
+        issues: metrics.issues,
+        recommendations: metrics.recommendations,
+        assessmentId: qualityAssessment.id,
+        assessedAt: qualityAssessment.assessedAt
       }
     });
   } catch (error) {

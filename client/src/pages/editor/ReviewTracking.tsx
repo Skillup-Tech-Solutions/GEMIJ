@@ -248,7 +248,7 @@ const ReviewTracking: React.FC = () => {
           </div>
           <div className="space-y-4">
             {submissions.map((sub) => (
-              <div key={sub.id} className="card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/editor/submission/${sub.id}/reviews`)}>
+              <div key={sub.id} className="card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(sub.status === 'REVISED' ? `/editor/submission/${sub.id}/screen` : `/editor/submission/${sub.id}/reviews`)}>
                 <div className="card-body">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -259,11 +259,24 @@ const ReviewTracking: React.FC = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/editor/submission/${sub.id}/reviews`);
+                        if (sub.status === 'REVISED') {
+                          navigate(`/editor/submission/${sub.id}/screen`);
+                        } else {
+                          navigate(`/editor/submission/${sub.id}/reviews`);
+                        }
                       }}
                       className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
                     >
-                      Track Reviews
+                      {sub.status === 'REVISED' ? 'Screen Revision' : 'Track Reviews'}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/editor/submission/${sub.id}/screen`);
+                      }}
+                      className="bg-secondary-600 text-white px-4 py-2 rounded-md hover:bg-secondary-700 ml-2"
+                    >
+                      View Submission
                     </button>
                   </div>
                 </div>

@@ -22,6 +22,7 @@ const SubmissionScreening: React.FC = () => {
   const [plagiarismCheck, setPlagiarismCheck] = useState(false);
   const [qualityCheck, setQualityCheck] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [activeTab, setActiveTab] = useState<'details' | 'checks' | 'decision'>('details');
 
   useEffect(() => {
     if (id) {
@@ -71,6 +72,17 @@ const SubmissionScreening: React.FC = () => {
       setMessage({ text: 'Quality check failed', type: 'error' });
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleDownload = async (fileId: string) => {
+    if (!id) return;
+
+    try {
+      await editorService.downloadFile(id, fileId);
+    } catch (error) {
+      console.error('Failed to download file:', error);
+      setMessage({ text: 'Failed to download file', type: 'error' });
     }
   };
 
@@ -177,10 +189,17 @@ const SubmissionScreening: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight">
-                Initial Screening
+                {['SUBMITTED', 'INITIAL_REVIEW'].includes(submission.status) ? 'Initial Screening' :
+                  submission.status === 'REVISED' ? 'Revision Screening' :
+                    'Submission Details'}
               </h1>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Review submission for scope, quality, and plagiarism
+                {['SUBMITTED', 'INITIAL_REVIEW'].includes(submission.status)
+                  ? 'Review submission for scope, quality, and plagiarism'
+                  : submission.status === 'REVISED'
+                    ? 'Review author revisions and decide next steps'
+                    : 'View submission details, files, and quality checks'
+                }
               </p>
             </div>
             <div className="flex-shrink-0">
@@ -207,9 +226,42 @@ const SubmissionScreening: React.FC = () => {
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Submission Details */}
-          <div className="lg:col-span-2 space-y-6">
+        {/* Tabs Navigation */}
+        <div className="mb-6 border-b border-secondary-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('details')}
+              className={`${activeTab === 'details'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-secondary-500 hover:text-secondary-700 hover:border-secondary-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Submission Details
+            </button>
+            <button
+              onClick={() => setActiveTab('checks')}
+              className={`${activeTab === 'checks'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-secondary-500 hover:text-secondary-700 hover:border-secondary-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Quality Checks
+            </button>
+            <button
+              onClick={() => setActiveTab('decision')}
+              className={`${activeTab === 'decision'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-secondary-500 hover:text-secondary-700 hover:border-secondary-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Screening Decision
+            </button>
+          </nav>
+        </div>
+
+        <div className="space-y-6">
+          {/* Submission Details Tab */}
+          {activeTab === 'details' && (
             <div className="card">
               <div className="card-header">
                 <h2 className="text-xl font-semibold text-secondary-900">Submission Details</h2>
@@ -262,7 +314,10 @@ const SubmissionScreening: React.FC = () => {
                             <p className="text-secondary-600 text-sm">{file.description}</p>
                           )}
                         </div>
-                        <button className="text-primary-600 hover:text-primary-800 text-sm">
+                        <button
+                          onClick={() => handleDownload(file.id)}
+                          className="text-primary-600 hover:text-primary-800 text-sm"
+                        >
                           Download
                         </button>
                       </div>
@@ -271,8 +326,10 @@ const SubmissionScreening: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Quality Checks */}
+          {/* Quality Checks Tab */}
+          {activeTab === 'checks' && (
             <div className="card">
               <div className="card-header">
                 <h2 className="text-xl font-semibold text-secondary-900">Quality Checks</h2>
@@ -285,25 +342,57 @@ const SubmissionScreening: React.FC = () => {
                     <button
                       onClick={runPlagiarismCheck}
                       disabled={processing || plagiarismResult}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       {processing ? 'Running...' : plagiarismResult ? 'Completed' : 'Run Check'}
                     </button>
                   </div>
 
                   {plagiarismResult && (
-                    <div className="bg-blue-50 p-3 rounded">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">Similarity Score:</span>
-                        <span className={`font-bold ${plagiarismResult.similarity > 20 ? 'text-red-600' : plagiarismResult.similarity > 10 ? 'text-yellow-600' : 'text-green-600'}`}>
-                          {plagiarismResult.similarity}%
-                        </span>
+                    <div className="space-y-3">
+                      <div className="bg-blue-50 p-3 rounded">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Similarity Score:</span>
+                          <span className={`font-bold text-lg ${plagiarismResult.similarity > 20 ? 'text-red-600' : plagiarismResult.similarity > 10 ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {plagiarismResult.similarity.toFixed(1)}%
+                          </span>
+                        </div>
+                        <p className="text-sm text-secondary-600">
+                          {plagiarismResult.similarity > 20 ? '⚠️ High similarity detected - requires review' :
+                            plagiarismResult.similarity > 10 ? '⚡ Moderate similarity - acceptable with review' :
+                              '✓ Low similarity - acceptable'}
+                        </p>
+
+                        {plagiarismResult.report && (
+                          <div className="mt-2 pt-2 border-t border-blue-200">
+                            <p className="text-xs text-secondary-500">
+                              Check ID: {plagiarismResult.report.checkId}
+                            </p>
+                            <p className="text-xs text-secondary-500">
+                              Completed: {new Date(plagiarismResult.report.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm text-secondary-600">
-                        {plagiarismResult.similarity > 20 ? 'High similarity detected - requires review' :
-                          plagiarismResult.similarity > 10 ? 'Moderate similarity - acceptable with review' :
-                            'Low similarity - acceptable'}
-                      </p>
+
+                      {plagiarismResult.matchedSources && plagiarismResult.matchedSources.length > 0 && (
+                        <div className="bg-yellow-50 p-3 rounded">
+                          <p className="text-sm font-medium text-secondary-900 mb-2">Matched Sources:</p>
+                          <ul className="space-y-2">
+                            {plagiarismResult.matchedSources.map((source: any, index: number) => (
+                              <li key={index} className="text-sm">
+                                <div className="flex items-start justify-between">
+                                  <span className="text-secondary-700">{source.source}</span>
+                                  <span className="font-medium text-yellow-700">{source.similarity.toFixed(1)}%</span>
+                                </div>
+                                {source.matchedText && (
+                                  <p className="text-xs text-secondary-500 mt-1">{source.matchedText}</p>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -315,26 +404,114 @@ const SubmissionScreening: React.FC = () => {
                     <button
                       onClick={runQualityCheck}
                       disabled={processing || qualityResult}
-                      className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       {processing ? 'Analyzing...' : qualityResult ? 'Completed' : 'Analyze'}
                     </button>
                   </div>
 
                   {qualityResult && (
-                    <div className="bg-purple-50 p-3 rounded">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">Quality Score:</span>
-                        <span className={`font-bold ${qualityResult.score < 60 ? 'text-red-600' : qualityResult.score < 80 ? 'text-yellow-600' : 'text-green-600'}`}>
-                          {qualityResult.score}/100
-                        </span>
+                    <div className="space-y-3">
+                      {/* Overall Score */}
+                      <div className="bg-purple-50 p-3 rounded">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Overall Quality Score:</span>
+                          <span className={`font-bold text-lg ${qualityResult.score < 60 ? 'text-red-600' : qualityResult.score < 80 ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {qualityResult.score}/100
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${qualityResult.score < 60 ? 'bg-red-600' : qualityResult.score < 80 ? 'bg-yellow-600' : 'bg-green-600'}`}
+                            style={{ width: `${qualityResult.score}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      {qualityResult.issues.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-sm font-medium text-secondary-900 mb-1">Issues Found:</p>
-                          <ul className="text-sm text-secondary-600 list-disc list-inside">
-                            {qualityResult.issues.map((issue: string, index: number) => (
-                              <li key={index}>{issue}</li>
+
+                      {/* Individual Metrics */}
+                      {qualityResult.metrics && (
+                        <div className="bg-gray-50 p-3 rounded">
+                          <p className="text-sm font-medium text-secondary-900 mb-2">Detailed Metrics:</p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Structure:</span>
+                              <span className="font-medium">{qualityResult.metrics.structure}/100</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Formatting:</span>
+                              <span className="font-medium">{qualityResult.metrics.formatting}/100</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Readability:</span>
+                              <span className="font-medium">{qualityResult.metrics.readability}/100</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Completeness:</span>
+                              <span className="font-medium">{qualityResult.metrics.completeness}/100</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Statistics */}
+                      {qualityResult.statistics && (
+                        <div className="bg-blue-50 p-3 rounded">
+                          <p className="text-sm font-medium text-secondary-900 mb-2">Document Statistics:</p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Word Count:</span>
+                              <span className="font-medium">{qualityResult.statistics.wordCount}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Abstract:</span>
+                              <span className="font-medium">{qualityResult.statistics.abstractLength} words</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">References:</span>
+                              <span className="font-medium">{qualityResult.statistics.references}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Figures:</span>
+                              <span className="font-medium">{qualityResult.statistics.figures}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Issues */}
+                      {qualityResult.issues && qualityResult.issues.length > 0 && (
+                        <div className="bg-red-50 p-3 rounded">
+                          <p className="text-sm font-medium text-secondary-900 mb-2">Issues Found ({qualityResult.issues.length}):</p>
+                          <ul className="space-y-1">
+                            {qualityResult.issues.map((issue: any, index: number) => (
+                              <li key={index} className="text-sm flex items-start">
+                                <span className={`mr-2 ${issue.severity === 'critical' ? 'text-red-600' :
+                                  issue.severity === 'moderate' ? 'text-yellow-600' :
+                                    'text-blue-600'
+                                  }`}>
+                                  {issue.severity === 'critical' ? '🔴' : issue.severity === 'moderate' ? '🟡' : '🔵'}
+                                </span>
+                                <span className="text-secondary-700">
+                                  <span className="font-medium">{issue.category}:</span> {issue.message}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Recommendations */}
+                      {qualityResult.recommendations && qualityResult.recommendations.length > 0 && (
+                        <div className="bg-green-50 p-3 rounded">
+                          <p className="text-sm font-medium text-secondary-900 mb-2">Recommendations ({qualityResult.recommendations.length}):</p>
+                          <ul className="space-y-1">
+                            {qualityResult.recommendations.slice(0, 5).map((rec: any, index: number) => (
+                              <li key={index} className="text-sm flex items-start">
+                                <span className="mr-2">💡</span>
+                                <span className="text-secondary-700">
+                                  <span className="font-medium">{rec.category}:</span> {rec.suggestion}
+                                </span>
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -344,179 +521,322 @@ const SubmissionScreening: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Screening Decision */}
-          <div className="space-y-6">
-            <div className="card">
-              <div className="card-header">
-                <h2 className="text-xl font-semibold text-secondary-900">Initial Screening Checklist</h2>
-                <p className="text-sm text-secondary-600 mt-1">Complete all required checks before making a decision</p>
-              </div>
-              <div className="card-body space-y-4">
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <label className="flex items-start">
-                      <input
-                        type="checkbox"
-                        checked={scopeCheck}
-                        onChange={(e) => setScopeCheck(e.target.checked)}
-                        className="mt-1 mr-3 form-checkbox text-blue-600"
-                      />
-                      <div>
-                        <span className="font-medium text-secondary-900">Scope Check *</span>
-                        <p className="text-sm text-secondary-600 mt-1">Manuscript fits within journal scope and subject areas</p>
+          {/* Screening Decision Tab */}
+          {activeTab === 'decision' && (
+            <div className="space-y-6">
+              {['SUBMITTED', 'INITIAL_REVIEW'].includes(submission.status) ? (
+                <>
+                  <div className="card">
+                    <div className="card-header">
+                      <h2 className="text-xl font-semibold text-secondary-900">Initial Screening Checklist</h2>
+                      <p className="text-sm text-secondary-600 mt-1">Complete all required checks before making a decision</p>
+                    </div>
+                    <div className="card-body space-y-4">
+                      <div className="space-y-4">
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <label className="flex items-start">
+                            <input
+                              type="checkbox"
+                              checked={scopeCheck}
+                              onChange={(e) => setScopeCheck(e.target.checked)}
+                              className="mt-1 mr-3 form-checkbox text-blue-600"
+                            />
+                            <div>
+                              <span className="font-medium text-secondary-900">Scope Check *</span>
+                              <p className="text-sm text-secondary-600 mt-1">Manuscript fits within journal scope and subject areas</p>
+                            </div>
+                          </label>
+                        </div>
+
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <label className="flex items-start">
+                            <input
+                              type="checkbox"
+                              checked={formatCheck}
+                              onChange={(e) => setFormatCheck(e.target.checked)}
+                              className="mt-1 mr-3 form-checkbox text-green-600"
+                            />
+                            <div>
+                              <span className="font-medium text-secondary-900">Format Check *</span>
+                              <p className="text-sm text-secondary-600 mt-1">Manuscript meets formatting requirements and includes required sections</p>
+                            </div>
+                          </label>
+                        </div>
+
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <label className="flex items-start">
+                            <input
+                              type="checkbox"
+                              checked={plagiarismCheck}
+                              onChange={(e) => setPlagiarismCheck(e.target.checked)}
+                              className="mt-1 mr-3 form-checkbox text-purple-600"
+                            />
+                            <div>
+                              <span className="font-medium text-secondary-900">Plagiarism Check</span>
+                              <p className="text-sm text-secondary-600 mt-1">Automated plagiarism scan completed and reviewed</p>
+                            </div>
+                          </label>
+                        </div>
+
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                          <label className="flex items-start">
+                            <input
+                              type="checkbox"
+                              checked={qualityCheck}
+                              onChange={(e) => setQualityCheck(e.target.checked)}
+                              className="mt-1 mr-3 form-checkbox text-orange-600"
+                            />
+                            <div>
+                              <span className="font-medium text-secondary-900">Quality Assessment</span>
+                              <p className="text-sm text-secondary-600 mt-1">Overall manuscript quality and completeness assessed</p>
+                            </div>
+                          </label>
+                        </div>
                       </div>
-                    </label>
+                    </div>
                   </div>
 
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <label className="flex items-start">
-                      <input
-                        type="checkbox"
-                        checked={formatCheck}
-                        onChange={(e) => setFormatCheck(e.target.checked)}
-                        className="mt-1 mr-3 form-checkbox text-green-600"
-                      />
+                  <div className="card">
+                    <div className="card-header">
+                      <h2 className="text-xl font-semibold text-secondary-900">Initial Screening Decision</h2>
+                      <p className="text-sm text-secondary-600 mt-1">Make your editorial decision based on the screening results</p>
+                    </div>
+                    <div className="card-body space-y-6">
                       <div>
-                        <span className="font-medium text-secondary-900">Format Check *</span>
-                        <p className="text-sm text-secondary-600 mt-1">Manuscript meets formatting requirements and includes required sections</p>
+                        <label className="block text-sm font-medium text-secondary-700 mb-3">
+                          Decision *
+                        </label>
+                        <div className="space-y-3">
+                          <label className="flex items-start p-4 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-50 transition-colors">
+                            <input
+                              type="radio"
+                              name="decision"
+                              value="PROCEED_TO_REVIEW"
+                              checked={decision === 'PROCEED_TO_REVIEW'}
+                              onChange={(e) => setDecision(e.target.value as any)}
+                              className="mt-1 mr-3 form-radio text-green-600"
+                            />
+                            <div>
+                              <span className="font-medium text-green-800">Proceed to Peer Review</span>
+                              <p className="text-sm text-green-600 mt-1">Manuscript passes initial screening and should be sent for peer review</p>
+                            </div>
+                          </label>
+
+                          <label className="flex items-start p-4 border-2 border-yellow-200 rounded-lg cursor-pointer hover:bg-yellow-50 transition-colors">
+                            <input
+                              type="radio"
+                              name="decision"
+                              value="RETURN_FOR_FORMATTING"
+                              checked={decision === 'RETURN_FOR_FORMATTING'}
+                              onChange={(e) => setDecision(e.target.value as any)}
+                              className="mt-1 mr-3 form-radio text-yellow-600"
+                            />
+                            <div>
+                              <span className="font-medium text-yellow-800">Return for Formatting</span>
+                              <p className="text-sm text-yellow-600 mt-1">Manuscript needs formatting corrections before review can proceed</p>
+                            </div>
+                          </label>
+
+                          <label className="flex items-start p-4 border-2 border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition-colors">
+                            <input
+                              type="radio"
+                              name="decision"
+                              value="DESK_REJECT"
+                              checked={decision === 'DESK_REJECT'}
+                              onChange={(e) => setDecision(e.target.value as any)}
+                              className="mt-1 mr-3 form-radio text-red-600"
+                            />
+                            <div>
+                              <span className="font-medium text-red-800">Desk Reject</span>
+                              <p className="text-sm text-red-600 mt-1">Manuscript does not meet journal standards and should be rejected without review</p>
+                            </div>
+                          </label>
+                        </div>
                       </div>
-                    </label>
+
+                      {(decision === 'RETURN_FOR_FORMATTING' || decision === 'DESK_REJECT') && (
+                        <div>
+                          <label className="block text-sm font-medium text-secondary-700 mb-2">
+                            Comments to Author <span className="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            value={comments}
+                            onChange={(e) => setComments(e.target.value)}
+                            rows={4}
+                            className="w-full border border-secondary-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            placeholder={decision === 'RETURN_FOR_FORMATTING'
+                              ? "Specify the formatting issues that need to be addressed..."
+                              : "Explain why the manuscript is not suitable for publication in this journal..."
+                            }
+                          />
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-sm font-medium text-secondary-700 mb-2">
+                          Internal Editor Comments
+                        </label>
+                        <textarea
+                          value={editorComments}
+                          onChange={(e) => setEditorComments(e.target.value)}
+                          rows={3}
+                          className="w-full border border-secondary-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="Internal notes for editorial team (not shared with author)..."
+                        />
+                      </div>
+
+                      <button
+                        onClick={handleScreeningDecision}
+                        disabled={processing || !decision || !scopeCheck || !formatCheck}
+                        className="w-full bg-primary-600 text-white py-3 px-4 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                      >
+                        {processing ? 'Processing Decision...' : 'Submit Initial Screening Decision'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : submission.status === 'REVISED' ? (
+                <div className="space-y-6">
+                  {/* Revision Context */}
+                  <div className="card">
+                    <div className="card-header">
+                      <h2 className="text-xl font-semibold text-secondary-900">Revision Details</h2>
+                      <p className="text-sm text-secondary-600 mt-1">Review the author's response and changes</p>
+                    </div>
+                    <div className="card-body space-y-6">
+                      {submission.revisions && submission.revisions.length > 0 && (
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                          <h3 className="font-medium text-blue-900 mb-2">Author's Response to Reviewers</h3>
+                          <p className="text-blue-800 whitespace-pre-wrap leading-relaxed">
+                            {submission.revisions[0].authorResponse}
+                          </p>
+                        </div>
+                      )}
+
+                      <div>
+                        <h3 className="font-medium text-secondary-900 mb-3">Revised Files</h3>
+                        {submission.revisions && submission.revisions.length > 0 && submission.revisions[0].files ? (
+                          <div className="space-y-2">
+                            {submission.revisions[0].files.map((file: any) => (
+                              <div key={file.id} className="flex items-center justify-between bg-secondary-50 p-3 rounded border border-secondary-200">
+                                <div>
+                                  <span className="font-medium text-secondary-900">{file.originalName}</span>
+                                  <span className="text-secondary-600 text-sm ml-2">
+                                    ({(file.fileSize / 1024 / 1024).toFixed(2)} MB)
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => handleDownload(file.id)}
+                                  className="text-primary-600 hover:text-primary-800 text-sm font-medium"
+                                >
+                                  Download
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-secondary-500 italic">No files attached to this revision.</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <label className="flex items-start">
-                      <input
-                        type="checkbox"
-                        checked={plagiarismCheck}
-                        onChange={(e) => setPlagiarismCheck(e.target.checked)}
-                        className="mt-1 mr-3 form-checkbox text-purple-600"
-                      />
-                      <div>
-                        <span className="font-medium text-secondary-900">Plagiarism Check</span>
-                        <p className="text-sm text-secondary-600 mt-1">Automated plagiarism scan completed and reviewed</p>
+                  {/* Previous Reviews Context */}
+                  {submission.reviews && submission.reviews.length > 0 && (
+                    <div className="card">
+                      <div className="card-header">
+                        <h2 className="text-xl font-semibold text-secondary-900">Previous Reviews</h2>
                       </div>
-                    </label>
-                  </div>
+                      <div className="card-body space-y-4">
+                        {submission.reviews.map((review, index) => (
+                          <div key={review.id} className="border border-secondary-200 rounded-lg p-4">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-medium text-secondary-900">Reviewer #{index + 1}</span>
+                              <Badge variant={review.status === 'COMPLETED' ? 'success' : 'warning'}>
+                                {review.status}
+                              </Badge>
+                            </div>
+                            {review.authorComments && (
+                              <div className="bg-secondary-50 p-3 rounded text-sm text-secondary-700 mt-2">
+                                <p className="font-medium text-secondary-900 mb-1">Comments to Author:</p>
+                                {review.authorComments}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <label className="flex items-start">
-                      <input
-                        type="checkbox"
-                        checked={qualityCheck}
-                        onChange={(e) => setQualityCheck(e.target.checked)}
-                        className="mt-1 mr-3 form-checkbox text-orange-600"
-                      />
-                      <div>
-                        <span className="font-medium text-secondary-900">Quality Assessment</span>
-                        <p className="text-sm text-secondary-600 mt-1">Overall manuscript quality and completeness assessed</p>
+                  {/* Revision Decision */}
+                  <div className="card">
+                    <div className="card-header">
+                      <h2 className="text-xl font-semibold text-secondary-900">Revision Decision</h2>
+                      <p className="text-sm text-secondary-600 mt-1">Decide how to proceed with this revision</p>
+                    </div>
+                    <div className="card-body space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button
+                          onClick={() => navigate(`/editor/submission/${id}/reviews`)}
+                          className="flex items-center justify-center p-6 border-2 border-primary-200 rounded-xl hover:bg-primary-50 hover:border-primary-300 transition-all group"
+                        >
+                          <div className="text-center">
+                            <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-200 transition-colors">
+                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                              </svg>
+                            </div>
+                            <h3 className="font-semibold text-primary-900">Send for Re-Review</h3>
+                            <p className="text-sm text-primary-700 mt-1">Assign to reviewers for another round</p>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => navigate(`/editor/submission/${id}/decision`)}
+                          className="flex items-center justify-center p-6 border-2 border-green-200 rounded-xl hover:bg-green-50 hover:border-green-300 transition-all group"
+                        >
+                          <div className="text-center">
+                            <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-green-200 transition-colors">
+                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </div>
+                            <h3 className="font-semibold text-green-900">Make Final Decision</h3>
+                            <p className="text-sm text-green-700 mt-1">Accept or Reject without further review</p>
+                          </div>
+                        </button>
                       </div>
-                    </label>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="card">
+                  <div className="card-body text-center py-12">
+                    <div className="bg-green-100 text-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-secondary-900 mb-2">Screening Completed</h3>
+                    <p className="text-secondary-600 max-w-md mx-auto">
+                      This submission has already passed the initial screening stage.
+                      Current status: <span className="font-medium text-secondary-900">{formatStatus(submission.status)}</span>
+                    </p>
+                    <div className="mt-6">
+                      <Button
+                        onClick={() => navigate(`/editor/submission/${id}/reviews`)}
+                        variant="primary"
+                      >
+                        Track Reviews
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-
-            <div className="card">
-              <div className="card-header">
-                <h2 className="text-xl font-semibold text-secondary-900">Initial Screening Decision</h2>
-                <p className="text-sm text-secondary-600 mt-1">Make your editorial decision based on the screening results</p>
-              </div>
-              <div className="card-body space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-3">
-                    Decision *
-                  </label>
-                  <div className="space-y-3">
-                    <label className="flex items-start p-4 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="decision"
-                        value="PROCEED_TO_REVIEW"
-                        checked={decision === 'PROCEED_TO_REVIEW'}
-                        onChange={(e) => setDecision(e.target.value as any)}
-                        className="mt-1 mr-3 form-radio text-green-600"
-                      />
-                      <div>
-                        <span className="font-medium text-green-800">Proceed to Peer Review</span>
-                        <p className="text-sm text-green-600 mt-1">Manuscript passes initial screening and should be sent for peer review</p>
-                      </div>
-                    </label>
-
-                    <label className="flex items-start p-4 border-2 border-yellow-200 rounded-lg cursor-pointer hover:bg-yellow-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="decision"
-                        value="RETURN_FOR_FORMATTING"
-                        checked={decision === 'RETURN_FOR_FORMATTING'}
-                        onChange={(e) => setDecision(e.target.value as any)}
-                        className="mt-1 mr-3 form-radio text-yellow-600"
-                      />
-                      <div>
-                        <span className="font-medium text-yellow-800">Return for Formatting</span>
-                        <p className="text-sm text-yellow-600 mt-1">Manuscript needs formatting corrections before review can proceed</p>
-                      </div>
-                    </label>
-
-                    <label className="flex items-start p-4 border-2 border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="decision"
-                        value="DESK_REJECT"
-                        checked={decision === 'DESK_REJECT'}
-                        onChange={(e) => setDecision(e.target.value as any)}
-                        className="mt-1 mr-3 form-radio text-red-600"
-                      />
-                      <div>
-                        <span className="font-medium text-red-800">Desk Reject</span>
-                        <p className="text-sm text-red-600 mt-1">Manuscript does not meet journal standards and should be rejected without review</p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                {(decision === 'RETURN_FOR_FORMATTING' || decision === 'DESK_REJECT') && (
-                  <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
-                      Comments to Author <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      value={comments}
-                      onChange={(e) => setComments(e.target.value)}
-                      rows={4}
-                      className="w-full border border-secondary-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      placeholder={decision === 'RETURN_FOR_FORMATTING'
-                        ? "Specify the formatting issues that need to be addressed..."
-                        : "Explain why the manuscript is not suitable for publication in this journal..."
-                      }
-                    />
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-2">
-                    Internal Editor Comments
-                  </label>
-                  <textarea
-                    value={editorComments}
-                    onChange={(e) => setEditorComments(e.target.value)}
-                    rows={3}
-                    className="w-full border border-secondary-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="Internal notes for editorial team (not shared with author)..."
-                  />
-                </div>
-
-                <button
-                  onClick={handleScreeningDecision}
-                  disabled={processing || !decision || !scopeCheck || !formatCheck}
-                  className="w-full bg-primary-600 text-white py-3 px-4 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                >
-                  {processing ? 'Processing Decision...' : 'Submit Initial Screening Decision'}
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

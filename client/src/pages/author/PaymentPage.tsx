@@ -30,6 +30,17 @@ const PaymentPage: React.FC = () => {
     }
   }, [id]);
 
+  // Set default payment method based on settings
+  useEffect(() => {
+    if (settings) {
+      if (settings.enableBankTransfer === false && settings.enableUpi !== false) {
+        setPaymentMethod('UPI');
+      } else if (settings.enableBankTransfer !== false) {
+        setPaymentMethod('BANK_TRANSFER');
+      }
+    }
+  }, [settings]);
+
   const loadData = async () => {
     try {
       const [submissionData, paymentData, settingsData] = await Promise.all([
@@ -317,41 +328,46 @@ const PaymentPage: React.FC = () => {
                   )}
 
                   {/* Payment Method Selection */}
-                  <div className="space-y-3">
+                  <div className="space-y-3 text-center">
                     <label className="text-sm font-medium text-foreground">Select Payment Method Used</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('BANK_TRANSFER')}
-                        className={`p-4 border-2 rounded-lg text-left transition-all ${paymentMethod === 'BANK_TRANSFER'
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-secondary-200 hover:border-secondary-300'
-                          }`}
-                      >
-                        <div className="flex items-center mb-2">
-                          <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                          </svg>
-                          <span className="font-semibold text-foreground">Bank Transfer</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">NEFT/RTGS/IMPS</p>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('UPI')}
-                        className={`p-4 border-2 rounded-lg text-left transition-all ${paymentMethod === 'UPI'
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-secondary-200 hover:border-secondary-300'
-                          }`}
-                      >
-                        <div className="flex items-center mb-2">
-                          <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                          </svg>
-                          <span className="font-semibold text-foreground">UPI</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">PhonePe/GPay/Paytm</p>
-                      </button>
+                    <div className="flex justify-center gap-3 flex-wrap">
+                      {settings?.enableBankTransfer !== false && (
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('BANK_TRANSFER')}
+                          className={`flex-1 max-w-sm p-4 border-2 rounded-lg text-left transition-all ${paymentMethod === 'BANK_TRANSFER'
+                            ? 'border-primary-500 bg-primary-50'
+                            : 'border-secondary-200 hover:border-secondary-300'
+                            }`}
+                        >
+                          <div className="flex items-center mb-2">
+                            <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            <span className="font-semibold text-foreground">Bank Transfer</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">NEFT/RTGS/IMPS</p>
+                        </button>
+                      )}
+
+                      {settings?.enableUpi !== false && (
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('UPI')}
+                          className={`flex-1 max-w-sm p-4 border-2 rounded-lg text-left transition-all ${paymentMethod === 'UPI'
+                            ? 'border-primary-500 bg-primary-50'
+                            : 'border-secondary-200 hover:border-secondary-300'
+                            }`}
+                        >
+                          <div className="flex items-center justify-center mb-2">
+                            <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                            <span className="font-semibold text-foreground text-center">UPI</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground text-center">PhonePe/GPay/Paytm</p>
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -451,4 +467,4 @@ const PaymentPage: React.FC = () => {
   );
 };
 
-export default PaymentPage;
+export default PaymentPage; 

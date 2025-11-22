@@ -26,7 +26,16 @@ class AuthService {
     axios.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
+        // Only redirect to login if:
+        // 1. It's a 401 error
+        // 2. It's NOT a login/register request (to avoid redirect loop)
+        // 3. User was previously authenticated (has token)
+        if (
+          error.response?.status === 401 &&
+          this.token &&
+          !error.config?.url?.includes('/auth/login') &&
+          !error.config?.url?.includes('/auth/register')
+        ) {
           this.setToken(null);
           localStorage.removeItem('token');
           window.location.href = '/login';
@@ -41,8 +50,23 @@ class AuthService {
   }
 
   async login(credentials: { email: string; password: string }): Promise<AuthResponse> {
-    const response = await axios.post<ApiResponse<AuthResponse>>(`${API_URL}/auth/login`, credentials);
-    return response.data.data!;
+    try {
+      const response = await axios.post<ApiResponse<AuthResponse>>(`${API_URL}/auth/login`, credentials);
+      return response.data.data!;
+    } catch (error: any) {
+      // Provide clear error messages based on response
+      if (error.response?.status === 401) {
+        throw new Error('Invalid email or password. Please check your credentials and try again.');
+      } else if (error.response?.status === 403) {
+        throw new Error('Your account is inactive. Please contact support.');
+      } else if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      } else if (error.message === 'Network Error') {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
+      } else {
+        throw new Error('Login failed. Please try again later.');
+      }
+    }
   }
 
   async register(userData: {
@@ -55,8 +79,30 @@ class AuthService {
     country?: string;
     orcid?: string;
   }): Promise<AuthResponse> {
-    const response = await axios.post<ApiResponse<AuthResponse>>(`${API_URL}/auth/register`, userData);
-    return response.data.data!;
+    try {
+      const response = await axios.post<ApiResponse<AuthResponse>>(`${API_URL}/auth/register`, userData);
+      return response.data.data!;
+    } catch (error: any) {
+      // Provide clear error messages based on response
+      if (error.response?.status === 400) {
+        if (error.response?.data?.error?.includes('already exists')) {
+          throw new Error('An account with this email already exists. Please login instead.');
+        } else if (error.response?.data?.details) {
+          // Zod validation errors
+          const validationErrors = error.response.data.details;
+          const firstError = validationErrors[0];
+          throw new Error(`Validation error: ${firstError.message}`);
+        } else {
+          throw new Error(error.response.data.error || 'Invalid registration data. Please check your information.');
+        }
+      } else if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      } else if (error.message === 'Network Error') {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
+      } else {
+        throw new Error('Registration failed. Please try again later.');
+      }
+    }
   }
 
   async getProfile(): Promise<User> {

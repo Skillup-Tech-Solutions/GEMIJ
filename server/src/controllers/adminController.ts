@@ -1154,3 +1154,47 @@ export const markPaymentAsPaid = async (req: AuthenticatedRequest, res: Response
     });
   }
 };
+
+export const updateUserRole = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!Object.values(UserRole).includes(role)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid role'
+      });
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role: role as UserRole },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isActive: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        role: user.role,
+        status: user.isActive ? 'ACTIVE' : 'INACTIVE'
+      }
+    });
+  } catch (error) {
+    console.error('Update user role error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
