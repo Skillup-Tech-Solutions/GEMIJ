@@ -586,11 +586,7 @@ export const acceptInvitation = async (req: AuthenticatedRequest, res: Response)
     ]);
 
     // Notify editors
-    const editors = updatedInvitation.review.submission.editorAssignments?.map((ea: any) => ea.editor) || [];
-    // If editorAssignments not included, we might need to fetch them or rely on what's available.
-    // The include in update only has submission: true. We need to fetch editors.
-    // Let's fetch editors separately or update the include.
-    // Updating the include is cleaner.
+    // We need to fetch editors separately as the previous update didn't include them.
 
     const submissionWithEditors = await prisma.submission.findUnique({
       where: { id: updatedInvitation.review.submissionId },
