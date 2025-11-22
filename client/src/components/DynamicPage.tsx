@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 interface DynamicPageProps {
     slug: string;
     title: string;
@@ -18,7 +20,7 @@ const DynamicPage: React.FC<DynamicPageProps> = ({ slug, title, defaultContent }
                 setLoading(true);
                 setError(null);
 
-                const response = await axios.get(`/api/public/page-content/${slug}`);
+                const response = await axios.get(`${API_URL}/public/page-content/${slug}`);
 
                 if (response.data.success) {
                     setContent(response.data.data.content);

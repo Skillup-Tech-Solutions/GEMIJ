@@ -18,7 +18,7 @@ import issueConferenceRoutes from './routes/issueConference';
 import feedRoutes from './routes/feed';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
 // Trust proxy headers (required for rate limiting behind reverse proxies)
 app.set('trust proxy', 1);

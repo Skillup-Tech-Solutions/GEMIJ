@@ -4,6 +4,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import toast from 'react-hot-toast';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 interface PageContent {
     slug: string;
     content: string;
@@ -32,7 +34,7 @@ const PageContentEditor: React.FC = () => {
     const fetchPageContent = async (slug: string) => {
         try {
             setLoading(true);
-            const response = await axios.get(`/api/public/page-content/${slug}`);
+            const response = await axios.get(`${API_URL}/public/page-content/${slug}`);
 
             if (response.data.success) {
                 setContent(response.data.data.content);
@@ -49,7 +51,7 @@ const PageContentEditor: React.FC = () => {
     const handleSave = async () => {
         try {
             setSaving(true);
-            const response = await axios.put(`/api/admin/page-content/${selectedPage}`, {
+            const response = await axios.put(`${API_URL}/admin/page-content/${selectedPage}`, {
                 content
             });
 
@@ -101,8 +103,8 @@ const PageContentEditor: React.FC = () => {
                                         key={page.slug}
                                         onClick={() => setSelectedPage(page.slug)}
                                         className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${selectedPage === page.slug
-                                                ? 'bg-primary-100 text-primary-700'
-                                                : 'text-secondary-700 hover:bg-secondary-100'
+                                            ? 'bg-primary-100 text-primary-700'
+                                            : 'text-secondary-700 hover:bg-secondary-100'
                                             }`}
                                     >
                                         {page.title}
