@@ -27,6 +27,20 @@ ENV VITE_JOURNAL_ABBREVIATION=$VITE_JOURNAL_ABBREVIATION
 # Build the application
 RUN npm run build
 
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies (including serve)
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built assets from builder stage
+COPY --from=builder /app/dist ./dist
+
 # Expose port
 EXPOSE 3000
 
@@ -34,5 +48,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
-# Start the development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+# Start the production server
+CMD ["npm", "start"]
