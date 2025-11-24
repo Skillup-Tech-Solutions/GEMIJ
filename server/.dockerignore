@@ -1,0 +1,70 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Testing
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+__tests__
+__mocks__
+jest.config.js
+
+# Development
+.env.local
+.env.development
+.env.test
+*.local
+
+# Build outputs (exclude from context, will be built in container)
+dist
+build
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+docs
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Prisma (keep schema and migrations, exclude generated client)
+prisma/generated
+
+# Scripts (development/testing scripts)
+src/scripts/test-*.ts
+src/scripts/debug-*.ts
+src/scripts/update-*.ts
+src/scripts/check-*.ts
+src/scripts/sync-*.ts
+testEmail.ts
+testReviewThankYou.ts
+
+# Logs
+logs
+*.log
+
+# Misc
+.eslintcache
+.prettierignore
+tsconfig.tsbuildinfo

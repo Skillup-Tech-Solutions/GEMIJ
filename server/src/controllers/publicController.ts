@@ -210,6 +210,24 @@ export const downloadArticle = async (req: Request, res: Response) => {
       data: { downloads: article.downloads + 1 }
     });
 
+    // Check if it's a B2 URL
+    if (article.pdfPath && article.pdfPath.includes('/file/')) {
+      try {
+        const urlParts = article.pdfPath.split('/file/');
+        if (urlParts.length > 1) {
+          const pathParts = urlParts[1].split('/');
+          if (pathParts.length > 1) {
+            const fileName = pathParts.slice(1).join('/');
+            const signedUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
+            return res.redirect(signedUrl);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sign download URL:', error);
+      }
+    }
+
+    // Fallback for local files (or if signing failed but we want to try anyway, though likely 401)
     return res.download(article.pdfPath, `${article.doi.replace('/', '_')}.pdf`);
   } catch (error) {
     console.error('Download article error:', error);
@@ -239,6 +257,23 @@ export const downloadArticleById = async (req: Request, res: Response) => {
       where: { id: article.id },
       data: { downloads: article.downloads + 1 }
     });
+
+    // Check if it's a B2 URL
+    if (article.pdfPath && article.pdfPath.includes('/file/')) {
+      try {
+        const urlParts = article.pdfPath.split('/file/');
+        if (urlParts.length > 1) {
+          const pathParts = urlParts[1].split('/');
+          if (pathParts.length > 1) {
+            const fileName = pathParts.slice(1).join('/');
+            const signedUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
+            return res.redirect(signedUrl);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sign download URL:', error);
+      }
+    }
 
     const path = require('path');
     const fullPath = path.join(__dirname, '../../', article.pdfPath);
@@ -489,14 +524,11 @@ export const getPageContent = async (req: Request, res: Response) => {
     const { slug } = req.params;
     const key = `page_${slug}_content`;
 
-    console.log(`Fetching page content for slug: ${slug}, key: ${key}`);
-
     const setting = await prisma.systemSettings.findUnique({
       where: { key }
     });
 
     if (!setting) {
-      console.log(`Page content not found for key: ${key}`);
       return res.status(404).json({
         success: false,
         error: 'Page content not found',
@@ -504,7 +536,6 @@ export const getPageContent = async (req: Request, res: Response) => {
       });
     }
 
-    console.log(`Page content found for ${slug}`);
     return res.json({
       success: true,
       data: {

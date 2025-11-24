@@ -28,6 +28,8 @@ import {
   sendCustomEmail,
   runPlagiarismCheck,
   performQualityCheck,
+  runGrammarCheck,
+  updateReviewPermissions,
   getSubmissionTimeline,
   acceptHandling,
   declineHandling
@@ -67,6 +69,7 @@ router.post('/submissions/:submissionId/send-decision', sendDecisionLetter);
 router.post('/submissions/:submissionId/send-email', sendCustomEmail);
 router.post('/submissions/:submissionId/plagiarism-check', runPlagiarismCheck);
 router.post('/submissions/:submissionId/quality-check', performQualityCheck);
+router.post('/submissions/:submissionId/grammar-check', runGrammarCheck);
 router.post('/reviews/:reviewId/remind', sendReviewerReminder);
 router.post('/issues/:issueId/articles', addArticleToIssue);
 
@@ -76,6 +79,7 @@ router.post('/submissions/:submissionId/decline-handling', declineHandling);
 
 router.put('/submissions/:submissionId/status', updateSubmissionStatus);
 router.put('/reviews/:reviewId/extend-deadline', extendReviewDeadline);
+router.put('/reviews/:reviewId/permissions', updateReviewPermissions);
 
 router.delete('/submissions/:submissionId/reviews/:reviewId', removeReviewer);
 

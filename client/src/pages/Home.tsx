@@ -80,7 +80,7 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Hero Section */}
-      <section className="relative bg-slate-900 text-white py-32 overflow-hidden">
+      <section className="relative bg-slate-900 text-white py-20 sm:py-32 overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-1/2 -right-1/4 w-[1000px] h-[1000px] rounded-full bg-blue-600/20 blur-3xl animate-pulse"></div>
@@ -102,7 +102,7 @@ const Home: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight animate-fade-in-up delay-100">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 sm:mb-8 leading-tight animate-fade-in-up delay-100">
               {hero.title ? (
                 <span dangerouslySetInnerHTML={{
                   __html: hero.title.replace(
@@ -325,7 +325,7 @@ const Home: React.FC = () => {
       )}
 
       {/* CTA Section */}
-      <section className="py-32 bg-slate-900 relative overflow-hidden">
+      <section className="py-20 sm:py-32 bg-slate-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-5"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent"></div>
 

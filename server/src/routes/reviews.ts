@@ -12,7 +12,8 @@ import {
   getCompletedReviews,
   getReviewStats,
   getReviewHistory,
-  generateCertificate
+  generateCertificate,
+  updateReviewSharing
 } from '../controllers/reviewController';
 import { authenticate, authorize } from '../middleware/auth';
 import { UserRole } from '@prisma/client';
@@ -35,6 +36,7 @@ router.post('/:reviewId/respond', respondToInvitation);
 router.post('/invitations/:invitationId/accept', acceptInvitation);
 router.post('/invitations/:invitationId/decline', declineInvitation);
 router.put('/:reviewId', updateReview);
-router.post('/:reviewId/submit', submitReview);
+router.post('/:reviewId/submit', authenticate, submitReview); // Modified to include authenticate
+router.put('/:reviewId/share-reports', authenticate, updateReviewSharing); // Added new route
 
 export default router;

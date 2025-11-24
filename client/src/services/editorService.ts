@@ -112,12 +112,18 @@ class EditorService {
     await axios.post(`${API_URL}/editor/reviews/${reviewId}/remind`, { message });
   }
 
-  async extendReviewDeadline(reviewId: string, newDueDate: string, reason: string): Promise<Review> {
-    const response = await axios.put<ApiResponse<Review>>(`${API_URL}/editor/reviews/${reviewId}/extend-deadline`, {
-      dueDate: newDueDate,
-      reason
-    });
-    return response.data.data!;
+  async extendReviewDeadline(reviewId: string, newDate: string, reason: string): Promise<any> {
+    const response = await axios.put(`${API_URL}/editor/reviews/${reviewId}/extend-deadline`, { newDate, reason });
+    return response.data.data;
+  }
+
+  async updateReviewPermissions(reviewId: string, permissions: {
+    canViewPlagiarismReport?: boolean;
+    canViewQualityReport?: boolean;
+    canViewGrammarReport?: boolean;
+  }): Promise<any> {
+    const response = await axios.put(`${API_URL}/editor/reviews/${reviewId}/permissions`, permissions);
+    return response.data.data;
   }
 
   // Review Management
@@ -247,6 +253,32 @@ class EditorService {
     recommendations: string[];
   }> {
     const response = await axios.post<ApiResponse<any>>(`${API_URL}/editor/submissions/${submissionId}/quality-check`);
+    return response.data.data!;
+  }
+
+  async runGrammarCheck(submissionId: string): Promise<{
+    totalErrors: number;
+    errorBreakdown: {
+      grammar: number;
+      spelling: number;
+      punctuation: number;
+      style: number;
+    };
+    score: number;
+    errors: Array<{
+      type: string;
+      category: string;
+      message: string;
+      offset: number;
+      length: number;
+      bad: string;
+      suggestions: string[];
+    }>;
+    status: string;
+    summary: string;
+    report: any;
+  }> {
+    const response = await axios.post<ApiResponse<any>>(`${API_URL}/editor/submissions/${submissionId}/grammar-check`);
     return response.data.data!;
   }
 

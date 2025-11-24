@@ -38,6 +38,15 @@ class ReviewService {
     return response.data.data!;
   }
 
+  async updateReviewSharing(reviewId: string, sharingData: {
+    sharePlagiarismWithAuthor?: boolean;
+    shareQualityWithAuthor?: boolean;
+    shareGrammarWithAuthor?: boolean;
+  }): Promise<Review> {
+    const response = await axios.put<ApiResponse<Review>>(`${API_URL}/reviews/${reviewId}/share-reports`, sharingData);
+    return response.data.data!;
+  }
+
   async downloadManuscript(submissionId: string, fileId: string): Promise<Blob> {
     const response = await axios.get(`${API_URL}/submissions/${submissionId}/files/${fileId}/download`, {
       responseType: 'blob'

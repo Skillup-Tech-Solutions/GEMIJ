@@ -216,7 +216,10 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
           orderBy: {
             revisionNumber: 'desc'
           }
-        }
+        },
+        plagiarismChecks: true,
+        qualityAssessments: true,
+        grammarChecks: true
       }
     });
 
@@ -232,6 +235,21 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
         success: false,
         error: 'Access denied'
       });
+    }
+
+    // Filter reports for author
+    let plagiarismChecks = submission.plagiarismChecks;
+    let qualityAssessments = submission.qualityAssessments;
+    let grammarChecks = submission.grammarChecks;
+
+    if (req.user!.role === 'AUTHOR') {
+      const hasPlagiarismAccess = submission.reviews.some(r => r.sharePlagiarismWithAuthor);
+      const hasQualityAccess = submission.reviews.some(r => r.shareQualityWithAuthor);
+      const hasGrammarAccess = submission.reviews.some(r => r.shareGrammarWithAuthor);
+
+      if (!hasPlagiarismAccess) plagiarismChecks = [];
+      if (!hasQualityAccess) qualityAssessments = [];
+      if (!hasGrammarAccess) grammarChecks = [];
     }
 
     // Sign file URLs
@@ -280,7 +298,12 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
 
     return res.json({
       success: true,
-      data: submission
+      data: {
+        ...submission,
+        plagiarismChecks,
+        qualityAssessments,
+        grammarChecks
+      }
     });
   } catch (error) {
     console.error('Get submission error:', error);

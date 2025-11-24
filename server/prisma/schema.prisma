@@ -139,6 +139,7 @@ model Submission {
   publicationSettings PublicationSettings?
   plagiarismChecks    PlagiarismCheck[]
   qualityAssessments  QualityAssessment[]
+  grammarChecks       GrammarCheck[]
 
   @@map("submissions")
 }
@@ -194,6 +195,16 @@ model Review {
   submissionId  String
   submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   invitation    ReviewerInvitation?
+
+  // Permissions from Editor to Reviewer
+  canViewPlagiarismReport Boolean @default(false)
+  canViewQualityReport    Boolean @default(false)
+  canViewGrammarReport    Boolean @default(false)
+
+  // Permissions from Reviewer to Author
+  sharePlagiarismWithAuthor Boolean @default(false)
+  shareQualityWithAuthor    Boolean @default(false)
+  shareGrammarWithAuthor    Boolean @default(false)
 
   @@map("reviews")
 }
@@ -486,4 +497,29 @@ model QualityAssessment {
   assessedBy        String?  // User ID who initiated assessment
   
   @@map("quality_assessments")
+}
+
+model GrammarCheck {
+  id                String   @id @default(cuid())
+  submissionId      String
+  submission        Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  totalErrors       Int      // Total number of errors found
+  grammarErrors     Int      // Grammar-specific errors
+  spellingErrors    Int      // Spelling errors
+  punctuationErrors Int      // Punctuation errors
+  styleErrors       Int      // Style-related errors
+  overallScore      Int      // 0-100 quality score
+  
+  // Detailed results
+  errors            Json     // Array of detailed error objects
+  status            String   // COMPLETED, FAILED, PROCESSING
+  provider          String   @default("TEXTGEAR") // TEXTGEAR
+  errorMessage      String?  // Error details if failed
+  
+  // Metadata
+  checkedAt         DateTime @default(now())
+  checkedBy         String?  // User ID who initiated check
+  
+  @@map("grammar_checks")
 }

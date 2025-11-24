@@ -16,6 +16,7 @@ import SubmitRevision from '@/pages/author/SubmitRevision';
 import PaymentPage from '@/pages/author/PaymentPage';
 import ProofReview from '@/pages/author/ProofReview';
 import SubmissionScreening from '@/pages/editor/SubmissionScreening';
+import SubmissionChecks from '@/pages/editor/SubmissionChecks';
 import ReviewerAssignment from '@/pages/editor/ReviewerAssignment';
 import ReviewTracking from '@/pages/editor/ReviewTracking';
 import EditorialDecision from '@/pages/editor/EditorialDecision';
@@ -66,6 +67,7 @@ import ConferenceManagement from '@/pages/admin/ConferenceManagement';
 import ArticlePage from '@/pages/ArticlePage';
 import IssuePage from '@/pages/IssuePage';
 import BrowseIssues from '@/pages/BrowseIssues';
+import Notifications from '@/pages/Notifications';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -127,6 +129,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notifications />
               </ProtectedRoute>
             }
           />
@@ -210,6 +220,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute>
                 <SubmissionScreening />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editor/submission/:id/checks"
+            element={
+              <ProtectedRoute>
+                <SubmissionChecks />
               </ProtectedRoute>
             }
           />

@@ -99,7 +99,7 @@ const EditorReviewDetail: React.FC = () => {
                         </svg>
                         Back to Dashboard
                     </Button>
-                    
+
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                         <div className="flex-1">
                             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight">

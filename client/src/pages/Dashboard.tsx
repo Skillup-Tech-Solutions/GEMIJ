@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FileText, Upload, BookOpen, AlertCircle, CheckCircle, Clock, File } from 'lucide-react';
 import { submissionService } from '@/services/submissionService';
 import { reviewerService } from '@/services/reviewerService';
 import { editorService, EditorStats } from '@/services/editorService';
@@ -212,124 +213,161 @@ const Dashboard: React.FC = () => {
     switch (user?.role) {
       case 'AUTHOR':
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="card">
-                <div className="card-body">
-                  <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                    Submit New Manuscript
-                  </h3>
-                  <p className="text-secondary-600 mb-4">
-                    Start a new submission to the journal
-                  </p>
-                  <button
-                    onClick={() => navigate('/submit-paper')}
-                    className="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors"
-                  >
-                    Submit Manuscript
-                  </button>
+          <div className="space-y-6 sm:space-y-8">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <Upload className="w-6 h-6 text-blue-600" />
+                  </div>
                 </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                  Submit New Manuscript
+                </h3>
+                <p className="text-slate-600 mb-4 text-sm">
+                  Start a new submission to the journal
+                </p>
+                <button
+                  onClick={() => navigate('/submit-paper')}
+                  className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Submit Manuscript
+                </button>
               </div>
 
-              <div className="card">
-                <div className="card-body">
-                  <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                    My Submissions
-                  </h3>
-                  <p className="text-secondary-600 mb-4">
-                    {submissions.length} total submissions
-                  </p>
-                  <div className="text-2xl font-bold text-primary-600 mb-2">{submissions.length}</div>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-purple-50 rounded-lg">
+                    <FileText className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <span className="text-3xl font-bold text-slate-900">{submissions.length}</span>
                 </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                  My Submissions
+                </h3>
+                <p className="text-slate-600 text-sm">
+                  Total manuscripts submitted
+                </p>
               </div>
 
-              <div className="card">
-                <div className="card-body">
-                  <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                    Author Guidelines
-                  </h3>
-                  <p className="text-secondary-600 mb-4">
-                    Review submission requirements
-                  </p>
-                  <button
-                    onClick={() => navigate('/author-guidelines')}
-                    className="w-full bg-secondary-600 text-white py-2 px-4 rounded-md hover:bg-secondary-700 transition-colors"
-                  >
-                    View Guidelines
-                  </button>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-emerald-50 rounded-lg">
+                    <BookOpen className="w-6 h-6 text-emerald-600" />
+                  </div>
                 </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                  Author Guidelines
+                </h3>
+                <p className="text-slate-600 mb-4 text-sm">
+                  Review submission requirements
+                </p>
+                <button
+                  onClick={() => navigate('/author-guidelines')}
+                  className="w-full bg-slate-100 text-slate-700 py-2.5 px-4 rounded-lg hover:bg-slate-200 transition-colors font-medium"
+                >
+                  View Guidelines
+                </button>
               </div>
             </div>
 
             {/* Submissions List */}
-            <div className="card">
-              <div className="card-header">
-                <h2 className="text-xl font-semibold text-secondary-900">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-slate-500" />
                   My Submissions
                 </h2>
               </div>
-              <div className="card-body">
+              <div className="p-4 sm:p-6">
                 {loading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-                    <p className="text-secondary-600 mt-2">Loading submissions...</p>
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-slate-600 mt-4 font-medium">Loading submissions...</p>
                   </div>
                 ) : submissions.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-secondary-600">No submissions yet.</p>
+                  <div className="text-center py-16 px-4">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <FileText className="w-10 h-10 text-slate-300" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">No submissions yet</h3>
+                    <p className="text-slate-500 max-w-sm mx-auto mb-8">
+                      You haven't submitted any manuscripts yet. Get started by submitting your first paper.
+                    </p>
                     <button
                       onClick={() => navigate('/submit-paper')}
-                      className="mt-4 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors"
+                      className="inline-flex items-center gap-2 bg-blue-600 text-white py-2.5 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm hover:shadow"
                     >
+                      <Upload className="w-4 h-4" />
                       Submit Your First Manuscript
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {submissions.map((submission) => (
-                      <div key={submission.id} className="border border-secondary-200 rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-medium text-secondary-900 flex-1 mr-4">
-                            {submission.title}
-                          </h3>
-                          <Badge variant={getStatusBadgeVariant(submission.status)}>
-                            {formatStatus(submission.status)}
-                          </Badge>
+                      <div key={submission.id} className="group border border-slate-200 rounded-xl p-4 sm:p-5 hover:border-blue-300 hover:shadow-md transition-all duration-200 bg-white">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-start gap-3 mb-2">
+                              <div className="p-2 bg-blue-50 rounded text-blue-600 mt-1 flex-shrink-0">
+                                <File className="w-5 h-5" />
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="text-base sm:text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight mb-1 break-words">
+                                  {submission.title}
+                                </h3>
+                                <p className="text-sm text-slate-500 flex items-center gap-2">
+                                  <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                                  Submitted on {new Date(submission.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="ml-0 sm:ml-12 flex flex-wrap gap-2 mt-2">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                {submission.manuscriptType}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0 self-start sm:self-auto">
+                            <Badge variant={getStatusBadgeVariant(submission.status)} className="px-3 py-1 text-sm">
+                              {formatStatus(submission.status)}
+                            </Badge>
+                          </div>
                         </div>
-                        <p className="text-sm text-secondary-600 mb-2">
-                          Submitted: {new Date(submission.createdAt).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm text-secondary-600 mb-3">
-                          Type: {submission.manuscriptType}
-                        </p>
-                        <div className="flex space-x-2">
+
+                        <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-100 sm:ml-12">
                           <button
                             onClick={() => navigate(`/submission/${submission.id}`)}
-                            className="text-sm bg-secondary-100 text-secondary-700 px-3 py-1 rounded hover:bg-secondary-200 transition-colors"
+                            className="text-sm font-medium text-slate-600 hover:text-blue-600 px-3 py-1.5 rounded hover:bg-blue-50 transition-colors"
                           >
                             View Details
                           </button>
                           {submission.status === SubmissionStatus.REVISION_REQUIRED && (
                             <button
                               onClick={() => navigate(`/submission/${submission.id}/revise`)}
-                              className="text-sm bg-warning-100 text-warning-700 px-3 py-1 rounded hover:bg-warning-200 transition-colors"
+                              className="inline-flex items-center gap-1.5 text-sm font-medium bg-amber-50 text-amber-700 px-4 py-1.5 rounded-lg hover:bg-amber-100 transition-colors border border-amber-200"
                             >
+                              <AlertCircle className="w-4 h-4" />
                               Submit Revision
                             </button>
                           )}
                           {submission.status === SubmissionStatus.ACCEPTED && (
                             <button
                               onClick={() => navigate(`/submission/${submission.id}/payment`)}
-                              className="text-sm bg-success-100 text-success-700 px-3 py-1 rounded hover:bg-success-200 transition-colors"
+                              className="inline-flex items-center gap-1.5 text-sm font-medium bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors border border-emerald-200"
                             >
+                              <CheckCircle className="w-4 h-4" />
                               Pay APC Fee
                             </button>
                           )}
                           {submission.status === 'DRAFT' && (
                             <button
                               onClick={() => navigate(`/submit-paper/${submission.id}`)}
-                              className="text-sm bg-primary-100 text-primary-700 px-3 py-1 rounded hover:bg-primary-200 transition-colors"
+                              className="inline-flex items-center gap-1.5 text-sm font-medium bg-blue-50 text-blue-700 px-4 py-1.5 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
                             >
+                              <FileText className="w-4 h-4" />
                               Continue Submission
                             </button>
                           )}
@@ -719,7 +757,7 @@ const Dashboard: React.FC = () => {
                                   submission.status === SubmissionStatus.REVISED ? 'Revision Screening' :
                                     'Track Reviews'}
                               </button>
-                              {(submission.status === SubmissionStatus.INITIAL_REVIEW || submission.status === SubmissionStatus.UNDER_REVIEW) && (
+                              {(submission.status === SubmissionStatus.INITIAL_REVIEW || (submission.status === SubmissionStatus.UNDER_REVIEW && (!submission.reviews || submission.reviews.length === 0))) && (
                                 <button
                                   onClick={() => navigate(`/editor/submission/${submission.id}/assign-reviewers`)}
                                   className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 transition-colors"

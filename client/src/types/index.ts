@@ -51,6 +51,10 @@ export interface Submission {
   _count?: {
     reviews: number;
   };
+  // Reports
+  plagiarismChecks?: any[];
+  qualityAssessments?: any[];
+  grammarChecks?: any[];
 }
 
 export interface CoAuthor {
@@ -107,6 +111,13 @@ export interface Review {
   remindersSent: number;
   reviewer: User;
   submission: Submission;
+  // Permissions
+  canViewPlagiarismReport?: boolean;
+  canViewQualityReport?: boolean;
+  canViewGrammarReport?: boolean;
+  sharePlagiarismWithAuthor?: boolean;
+  shareQualityWithAuthor?: boolean;
+  shareGrammarWithAuthor?: boolean;
 }
 
 export interface Issue {

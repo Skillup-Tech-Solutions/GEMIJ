@@ -525,6 +525,67 @@ const ReviewTracking: React.FC = () => {
                           </button>
                         </div>
 
+                        {/* Report Permissions */}
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-medium text-purple-900 mb-2">Report Permissions</h4>
+                          <p className="text-sm text-purple-700 mb-3">
+                            Control which reports this reviewer can see.
+                          </p>
+                          <div className="space-y-2">
+                            <label className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={review.canViewPlagiarismReport || false}
+                                onChange={async (e) => {
+                                  try {
+                                    await editorService.updateReviewPermissions(review.id, { canViewPlagiarismReport: e.target.checked });
+                                    loadData(); // Reload to update state
+                                  } catch (error) {
+                                    console.error('Failed to update permissions:', error);
+                                    setMessage({ text: 'Failed to update permissions', type: 'error' });
+                                  }
+                                }}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <span className="text-sm text-secondary-900">Can view Plagiarism Report</span>
+                            </label>
+                            <label className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={review.canViewQualityReport || false}
+                                onChange={async (e) => {
+                                  try {
+                                    await editorService.updateReviewPermissions(review.id, { canViewQualityReport: e.target.checked });
+                                    loadData();
+                                  } catch (error) {
+                                    console.error('Failed to update permissions:', error);
+                                    setMessage({ text: 'Failed to update permissions', type: 'error' });
+                                  }
+                                }}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <span className="text-sm text-secondary-900">Can view Quality Assessment</span>
+                            </label>
+                            <label className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={review.canViewGrammarReport || false}
+                                onChange={async (e) => {
+                                  try {
+                                    await editorService.updateReviewPermissions(review.id, { canViewGrammarReport: e.target.checked });
+                                    loadData();
+                                  } catch (error) {
+                                    console.error('Failed to update permissions:', error);
+                                    setMessage({ text: 'Failed to update permissions', type: 'error' });
+                                  }
+                                }}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <span className="text-sm text-secondary-900">Can view Grammar Check</span>
+                            </label>
+                          </div>
+                        </div>
+
                         {/* Remove Reviewer */}
                         <div className="bg-red-50 p-4 rounded-lg">
                           <h4 className="font-medium text-red-900 mb-2">Remove Reviewer</h4>

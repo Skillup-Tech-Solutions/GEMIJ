@@ -350,6 +350,18 @@ export const getReview = async (req: AuthenticatedRequest, res: Response) => {
               select: {
                 editorId: true
               }
+            },
+            plagiarismChecks: {
+              orderBy: { checkedAt: 'desc' },
+              take: 1
+            },
+            qualityAssessments: {
+              orderBy: { assessedAt: 'desc' },
+              take: 1
+            },
+            grammarChecks: {
+              orderBy: { checkedAt: 'desc' },
+              take: 1
             }
           }
         }
@@ -385,7 +397,11 @@ export const getReview = async (req: AuthenticatedRequest, res: Response) => {
       submission: {
         ...review.submission,
         author: shouldMaskAuthors ? null : review.submission.author,
-        coAuthors: shouldMaskAuthors ? [] : review.submission.coAuthors
+        coAuthors: shouldMaskAuthors ? [] : review.submission.coAuthors,
+        // Filter reports based on permissions
+        plagiarismChecks: (isAdmin || (isReviewer && review.canViewPlagiarismReport)) ? review.submission.plagiarismChecks : [],
+        qualityAssessments: (isAdmin || (isReviewer && review.canViewQualityReport)) ? review.submission.qualityAssessments : [],
+        grammarChecks: (isAdmin || (isReviewer && review.canViewGrammarReport)) ? review.submission.grammarChecks : []
       }
     };
 
@@ -456,6 +472,47 @@ export const updateReview = async (req: AuthenticatedRequest, res: Response) => 
       success: false,
       error: 'Internal server error'
     });
+  }
+};
+
+export const updateReviewSharing = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { reviewId } = req.params;
+    const { sharePlagiarismWithAuthor, shareQualityWithAuthor, shareGrammarWithAuthor } = req.body;
+
+    const review = await prisma.review.findUnique({
+      where: { id: reviewId }
+    });
+
+    if (!review) {
+      return res.status(404).json({ success: false, error: 'Review not found' });
+    }
+
+    if (review.reviewerId !== req.user!.id) {
+      return res.status(403).json({ success: false, error: 'Access denied' });
+    }
+
+    // Only allow sharing if the reviewer has permission to view the report
+    const data: any = {};
+    if (sharePlagiarismWithAuthor !== undefined) {
+      if (review.canViewPlagiarismReport) data.sharePlagiarismWithAuthor = sharePlagiarismWithAuthor;
+    }
+    if (shareQualityWithAuthor !== undefined) {
+      if (review.canViewQualityReport) data.shareQualityWithAuthor = shareQualityWithAuthor;
+    }
+    if (shareGrammarWithAuthor !== undefined) {
+      if (review.canViewGrammarReport) data.shareGrammarWithAuthor = shareGrammarWithAuthor;
+    }
+
+    const updatedReview = await prisma.review.update({
+      where: { id: reviewId },
+      data
+    });
+
+    return res.json({ success: true, data: updatedReview });
+  } catch (error) {
+    console.error('Update review sharing error:', error);
+    return res.status(500).json({ success: false, error: 'Internal server error' });
   }
 };
 

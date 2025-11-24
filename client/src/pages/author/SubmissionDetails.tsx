@@ -10,11 +10,12 @@ import InfoSection from '@/components/ui/InfoSection';
 import InfoField from '@/components/ui/InfoField';
 import StatusCard from '@/components/ui/StatusCard';
 import SubmissionProgress from '@/components/submission/SubmissionProgress';
+import { FileText, Download, AlertTriangle, CheckCircle, File, Clock, User, Shield } from 'lucide-react';
 
 const SubmissionDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'files' | 'reviews' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'files' | 'reviews' | 'history' | 'reports'>('overview');
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,16 +146,16 @@ const SubmissionDetails: React.FC = () => {
             Back to Dashboard
           </Button>
 
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 sm:gap-6">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight break-words">
                 {submission.title}
               </h1>
-              <p className="text-base text-muted-foreground leading-relaxed">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                 {getStatusDescription(submission.status)}
               </p>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 self-start">
               <Badge
                 variant={getStatusBadgeVariant(submission.status)}
                 className="text-sm px-4 py-1.5"
@@ -231,8 +232,8 @@ const SubmissionDetails: React.FC = () => {
         )}
 
         {/* Tabs Navigation */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+        <div className="mb-6 border-b border-gray-200 overflow-x-auto">
+          <nav className="-mb-px flex space-x-6 sm:space-x-8 min-w-max px-1" aria-label="Tabs">
             <button
               onClick={() => setActiveTab('overview')}
               className={`${activeTab === 'overview'
@@ -274,6 +275,18 @@ const SubmissionDetails: React.FC = () => {
             >
               History
             </button>
+            {(submission.plagiarismChecks?.length || submission.qualityAssessments?.length || submission.grammarChecks?.length) ? (
+              <button
+                onClick={() => setActiveTab('reports')}
+                className={`${activeTab === 'reports'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              >
+                Reports
+                <span className="ml-2 py-0.5 px-2 rounded-full text-xs bg-blue-100 text-blue-600">New</span>
+              </button>
+            ) : null}
           </nav>
         </div>
 
@@ -387,24 +400,22 @@ const SubmissionDetails: React.FC = () => {
               subtitle="Manuscript and supporting documents"
             >
               {submission.files && submission.files.length > 0 ? (
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 gap-4">
                   {submission.files.map((file) => (
-                    <div key={file.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors bg-white">
+                    <div key={file.id} className="group flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:border-blue-300 hover:shadow-md transition-all duration-200 bg-white">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center text-primary-600">
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
+                        <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+                          <FileText className="w-6 h-6" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{file.originalName}</p>
-                          <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
-                            <span className="uppercase font-semibold text-xs bg-gray-100 px-1.5 py-0.5 rounded">{file.fileType}</span>
+                          <p className="font-semibold text-slate-900 mb-1">{file.originalName}</p>
+                          <div className="flex items-center gap-3 text-sm text-slate-500">
+                            <span className="uppercase font-semibold text-xs bg-slate-100 px-2 py-0.5 rounded border border-slate-200">{file.fileType}</span>
                             <span>•</span>
                             <span>{(file.fileSize / 1024 / 1024).toFixed(2)} MB</span>
                           </div>
                           {file.description && (
-                            <p className="text-sm text-gray-500 mt-1">{file.description}</p>
+                            <p className="text-sm text-slate-500 mt-1 italic">{file.description}</p>
                           )}
                         </div>
                       </div>
@@ -412,19 +423,21 @@ const SubmissionDetails: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDownload(file.id)}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
+                        <Download className="w-4 h-4" />
                         Download
                       </Button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                  No files uploaded
+                <div className="text-center py-12 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <File className="w-8 h-8 text-slate-300" />
+                  </div>
+                  <h3 className="text-lg font-medium text-slate-900">No files uploaded</h3>
+                  <p className="text-slate-500 mt-1">This submission has no attached files.</p>
                 </div>
               )}
             </InfoSection>
@@ -439,10 +452,10 @@ const SubmissionDetails: React.FC = () => {
               {submission.reviews && submission.reviews.length > 0 ? (
                 <div className="space-y-6">
                   {submission.reviews.map((review, index) => (
-                    <div key={review.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                          <span className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-sm text-gray-600">
+                    <div key={review.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                      <div className="bg-slate-50/50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                          <span className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-sm font-bold text-slate-600 shadow-sm">
                             #{index + 1}
                           </span>
                           Reviewer Feedback
@@ -454,8 +467,8 @@ const SubmissionDetails: React.FC = () => {
                       <div className="p-6 space-y-6">
                         {review.recommendation && (
                           <div>
-                            <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Recommendation</h4>
-                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
+                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Recommendation</h4>
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium border border-blue-100">
                               {review.recommendation.replace(/_/g, ' ')}
                             </div>
                           </div>
@@ -463,27 +476,28 @@ const SubmissionDetails: React.FC = () => {
 
                         {review.authorComments ? (
                           <div>
-                            <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Comments for Author</h4>
-                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 text-gray-700 leading-relaxed whitespace-pre-wrap">
+                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Comments for Author</h4>
+                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 text-slate-700 leading-relaxed whitespace-pre-wrap">
                               {review.authorComments}
                             </div>
                           </div>
                         ) : (
-                          <div className="text-gray-500 italic">No written comments provided.</div>
+                          <div className="text-slate-500 italic flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            No written comments provided.
+                          </div>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                  <div className="w-16 h-16 mx-auto mb-4 text-gray-300">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
+                <div className="text-center py-16 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <User className="w-8 h-8 text-slate-300" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900">No Reviews Yet</h3>
-                  <p className="text-gray-500 mt-1">Peer reviews will appear here once completed.</p>
+                  <h3 className="text-lg font-medium text-slate-900">No Reviews Yet</h3>
+                  <p className="text-slate-500 mt-1 max-w-sm mx-auto">Peer reviews will appear here once reviewers have completed their evaluation of your manuscript.</p>
                 </div>
               )}
             </InfoSection>
@@ -498,8 +512,116 @@ const SubmissionDetails: React.FC = () => {
               {submission.timeline && submission.timeline.length > 0 ? (
                 <Timeline events={submission.timeline} />
               ) : (
-                <div className="text-center py-8 text-gray-500">No history available</div>
+                <div className="text-center py-8 text-slate-500">No history available</div>
               )}
+            </InfoSection>
+          )}
+          {/* Reports Tab */}
+          {activeTab === 'reports' && (
+            <InfoSection
+              title="Automated Check Reports"
+              subtitle="Reports shared by reviewers"
+            >
+              <div className="space-y-6">
+                {submission.plagiarismChecks && submission.plagiarismChecks.length > 0 && (
+                  <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div className="bg-blue-50/50 px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                        <Shield className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold text-slate-900">Plagiarism Check Report</h3>
+                    </div>
+                    <div className="p-6">
+                      <div className="mb-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-600 font-medium">Similarity Score</span>
+                          <span className={`text-2xl font-bold ${submission.plagiarismChecks[0].similarity > 20 ? 'text-red-600' : 'text-emerald-600'}`}>
+                            {submission.plagiarismChecks[0].similarity.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${submission.plagiarismChecks[0].similarity > 20 ? 'bg-red-500' : 'bg-emerald-500'}`}
+                            style={{ width: `${Math.min(submission.plagiarismChecks[0].similarity, 100)}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-sm text-slate-500 mt-2">
+                          {submission.plagiarismChecks[0].similarity > 20
+                            ? 'High similarity detected. Please review citations.'
+                            : 'Similarity score is within acceptable limits.'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {submission.qualityAssessments && submission.qualityAssessments.length > 0 && (
+                  <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div className="bg-purple-50/50 px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+                      <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+                        <CheckCircle className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold text-slate-900">Quality Assessment Report</h3>
+                    </div>
+                    <div className="p-6">
+                      <div className="mb-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-600 font-medium">Overall Score</span>
+                          <span className="text-2xl font-bold text-purple-600">
+                            {submission.qualityAssessments[0].score}/100
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(submission.qualityAssessments[0].score, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {submission.grammarChecks && submission.grammarChecks.length > 0 && (
+                  <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div className="bg-emerald-50/50 px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+                      <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold text-slate-900">Grammar & Spelling Report</h3>
+                    </div>
+                    <div className="p-6">
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-600 font-medium">Grammar Score</span>
+                          <span className="text-2xl font-bold text-emerald-600">
+                            {submission.grammarChecks[0].score}/100
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(submission.grammarChecks[0].score, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                        <p className="text-slate-700">{submission.grammarChecks[0].summary}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(!submission.plagiarismChecks?.length && !submission.qualityAssessments?.length && !submission.grammarChecks?.length) && (
+                  <div className="text-center py-16 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                      <Shield className="w-8 h-8 text-slate-300" />
+                    </div>
+                    <h3 className="text-lg font-medium text-slate-900">No Reports Available</h3>
+                    <p className="text-slate-500 mt-1">No automated check reports have been shared with you yet.</p>
+                  </div>
+                )}
+              </div>
             </InfoSection>
           )}
         </div>

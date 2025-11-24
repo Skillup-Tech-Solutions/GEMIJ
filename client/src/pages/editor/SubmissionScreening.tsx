@@ -14,6 +14,7 @@ const SubmissionScreening: React.FC = () => {
   const [processing, setProcessing] = useState(false);
   const [plagiarismResult, setPlagiarismResult] = useState<any>(null);
   const [qualityResult, setQualityResult] = useState<any>(null);
+  const [grammarResult, setGrammarResult] = useState<any>(null);
   const [decision, setDecision] = useState<'RETURN_FOR_FORMATTING' | 'DESK_REJECT' | 'PROCEED_TO_REVIEW' | ''>('');
   const [comments, setComments] = useState('');
   const [editorComments, setEditorComments] = useState('');
@@ -75,6 +76,22 @@ const SubmissionScreening: React.FC = () => {
     }
   };
 
+  const runGrammarCheck = async () => {
+    if (!id) return;
+
+    setProcessing(true);
+    try {
+      const result = await editorService.runGrammarCheck(id);
+      setGrammarResult(result);
+      setMessage({ text: 'Grammar check completed', type: 'success' });
+    } catch (error) {
+      console.error('Grammar check failed:', error);
+      setMessage({ text: 'Grammar check failed', type: 'error' });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const handleDownload = async (fileId: string) => {
     if (!id) return;
 
@@ -119,7 +136,11 @@ const SubmissionScreening: React.FC = () => {
 
       setMessage({ text: 'Initial screening completed successfully', type: 'success' });
       setTimeout(() => {
-        navigate('/editor/submissions');
+        if (decision === 'PROCEED_TO_REVIEW') {
+          navigate(`/editor/submission/${id}/reviews`);
+        } else {
+          navigate('/editor/submissions');
+        }
       }, 2000);
     } catch (error) {
       console.error('Failed to submit screening decision:', error);
@@ -335,6 +356,9 @@ const SubmissionScreening: React.FC = () => {
                 <h2 className="text-xl font-semibold text-secondary-900">Quality Checks</h2>
               </div>
               <div className="card-body space-y-4">
+                <div className="flex justify-end mb-4">
+                  {/* Button removed as checks are embedded */}
+                </div>
                 {/* Plagiarism Check */}
                 <div className="border border-secondary-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -514,6 +538,111 @@ const SubmissionScreening: React.FC = () => {
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Grammar Check */}
+                <div className="border border-secondary-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium text-secondary-900">Grammar & Spelling Check</h3>
+                    <button
+                      onClick={runGrammarCheck}
+                      disabled={processing || grammarResult}
+                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    >
+                      {processing ? 'Checking...' : grammarResult ? 'Completed' : 'Check Grammar'}
+                    </button>
+                  </div>
+
+                  {grammarResult && (
+                    <div className="space-y-3">
+                      {/* Overall Score */}
+                      <div className="bg-green-50 p-3 rounded">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Grammar Score:</span>
+                          <span className={`font-bold text-lg ${grammarResult.score < 60 ? 'text-red-600' : grammarResult.score < 80 ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {grammarResult.score}/100
+                          </span>
+                        </div>
+                        <p className="text-sm text-secondary-600">
+                          {grammarResult.summary}
+                        </p>
+                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                          <div
+                            className={`h-2 rounded-full ${grammarResult.score < 60 ? 'bg-red-600' : grammarResult.score < 80 ? 'bg-yellow-600' : 'bg-green-600'}`}
+                            style={{ width: `${grammarResult.score}%` }}
+                          ></div>
+                        </div>
+
+                        {grammarResult.report && (
+                          <div className="mt-2 pt-2 border-t border-green-200">
+                            <p className="text-xs text-secondary-500">
+                              Check ID: {grammarResult.report.checkId}
+                            </p>
+                            <p className="text-xs text-secondary-500">
+                              Completed: {new Date(grammarResult.report.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Error Breakdown */}
+                      {grammarResult.errorBreakdown && grammarResult.totalErrors > 0 && (
+                        <div className="bg-gray-50 p-3 rounded">
+                          <p className="text-sm font-medium text-secondary-900 mb-2">Error Breakdown:</p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Grammar:</span>
+                              <span className="font-medium">{grammarResult.errorBreakdown.grammar}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Spelling:</span>
+                              <span className="font-medium">{grammarResult.errorBreakdown.spelling}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Punctuation:</span>
+                              <span className="font-medium">{grammarResult.errorBreakdown.punctuation}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-secondary-600">Style:</span>
+                              <span className="font-medium">{grammarResult.errorBreakdown.style}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Detailed Errors */}
+                      {grammarResult.errors && grammarResult.errors.length > 0 && (
+                        <div className="bg-yellow-50 p-3 rounded">
+                          <p className="text-sm font-medium text-secondary-900 mb-2">Issues Found ({grammarResult.errors.length}):</p>
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {grammarResult.errors.slice(0, 10).map((error: any, index: number) => (
+                              <div key={index} className="bg-white p-2 rounded border border-yellow-200">
+                                <div className="flex items-start justify-between mb-1">
+                                  <span className="text-xs font-medium text-yellow-800 uppercase">{error.category}</span>
+                                  <span className="text-xs text-secondary-500">Position: {error.offset}</span>
+                                </div>
+                                <p className="text-sm text-secondary-700 mb-1">{error.message}</p>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="text-red-600 font-medium">✗ {error.bad}</span>
+                                  {error.suggestions && error.suggestions.length > 0 && (
+                                    <>
+                                      <span className="text-secondary-400">→</span>
+                                      <span className="text-green-600 font-medium">✓ {error.suggestions.slice(0, 3).join(', ')}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                            {grammarResult.errors.length > 10 && (
+                              <p className="text-xs text-secondary-500 text-center pt-2">
+                                Showing 10 of {grammarResult.errors.length} errors
+                              </p>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

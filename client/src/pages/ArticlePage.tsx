@@ -41,8 +41,10 @@ const ArticlePage: React.FC = () => {
     };
 
     const handleDownloadPDF = () => {
-        if (article?.pdfPath) {
-            window.open(buildPdfUrl(article.pdfPath), '_blank');
+        if (article?.id) {
+            // Use the backend download endpoint which handles B2 signing and redirection
+            const downloadUrl = `${import.meta.env.VITE_SERVER_URL || 'http://localhost:5000'}/api/public/articles/${article.id}/download`;
+            window.open(downloadUrl, '_blank');
         }
     };
 
@@ -117,22 +119,22 @@ const ArticlePage: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
             <div className="bg-white border-b border-gray-200">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <span className="inline-flex self-start items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
                             Research Article
                         </span>
-                        <div className="flex space-x-2">
+                        <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={handleDownloadPDF}
-                                className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                className="flex items-center px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
                             >
                                 <Download className="h-4 w-4 mr-2" />
                                 Download PDF
                             </button>
                             <button
                                 onClick={handleShare}
-                                className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                className="flex items-center px-3 sm:px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                             >
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share
@@ -140,7 +142,7 @@ const ArticlePage: React.FC = () => {
                         </div>
                     </div>
 
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
                         {article.title}
                     </h1>
 

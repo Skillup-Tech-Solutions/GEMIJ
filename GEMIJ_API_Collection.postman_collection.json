@@ -1,0 +1,2364 @@
+{
+    "info": {
+        "_postman_id": "gemij-api-collection-2025",
+        "name": "GEMIJ Academic Journal API",
+        "description": "Complete API collection for GEMIJ Academic Journal Management System with 130+ endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{auth_token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:5000/api",
+            "type": "string"
+        },
+        {
+            "key": "auth_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "submission_id",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "user_id",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"affiliation\": \"University Name\",\n  \"captchaToken\": \"hcaptcha_token_here\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('auth_token', jsonData.token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"captchaToken\": \"hcaptcha_token_here\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/auth/profile",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "profile"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"affiliation\": \"Updated University\",\n  \"bio\": \"Research interests...\",\n  \"orcid\": \"0000-0000-0000-0000\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/profile",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "profile"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Forgot Password",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"user@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/forgot-password",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "forgot-password"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Reset Password",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"token\": \"reset_token_from_email\",\n  \"password\": \"NewSecurePassword123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/reset-password",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "reset-password"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Submissions",
+            "item": [
+                {
+                    "name": "Create Submission",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Research Paper Title\",\n  \"abstract\": \"Abstract text...\",\n  \"keywords\": [\"keyword1\", \"keyword2\"],\n  \"authors\": [\n    {\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"email\": \"john@example.com\",\n      \"affiliation\": \"University\",\n      \"isCorresponding\": true,\n      \"order\": 1\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/submissions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Submissions",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/submissions?page=1&limit=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Submission by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Submission",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Title\",\n  \"abstract\": \"Updated abstract...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit for Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}/submit",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}",
+                                "submit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Withdraw Submission",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}/withdraw",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}",
+                                "withdraw"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Upload Files",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "files",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}/files",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}",
+                                "files"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Download File",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}/files/:fileId/download",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}",
+                                "files",
+                                ":fileId",
+                                "download"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "fileId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete File",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}/files/:fileId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}",
+                                "files",
+                                ":fileId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "fileId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Revision",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"coverLetter\": \"Response to reviewers...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}/revisions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}",
+                                "revisions"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Approve Proof",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/submissions/{{submission_id}}/proof-approval",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "submissions",
+                                "{{submission_id}}",
+                                "proof-approval"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Editor",
+            "item": [
+                {
+                    "name": "Get Editor Submissions",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions?status=SUBMITTED",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "SUBMITTED"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Revised Submissions",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/revised",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "revised"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Submission Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Editor Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/stats",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "stats"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Assign Editor (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"editorId\": \"editor_user_id\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/assign-editor",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "assign-editor"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Assign Reviewer",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reviewerId\": \"reviewer_user_id\",\n  \"dueDate\": \"2025-12-31T23:59:59Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/assign-reviewer",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "assign-reviewer"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Initial Screening",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"passed\": true,\n  \"comments\": \"Screening comments...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/screen",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "screen"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Make Decision",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"decision\": \"ACCEPT\",\n  \"comments\": \"Decision comments...\",\n  \"editorComments\": \"Internal notes...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/decision",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "decision"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Request Revision",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"comments\": \"Please address the following...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/request-revision",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "request-revision"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Reviews for Submission",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/reviews",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "reviews"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Available Reviewers",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/available-reviewers",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "available-reviewers"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Submission Timeline",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/timeline",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "timeline"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Run Plagiarism Check",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/plagiarism-check",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "plagiarism-check"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Perform Quality Check",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/quality-check",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "quality-check"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Move to Production",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/production",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "production"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Assign DOI",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"doi\": \"10.1234/journal.2025.001\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/assign-doi",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "assign-doi"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Publish Submission",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/publish",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "publish"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Accept Handling",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/accept-handling",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "accept-handling"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Decline Handling",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reason\": \"Conflict of interest\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/editor/submissions/{{submission_id}}/decline-handling",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "editor",
+                                "submissions",
+                                "{{submission_id}}",
+                                "decline-handling"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reviews",
+            "item": [
+                {
+                    "name": "Get Review Invitations",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/invitations",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "invitations"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Pending Invitations",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/invitations/pending",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "invitations",
+                                "pending"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Accept Invitation",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/invitations/:invitationId/accept",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "invitations",
+                                ":invitationId",
+                                "accept"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "invitationId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Decline Invitation",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reason\": \"Too busy at the moment\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/reviews/invitations/:invitationId/decline",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "invitations",
+                                ":invitationId",
+                                "decline"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "invitationId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Pending Reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/pending",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "pending"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Completed Reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/completed",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "completed"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Review Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/:reviewId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                ":reviewId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "reviewId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"recommendation\": \"ACCEPT\",\n  \"confidentialComments\": \"Comments for editor only...\",\n  \"authorComments\": \"Comments for author...\",\n  \"rating\": 4\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/reviews/:reviewId/submit",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                ":reviewId",
+                                "submit"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "reviewId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Review",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"authorComments\": \"Updated comments...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/reviews/:reviewId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                ":reviewId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "reviewId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Review Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/stats",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                "stats"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Certificate",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/reviews/:reviewId/certificate",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews",
+                                ":reviewId",
+                                "certificate"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "reviewId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Public",
+            "item": [
+                {
+                    "name": "Get Current Issue",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/current-issue",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "current-issue"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Archive",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/archive",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "archive"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Issue",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/issues/:volume/:number",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "issues",
+                                ":volume",
+                                ":number"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "volume",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "number",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Articles",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/search?q=machine learning&page=1&limit=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "machine learning"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Article by DOI",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/articles/doi/:doi",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "articles",
+                                "doi",
+                                ":doi"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "doi",
+                                    "value": "10.1234/journal.2025.001"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Journal Stats",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/stats",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "stats"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Landing Page Config",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/landing-page-config",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "landing-page-config"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Public Settings",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/settings",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "settings"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Page Content",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/public/page-content/:slug",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "public",
+                                "page-content",
+                                ":slug"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "slug",
+                                    "value": "mission"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Admin",
+            "item": [
+                {
+                    "name": "Get Admin Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/stats",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "stats"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Submission Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/stats/submissions?period=MONTHLY",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "stats",
+                                "submissions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "period",
+                                    "value": "MONTHLY"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Financial Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/stats/financial?period=YEARLY",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "stats",
+                                "financial"
+                            ],
+                            "query": [
+                                {
+                                    "key": "period",
+                                    "value": "YEARLY"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get System Health",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/system/health",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "system",
+                                "health"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Payments",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/payments?status=PAID&page=1&limit=20",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "payments"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "PAID"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Payment by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/payments/:paymentId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "payments",
+                                ":paymentId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "paymentId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Mark Payment as Paid",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/payments/:paymentId/paid",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "payments",
+                                ":paymentId",
+                                "paid"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "paymentId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/users?role=AUTHOR&page=1&limit=50",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "role",
+                                    "value": "AUTHOR"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "50"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update User Role",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"role\": \"REVIEWER\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/admin/users/{{user_id}}/role",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                "{{user_id}}",
+                                "role"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get System Settings",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/settings",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "settings"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update System Settings",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"apc_amount\": \"20000\",\n  \"journal_name\": \"GEMIJ\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/admin/settings",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "settings"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Upload Payment QR Code",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "qrCode",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/admin/settings/payment-qr",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "settings",
+                                "payment-qr"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Issues",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/issues",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "issues"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Issue",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"volume\": 1,\n  \"number\": 1,\n  \"year\": 2025,\n  \"title\": \"Issue Title\",\n  \"description\": \"Issue description...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/admin/issues",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "issues"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Issue",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Title\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/admin/issues/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "issues",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Set Current Issue",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/issues/:id/set-current",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "issues",
+                                ":id",
+                                "set-current"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Issue",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/issues/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "issues",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Page Content",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/page-content",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "page-content"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Page Content",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"Updated page content...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/admin/page-content/:slug",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "page-content",
+                                ":slug"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "slug",
+                                    "value": "mission"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Conferences",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/admin/conferences",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "conferences"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Conference",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Conference Name\",\n  \"year\": 2025,\n  \"proceedingsNo\": \"PROC-2025-01\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/admin/conferences",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "conferences"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Payments",
+            "item": [
+                {
+                    "name": "Create Payment Intent",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/payments/submissions/{{submission_id}}/payment-intent",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "submissions",
+                                "{{submission_id}}",
+                                "payment-intent"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Upload Payment Proof",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "proof",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/submissions/{{submission_id}}/proof",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "submissions",
+                                "{{submission_id}}",
+                                "proof"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Payment Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/payments/submissions/{{submission_id}}/payment-status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "submissions",
+                                "{{submission_id}}",
+                                "payment-status"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Payment by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/payments/:paymentId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                ":paymentId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "paymentId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Payment History",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/payments/history",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "history"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Notifications",
+            "item": [
+                {
+                    "name": "Get Notifications",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/notifications?limit=20&unreadOnly=false",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "notifications"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "unreadOnly",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Mark as Read",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/notifications/:notificationId/read",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "notifications",
+                                ":notificationId",
+                                "read"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "notificationId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Mark All as Read",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/notifications/read-all",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "notifications",
+                                "read-all"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Notification",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/notifications/:notificationId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "notifications",
+                                ":notificationId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "notificationId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Publication",
+            "item": [
+                {
+                    "name": "Get Ready to Publish",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/publication/ready",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "publication",
+                                "ready"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Publication Destinations",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/publication/destinations",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "publication",
+                                "destinations"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Publication Preview",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/publication/preview/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "publication",
+                                "preview",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Publish Article",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"destinationType\": \"ISSUE\",\n  \"destinationId\": \"issue_id\",\n  \"doi\": \"10.1234/journal.2025.001\",\n  \"pages\": \"1-10\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/publication/publish/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "publication",
+                                "publish",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Unpublish Article",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/publication/unpublish/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "publication",
+                                "unpublish",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Feeds",
+            "item": [
+                {
+                    "name": "Get Sitemap",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:5000/feeds/sitemap.xml",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "feeds",
+                                "sitemap.xml"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get RSS Feed",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:5000/feeds/rss?limit=50",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "feeds",
+                                "rss"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "50"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get OAI-PMH",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:5000/feeds/oai?verb=ListRecords&metadataPrefix=oai_dc",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "feeds",
+                                "oai"
+                            ],
+                            "query": [
+                                {
+                                    "key": "verb",
+                                    "value": "ListRecords"
+                                },
+                                {
+                                    "key": "metadataPrefix",
+                                    "value": "oai_dc"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Regenerate Feeds (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:5000/feeds/regenerate",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "feeds",
+                                "regenerate"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Check",
+            "request": {
+                "auth": {
+                    "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/health",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "health"
+                    ]
+                }
+            }
+        }
+    ]
+}

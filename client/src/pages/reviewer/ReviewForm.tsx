@@ -234,7 +234,7 @@ const ReviewForm: React.FC = () => {
             </svg>
             Back to Dashboard
           </Button>
-          
+
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight">
@@ -260,265 +260,358 @@ const ReviewForm: React.FC = () => {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      {error && (
-        <Alert variant="error" title="Error" className="mb-6">
-          {error}
-        </Alert>
-      )}
+        {error && (
+          <Alert variant="error" title="Error" className="mb-6">
+            {error}
+          </Alert>
+        )}
 
-      {success && (
-        <Alert variant="success" title="Success" className="mb-6">
-          {success}
-        </Alert>
-      )}
+        {success && (
+          <Alert variant="success" title="Success" className="mb-6">
+            {success}
+          </Alert>
+        )}
 
-      {/* Manuscript Information */}
-      <div className="card mb-6">
-        <div className="card-header">
-          <h2 className="text-xl font-semibold">Manuscript Information</h2>
-        </div>
-        <div className="card-body">
-          <h3 className="font-medium text-secondary-900 mb-3">{review.submission.title}</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="text-sm font-medium text-secondary-700">Type</label>
-              <p className="text-secondary-900">{review.submission.manuscriptType}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-secondary-700">Review Type</label>
-              <p className="text-secondary-900">
-                {review.submission.isDoubleBlind ? 'Double-blind' : 'Single-blind'}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-secondary-700">Keywords</label>
-              <p className="text-secondary-900">{review.submission.keywords.join(', ')}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-secondary-700">Due Date</label>
-              <p className={`text-secondary-900 ${isOverdue ? 'text-red-600' : ''}`}>
-                {new Date(review.dueDate).toLocaleDateString()}
-              </p>
-            </div>
+        {/* Manuscript Information */}
+        <div className="card mb-6">
+          <div className="card-header">
+            <h2 className="text-xl font-semibold">Manuscript Information</h2>
           </div>
+          <div className="card-body">
+            <h3 className="font-medium text-secondary-900 mb-3">{review.submission.title}</h3>
 
-          {/* Authors (only if not double-blind) */}
-          {!review.submission.isDoubleBlind && review.submission.author && (
-            <div className="mb-4">
-              <label className="text-sm font-medium text-secondary-700">Authors</label>
-              <div className="mt-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-sm font-medium text-secondary-700">Type</label>
+                <p className="text-secondary-900">{review.submission.manuscriptType}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-secondary-700">Review Type</label>
                 <p className="text-secondary-900">
-                  {review.submission.author.firstName} {review.submission.author.lastName}
-                  {review.submission.author.affiliation && (
-                    <span className="text-secondary-600"> - {review.submission.author.affiliation}</span>
-                  )}
+                  {review.submission.isDoubleBlind ? 'Double-blind' : 'Single-blind'}
                 </p>
-                {review.submission.coAuthors.map((author, index) => (
-                  <p key={index} className="text-secondary-900">
-                    {author.firstName} {author.lastName}
-                    {author.affiliation && (
-                      <span className="text-secondary-600"> - {author.affiliation}</span>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-secondary-700">Keywords</label>
+                <p className="text-secondary-900">{review.submission.keywords.join(', ')}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-secondary-700">Due Date</label>
+                <p className={`text-secondary-900 ${isOverdue ? 'text-red-600' : ''}`}>
+                  {new Date(review.dueDate).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+
+            {/* Authors (only if not double-blind) */}
+            {!review.submission.isDoubleBlind && review.submission.author && (
+              <div className="mb-4">
+                <label className="text-sm font-medium text-secondary-700">Authors</label>
+                <div className="mt-1">
+                  <p className="text-secondary-900">
+                    {review.submission.author.firstName} {review.submission.author.lastName}
+                    {review.submission.author.affiliation && (
+                      <span className="text-secondary-600"> - {review.submission.author.affiliation}</span>
                     )}
                   </p>
-                ))}
+                  {review.submission.coAuthors.map((author, index) => (
+                    <p key={index} className="text-secondary-900">
+                      {author.firstName} {author.lastName}
+                      {author.affiliation && (
+                        <span className="text-secondary-600"> - {author.affiliation}</span>
+                      )}
+                    </p>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Abstract */}
-          <div>
-            <label className="text-sm font-medium text-secondary-700">Abstract</label>
-            <p className="text-secondary-900 mt-1 leading-relaxed">{review.submission.abstract}</p>
+            {/* Abstract */}
+            <div>
+              <label className="text-sm font-medium text-secondary-700">Abstract</label>
+              <p className="text-secondary-900 mt-1 leading-relaxed">{review.submission.abstract}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Manuscript Files */}
-      <div className="card mb-6">
-        <div className="card-header">
-          <h2 className="text-xl font-semibold">Manuscript Files</h2>
+        {/* Manuscript Files */}
+        <div className="card mb-6">
+          <div className="card-header">
+            <h2 className="text-xl font-semibold">Manuscript Files</h2>
+          </div>
+          <div className="card-body">
+            <div className="space-y-3">
+              {review.submission.files.map((file) => (
+                <div key={file.id} className="flex items-center justify-between p-3 border border-secondary-200 rounded">
+                  <div>
+                    <p className="font-medium text-secondary-900">{file.originalName}</p>
+                    <p className="text-sm text-secondary-600">
+                      {file.fileType} • {(file.fileSize / 1024 / 1024).toFixed(2)} MB
+                      {file.isMainFile && <span className="ml-2 text-primary-600">• Main File</span>}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadManuscript(file.id, file.originalName)}
+                  >
+                    Download
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="card-body">
-          <div className="space-y-3">
-            {review.submission.files.map((file) => (
-              <div key={file.id} className="flex items-center justify-between p-3 border border-secondary-200 rounded">
-                <div>
-                  <p className="font-medium text-secondary-900">{file.originalName}</p>
-                  <p className="text-sm text-secondary-600">
-                    {file.fileType} • {(file.fileSize / 1024 / 1024).toFixed(2)} MB
-                    {file.isMainFile && <span className="ml-2 text-primary-600">• Main File</span>}
+
+        {/* Shared Reports */}
+        {(review.canViewPlagiarismReport || review.canViewQualityReport || review.canViewGrammarReport) && (
+          <div className="card mb-6">
+            <div className="card-header">
+              <h2 className="text-xl font-semibold">Automated Check Reports</h2>
+            </div>
+            <div className="card-body space-y-6">
+              {review.canViewPlagiarismReport && (
+                <div className="border rounded-lg p-4 bg-blue-50">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-blue-900">Plagiarism Check</h3>
+                    <label className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={review.sharePlagiarismWithAuthor || false}
+                        onChange={async (e) => {
+                          try {
+                            const updated = await reviewService.updateReviewSharing(review.id, { sharePlagiarismWithAuthor: e.target.checked });
+                            setReview(updated);
+                          } catch (error) {
+                            console.error('Failed to update sharing:', error);
+                          }
+                        }}
+                        className="rounded text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-blue-800">Share with Author</span>
+                    </label>
+                  </div>
+                  {/* Placeholder for report content - in real app, show summary or link */}
+                  <p className="text-sm text-blue-800">
+                    Plagiarism report is available.
+                    {/* Add link or summary here if data is available in review object */}
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadManuscript(file.id, file.originalName)}
-                >
-                  Download
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              )}
 
-      {/* Review Form */}
-      <div className="card mb-6">
-        <div className="card-header">
-          <h2 className="text-xl font-semibold">Review Form</h2>
-        </div>
-        <div className="card-body space-y-6">
-          {/* Overall Rating */}
-          <div>
-            <label className="form-label">Overall Quality Rating *</label>
-            <div className="flex items-center space-x-2 mb-2">
-              {getRatingStars(formData.rating || 0)}
-              <span className="text-sm text-secondary-600 ml-4">
-                {formData.rating}/5 stars
+              {review.canViewQualityReport && (
+                <div className="border rounded-lg p-4 bg-purple-50">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-purple-900">Quality Assessment</h3>
+                    <label className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={review.shareQualityWithAuthor || false}
+                        onChange={async (e) => {
+                          try {
+                            const updated = await reviewService.updateReviewSharing(review.id, { shareQualityWithAuthor: e.target.checked });
+                            setReview(updated);
+                          } catch (error) {
+                            console.error('Failed to update sharing:', error);
+                          }
+                        }}
+                        className="rounded text-purple-600 focus:ring-purple-500"
+                      />
+                      <span className="text-purple-800">Share with Author</span>
+                    </label>
+                  </div>
+                  <p className="text-sm text-purple-800">
+                    Quality assessment report is available.
+                  </p>
+                </div>
+              )}
+
+              {review.canViewGrammarReport && (
+                <div className="border rounded-lg p-4 bg-green-50">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-green-900">Grammar & Spelling</h3>
+                    <label className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={review.shareGrammarWithAuthor || false}
+                        onChange={async (e) => {
+                          try {
+                            const updated = await reviewService.updateReviewSharing(review.id, { shareGrammarWithAuthor: e.target.checked });
+                            setReview(updated);
+                          } catch (error) {
+                            console.error('Failed to update sharing:', error);
+                          }
+                        }}
+                        className="rounded text-green-600 focus:ring-green-500"
+                      />
+                      <span className="text-green-800">Share with Author</span>
+                    </label>
+                  </div>
+                  <p className="text-sm text-green-800">
+                    Grammar check report is available.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Review Form */}
+        <div className="card mb-6">
+          <div className="card-header">
+            <h2 className="text-xl font-semibold">Review Form</h2>
+          </div>
+          <div className="card-body space-y-6">
+            {/* Overall Rating */}
+            <div>
+              <label className="form-label">Overall Quality Rating *</label>
+              <div className="flex items-center space-x-2 mb-2">
+                {getRatingStars(formData.rating || 0)}
+                <span className="text-sm text-secondary-600 ml-4">
+                  {formData.rating}/5 stars
+                </span>
+              </div>
+              <p className="text-xs text-secondary-500">
+                1 = Poor, 2 = Fair, 3 = Good, 4 = Very Good, 5 = Excellent
+              </p>
+            </div>
+
+            {/* Recommendation */}
+            <Select
+              label="Recommendation *"
+              value={formData.recommendation}
+              onChange={(e) => handleInputChange('recommendation', e.currentTarget.value)}
+              required
+              disabled={isCompleted}
+              options={[
+                { label: 'Accept without revision', value: 'ACCEPT' },
+                { label: 'Accept with minor revisions', value: 'MINOR_REVISION' },
+                { label: 'Major revisions required', value: 'MAJOR_REVISION' },
+                { label: 'Reject', value: 'REJECT' }
+              ]}
+            />
+
+            {/* Current recommendation preview */}
+            <div className="p-3 rounded-lg border">
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getRecommendationColor(formData.recommendation)}`}>
+                {formData.recommendation === 'ACCEPT' ? 'Accept' :
+                  formData.recommendation === 'MINOR_REVISION' ? 'Minor Revision' :
+                    formData.recommendation === 'MAJOR_REVISION' ? 'Major Revision' :
+                      'Reject'}
               </span>
             </div>
-            <p className="text-xs text-secondary-500">
-              1 = Poor, 2 = Fair, 3 = Good, 4 = Very Good, 5 = Excellent
-            </p>
+
+            {/* Comments for Authors */}
+            <Textarea
+              label="Comments for Authors *"
+              rows={8}
+              value={formData.authorComments}
+              onChange={(e) => handleInputChange('authorComments', e.currentTarget.value)}
+              placeholder="Provide detailed, constructive feedback for the authors. Include specific suggestions for improvement, questions about methodology, and comments on presentation quality..."
+              required
+              disabled={isCompleted}
+            />
+
+            {/* Confidential Comments */}
+            <Textarea
+              label="Confidential Comments to Editor"
+              rows={6}
+              value={formData.confidentialComments}
+              onChange={(e) => handleInputChange('confidentialComments', e.currentTarget.value)}
+              placeholder="Private comments for the editor only. Include your assessment of the manuscript's suitability, any concerns about ethics or methodology, and your overall recommendation rationale..."
+              disabled={isCompleted}
+            />
+
+            {/* Annotated File Upload */}
+            {!isCompleted && (
+              <div>
+                <label className="form-label">Annotated Manuscript (Optional)</label>
+                <FileUpload
+                  label=""
+                  accept=".pdf"
+                  onFileSelect={(file) => setAnnotatedFile(file as File)}
+                  value={annotatedFile}
+                  description="Upload an annotated version of the manuscript with your detailed comments and suggestions"
+                />
+              </div>
+            )}
           </div>
+        </div>
 
-          {/* Recommendation */}
-          <Select
-            label="Recommendation *"
-            value={formData.recommendation}
-            onChange={(e) => handleInputChange('recommendation', e.currentTarget.value)}
-            required
-            disabled={isCompleted}
-            options={[
-              { label: 'Accept without revision', value: 'ACCEPT' },
-              { label: 'Accept with minor revisions', value: 'MINOR_REVISION' },
-              { label: 'Major revisions required', value: 'MAJOR_REVISION' },
-              { label: 'Reject', value: 'REJECT' }
-            ]}
-          />
-
-          {/* Current recommendation preview */}
-          <div className="p-3 rounded-lg border">
-            <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getRecommendationColor(formData.recommendation)}`}>
-              {formData.recommendation === 'ACCEPT' ? 'Accept' :
-                formData.recommendation === 'MINOR_REVISION' ? 'Minor Revision' :
-                  formData.recommendation === 'MAJOR_REVISION' ? 'Major Revision' :
-                    'Reject'}
-            </span>
+        {/* Review Guidelines */}
+        <div className="card mb-6">
+          <div className="card-header">
+            <h2 className="text-xl font-semibold">Review Guidelines</h2>
           </div>
-
-          {/* Comments for Authors */}
-          <Textarea
-            label="Comments for Authors *"
-            rows={8}
-            value={formData.authorComments}
-            onChange={(e) => handleInputChange('authorComments', e.currentTarget.value)}
-            placeholder="Provide detailed, constructive feedback for the authors. Include specific suggestions for improvement, questions about methodology, and comments on presentation quality..."
-            required
-            disabled={isCompleted}
-          />
-
-          {/* Confidential Comments */}
-          <Textarea
-            label="Confidential Comments to Editor"
-            rows={6}
-            value={formData.confidentialComments}
-            onChange={(e) => handleInputChange('confidentialComments', e.currentTarget.value)}
-            placeholder="Private comments for the editor only. Include your assessment of the manuscript's suitability, any concerns about ethics or methodology, and your overall recommendation rationale..."
-            disabled={isCompleted}
-          />
-
-          {/* Annotated File Upload */}
-          {!isCompleted && (
-            <div>
-              <label className="form-label">Annotated Manuscript (Optional)</label>
-              <FileUpload
-                label=""
-                accept=".pdf"
-                onFileSelect={(file) => setAnnotatedFile(file as File)}
-                value={annotatedFile}
-                description="Upload an annotated version of the manuscript with your detailed comments and suggestions"
-              />
+          <div className="card-body">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-medium text-secondary-900 mb-2">Evaluation Criteria</h3>
+                <ul className="text-sm text-secondary-700 space-y-1">
+                  <li>• Technical quality and rigor</li>
+                  <li>• Originality and significance</li>
+                  <li>• Clarity of presentation</li>
+                  <li>• Literature review adequacy</li>
+                  <li>• Methodology appropriateness</li>
+                  <li>• Results interpretation</li>
+                  <li>• Conclusions validity</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-medium text-secondary-900 mb-2">Review Standards</h3>
+                <ul className="text-sm text-secondary-700 space-y-1">
+                  <li>• Be constructive and respectful</li>
+                  <li>• Provide specific examples</li>
+                  <li>• Suggest improvements</li>
+                  <li>• Maintain confidentiality</li>
+                  <li>• Be objective and fair</li>
+                  <li>• Focus on scientific merit</li>
+                  <li>• Complete review thoroughly</li>
+                </ul>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-4">
+          {!isCompleted && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => handleSaveDraft(false)}
+                disabled={submitting}
+              >
+                Save Draft
+              </Button>
+              <Button
+                onClick={handleSubmitReview}
+                disabled={submitting || !formData.authorComments.trim()}
+              >
+                {submitting ? 'Submitting...' : 'Submit Review'}
+              </Button>
+            </>
+          )}
+
+          {isCompleted && (
+            <Button onClick={() => navigate('/dashboard')}>
+              Back to Dashboard
+            </Button>
           )}
         </div>
-      </div>
 
-      {/* Review Guidelines */}
-      <div className="card mb-6">
-        <div className="card-header">
-          <h2 className="text-xl font-semibold">Review Guidelines</h2>
-        </div>
-        <div className="card-body">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium text-secondary-900 mb-2">Evaluation Criteria</h3>
-              <ul className="text-sm text-secondary-700 space-y-1">
-                <li>• Technical quality and rigor</li>
-                <li>• Originality and significance</li>
-                <li>• Clarity of presentation</li>
-                <li>• Literature review adequacy</li>
-                <li>• Methodology appropriateness</li>
-                <li>• Results interpretation</li>
-                <li>• Conclusions validity</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-medium text-secondary-900 mb-2">Review Standards</h3>
-              <ul className="text-sm text-secondary-700 space-y-1">
-                <li>• Be constructive and respectful</li>
-                <li>• Provide specific examples</li>
-                <li>• Suggest improvements</li>
-                <li>• Maintain confidentiality</li>
-                <li>• Be objective and fair</li>
-                <li>• Focus on scientific merit</li>
-                <li>• Complete review thoroughly</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-end space-x-4">
+        {/* Submission Confirmation */}
         {!isCompleted && (
-          <>
-            <Button
-              variant="outline"
-              onClick={() => handleSaveDraft(false)}
-              disabled={submitting}
-            >
-              Save Draft
-            </Button>
-            <Button
-              onClick={handleSubmitReview}
-              disabled={submitting || !formData.authorComments.trim()}
-            >
-              {submitting ? 'Submitting...' : 'Submit Review'}
-            </Button>
-          </>
+          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 className="font-medium text-yellow-900 mb-2">Before Submitting</h3>
+            <ul className="text-sm text-yellow-800 space-y-1">
+              <li>• Ensure you have thoroughly read the manuscript</li>
+              <li>• Provide constructive and detailed feedback</li>
+              <li>• Double-check your recommendation</li>
+              <li>• Review cannot be modified after submission</li>
+            </ul>
+          </div>
         )}
-
-        {isCompleted && (
-          <Button onClick={() => navigate('/dashboard')}>
-            Back to Dashboard
-          </Button>
-        )}
-      </div>
-
-      {/* Submission Confirmation */}
-      {!isCompleted && (
-        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 className="font-medium text-yellow-900 mb-2">Before Submitting</h3>
-          <ul className="text-sm text-yellow-800 space-y-1">
-            <li>• Ensure you have thoroughly read the manuscript</li>
-            <li>• Provide constructive and detailed feedback</li>
-            <li>• Double-check your recommendation</li>
-            <li>• Review cannot be modified after submission</li>
-          </ul>
-        </div>
-      )}
       </div>
     </div>
   );

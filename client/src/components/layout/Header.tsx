@@ -84,22 +84,21 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-lg border-b border-slate-100 relative z-50 font-sans">
       {/* Top Banner */}
       {/* Top Banner */}
-      <div className="bg-slate-900 text-white py-3 relative overflow-hidden border-b border-slate-800">
+      <div className="bg-slate-900 text-white py-2 sm:py-3 relative overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900"></div>
 
         {/* Full width container */}
         <div className="w-full relative z-10">
           <div className="relative overflow-hidden group">
             <div
-              className="flex whitespace-nowrap items-center text-sm font-medium group-hover:[animation-play-state:paused]"
-              style={{ animation: 'marquee 40s linear infinite' }}
+              className="flex w-max whitespace-nowrap items-center text-xs sm:text-sm font-medium group-hover:[animation-play-state:paused] marquee-animation will-change-transform"
               aria-hidden="true"
             >
               {/* Increased to 4 items for better coverage on ultra-wide screens */}
               {[1, 2, 3, 4].map((key) => (
-                <div key={key} className="flex items-center px-8 border-r border-slate-800/50">
-                  <div className="flex items-center gap-x-3 mr-6">
-                    <span className="bg-red-600 text-white px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shadow-sm animate-pulse">
+                <div key={key} className="flex items-center px-4 sm:px-8 border-r border-slate-800/50 flex-shrink-0">
+                  <div className="flex items-center gap-x-2 sm:gap-x-3 mr-4 sm:mr-6">
+                    <span className="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shadow-sm animate-pulse">
                       {landingConfig?.announcementBar?.badgeText || 'New'}
                     </span>
                     <span className="text-slate-100 font-semibold tracking-wide">
@@ -107,7 +106,7 @@ const Header: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-x-6 text-slate-200 text-xs uppercase tracking-wider font-medium">
+                  <div className="flex items-center gap-x-4 sm:gap-x-6 text-slate-200 text-[10px] sm:text-xs uppercase tracking-wider font-medium">
                     <div className="flex items-center gap-2">
                       <span className="text-slate-500">|</span>
                       <span>Deadline: <span className="text-yellow-400 font-bold">{landingConfig?.announcementBar?.deadline || '30th Nov'}</span></span>
@@ -136,6 +135,14 @@ const Header: React.FC = () => {
                   0% { transform: translateX(0%); }
                   100% { transform: translateX(-25%); }
                 }
+                .marquee-animation {
+                  animation: marquee 40s linear infinite;
+                }
+                @media (max-width: 640px) {
+                  .marquee-animation {
+                    animation: marquee 20s linear infinite;
+                  }
+                }
               `
             }} />
           </div>
@@ -143,33 +150,33 @@ const Header: React.FC = () => {
       </div>
 
       {/* Main Header */}
-      <div className="bg-white py-6">
+      <div className="bg-white py-4 sm:py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo (left) */}
-            <Link to="/" className="flex items-center gap-4 group">
+            <Link to="/" className="flex items-center gap-3 sm:gap-4 group">
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl shadow-lg flex items-center justify-center transform group-hover:scale-105 transition-all duration-300">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center transform group-hover:scale-105 transition-all duration-300">
                   {!logoError ? (
                     <img
                       src="/logo.png"
                       alt="GEMIJ Logo"
-                      className="h-12 w-auto object-contain"
+                      className="h-8 sm:h-12 w-auto object-contain"
                       onError={() => setLogoError(true)}
                     />
                   ) : (
-                    <span className="text-white font-bold text-xl tracking-tighter">GEMIJ</span>
+                    <span className="text-white font-bold text-lg sm:text-xl tracking-tighter">GEMIJ</span>
                   )}
                 </div>
-                <div className="absolute -bottom-2 -right-2 bg-white px-2 py-0.5 rounded-md shadow-sm border border-slate-100 text-[10px] font-bold text-slate-500">
+                <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-white px-1.5 sm:px-2 py-0.5 rounded-md shadow-sm border border-slate-100 text-[8px] sm:text-[10px] font-bold text-slate-500">
                   EST. 2022
                 </div>
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 leading-none tracking-tight group-hover:text-blue-700 transition-colors">
+              <div className="block">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-none tracking-tight group-hover:text-blue-700 transition-colors">
                   GEMIJ
                 </h1>
-                <p className="text-xs text-slate-500 font-medium tracking-widest uppercase mt-1">
+                <p className="text-[10px] sm:text-xs text-slate-500 font-medium tracking-widest uppercase mt-0.5 sm:mt-1">
                   International Journal
                 </p>
               </div>

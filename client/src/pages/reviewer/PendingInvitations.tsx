@@ -144,7 +144,7 @@ const PendingInvitations: React.FC = () => {
             </svg>
             Back to Dashboard
           </Button>
-          
+
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight">
@@ -160,180 +160,179 @@ const PendingInvitations: React.FC = () => {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      {error && (
-        <Alert variant="error" title="Error" className="mb-6">
-          {error}
-        </Alert>
-      )}
+        {error && (
+          <Alert variant="error" title="Error" className="mb-6">
+            {error}
+          </Alert>
+        )}
 
-      {success && (
-        <Alert variant="success" title="Success" className="mb-6">
-          {success}
-        </Alert>
-      )}
+        {success && (
+          <Alert variant="success" title="Success" className="mb-6">
+            {success}
+          </Alert>
+        )}
 
-      {invitations.length === 0 ? (
-        <div className="card">
-          <div className="card-body text-center">
-            <p className="text-secondary-600 mb-4">No pending review invitations</p>
-            <Button onClick={() => navigate('/dashboard')} variant="outline">
-              Back to Dashboard
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <div className="space-y-4">
-            {invitations.map((invitation) => {
-              const daysLeft = calculateDaysRemaining(invitation.review.dueDate);
-              const isUrgent = daysLeft <= 7 && daysLeft > 0;
-              const isOverdue = daysLeft <= 0;
-
-              return (
-                <div key={invitation.id} className="card hover:shadow-lg transition-shadow">
-                  <div className="card-header">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-secondary-900">
-                          {invitation.review.submission.title}
-                        </h3>
-                        <p className="text-sm text-secondary-600 mt-1">
-                          By {invitation.review.submission.author.firstName} {invitation.review.submission.author.lastName}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        {isOverdue && (
-                          <Badge variant="error">Overdue</Badge>
-                        )}
-                        {isUrgent && !isOverdue && (
-                          <Badge variant="warning">Due Soon</Badge>
-                        )}
-                        {!isUrgent && !isOverdue && (
-                          <Badge variant="info">Pending</Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="card-body">
-                    <div className="mb-4">
-                      <p className="text-sm text-secondary-600 mb-2">Abstract:</p>
-                      <p className="text-secondary-900 line-clamp-2">
-                        {invitation.review.submission.abstract}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-secondary-50 rounded-lg">
-                      <div>
-                        <p className="text-xs font-medium text-secondary-600">Invited On</p>
-                        <p className="text-sm text-secondary-900">
-                          {new Date(invitation.invitedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-secondary-600">Due Date</p>
-                        <p className={`text-sm font-medium ${isOverdue ? 'text-red-600' : isUrgent ? 'text-orange-600' : 'text-secondary-900'}`}>
-                          {new Date(invitation.review.dueDate).toLocaleDateString()}
-                        </p>
-                        <p className={`text-xs ${isOverdue ? 'text-red-600' : isUrgent ? 'text-orange-600' : 'text-secondary-600'}`}>
-                          {isOverdue 
-                            ? `${Math.abs(daysLeft)} days overdue`
-                            : `${daysLeft} days remaining`
-                          }
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-secondary-600">Submission Status</p>
-                        <p className="text-sm text-secondary-900">{invitation.review.submission.status}</p>
-                      </div>
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="text-sm font-medium text-secondary-700 block mb-2">
-                        Response Notes (Optional)
-                      </label>
-                      <textarea
-                        value={responseNotes[invitation.id] || ''}
-                        onChange={(e) => setResponseNotes(prev => ({
-                          ...prev,
-                          [invitation.id]: e.target.value
-                        }))}
-                        placeholder="Add any notes about your acceptance or declination..."
-                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-secondary-900 placeholder-secondary-500"
-                        rows={2}
-                        disabled={processingId === invitation.id}
-                      />
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() => handleAccept(invitation.id)}
-                        disabled={processingId === invitation.id}
-                        className="flex-1"
-                      >
-                        {processingId === invitation.id ? 'Processing...' : 'Accept Invitation'}
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        onClick={() => handleDecline(invitation.id)}
-                        disabled={processingId === invitation.id}
-                        className="flex-1"
-                      >
-                        {processingId === invitation.id ? 'Processing...' : 'Decline Invitation'}
-                      </Button>
-
-                      <Button
-                        variant="ghost"
-                        onClick={() => navigate(`/review/${invitation.review.id}`)}
-                        className="flex-1"
-                      >
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {pagination && pagination.totalPages > 1 && (
-            <div className="mt-8 flex justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              
-              <div className="flex items-center gap-2">
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 rounded-lg ${
-                      currentPage === page
-                        ? 'bg-primary-600 text-white'
-                        : 'border border-secondary-300 text-secondary-900 hover:bg-secondary-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-              
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
-                disabled={currentPage === pagination.totalPages}
-              >
-                Next
+        {invitations.length === 0 ? (
+          <div className="card">
+            <div className="card-body text-center">
+              <p className="text-secondary-600 mb-4">No pending review invitations</p>
+              <Button onClick={() => navigate('/dashboard')} variant="outline">
+                Back to Dashboard
               </Button>
             </div>
-          )}
-        </>
-      )}
+          </div>
+        ) : (
+          <>
+            <div className="space-y-4">
+              {invitations.map((invitation) => {
+                const daysLeft = calculateDaysRemaining(invitation.review.dueDate);
+                const isUrgent = daysLeft <= 7 && daysLeft > 0;
+                const isOverdue = daysLeft <= 0;
+
+                return (
+                  <div key={invitation.id} className="card hover:shadow-lg transition-shadow">
+                    <div className="card-header">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-secondary-900">
+                            {invitation.review.submission.title}
+                          </h3>
+                          <p className="text-sm text-secondary-600 mt-1">
+                            By {invitation.review.submission.author.firstName} {invitation.review.submission.author.lastName}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          {isOverdue && (
+                            <Badge variant="error">Overdue</Badge>
+                          )}
+                          {isUrgent && !isOverdue && (
+                            <Badge variant="warning">Due Soon</Badge>
+                          )}
+                          {!isUrgent && !isOverdue && (
+                            <Badge variant="info">Pending</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card-body">
+                      <div className="mb-4">
+                        <p className="text-sm text-secondary-600 mb-2">Abstract:</p>
+                        <p className="text-secondary-900 line-clamp-2">
+                          {invitation.review.submission.abstract}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-secondary-50 rounded-lg">
+                        <div>
+                          <p className="text-xs font-medium text-secondary-600">Invited On</p>
+                          <p className="text-sm text-secondary-900">
+                            {new Date(invitation.invitedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-secondary-600">Due Date</p>
+                          <p className={`text-sm font-medium ${isOverdue ? 'text-red-600' : isUrgent ? 'text-orange-600' : 'text-secondary-900'}`}>
+                            {new Date(invitation.review.dueDate).toLocaleDateString()}
+                          </p>
+                          <p className={`text-xs ${isOverdue ? 'text-red-600' : isUrgent ? 'text-orange-600' : 'text-secondary-600'}`}>
+                            {isOverdue
+                              ? `${Math.abs(daysLeft)} days overdue`
+                              : `${daysLeft} days remaining`
+                            }
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-secondary-600">Submission Status</p>
+                          <p className="text-sm text-secondary-900">{invitation.review.submission.status}</p>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="text-sm font-medium text-secondary-700 block mb-2">
+                          Response Notes (Optional)
+                        </label>
+                        <textarea
+                          value={responseNotes[invitation.id] || ''}
+                          onChange={(e) => setResponseNotes(prev => ({
+                            ...prev,
+                            [invitation.id]: e.target.value
+                          }))}
+                          placeholder="Add any notes about your acceptance or declination..."
+                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-secondary-900 placeholder-secondary-500"
+                          rows={2}
+                          disabled={processingId === invitation.id}
+                        />
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={() => handleAccept(invitation.id)}
+                          disabled={processingId === invitation.id}
+                          className="flex-1"
+                        >
+                          {processingId === invitation.id ? 'Processing...' : 'Accept Invitation'}
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          onClick={() => handleDecline(invitation.id)}
+                          disabled={processingId === invitation.id}
+                          className="flex-1"
+                        >
+                          {processingId === invitation.id ? 'Processing...' : 'Decline Invitation'}
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          onClick={() => navigate(`/review/${invitation.review.id}`)}
+                          className="flex-1"
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {pagination && pagination.totalPages > 1 && (
+              <div className="mt-8 flex justify-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-2 rounded-lg ${currentPage === page
+                          ? 'bg-primary-600 text-white'
+                          : 'border border-secondary-300 text-secondary-900 hover:bg-secondary-50'
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                  disabled={currentPage === pagination.totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

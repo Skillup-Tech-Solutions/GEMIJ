@@ -1309,10 +1309,49 @@ export const extendReviewDeadline = async (req: AuthenticatedRequest, res: Respo
     });
   } catch (error) {
     console.error('Extend review deadline error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Internal server error'
+    return res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+};
+
+export const updateReviewPermissions = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { reviewId } = req.params;
+    const { canViewPlagiarismReport, canViewQualityReport, canViewGrammarReport } = req.body;
+
+    const review = await prisma.review.findUnique({
+      where: { id: reviewId },
+      include: { submission: true }
     });
+
+    if (!review) {
+      return res.status(404).json({ success: false, error: 'Review not found' });
+    }
+
+    // Verify editor has access to this submission
+    const editorAssignment = await prisma.editorAssignment.findFirst({
+      where: {
+        submissionId: review.submissionId,
+        editorId: req.user!.id
+      }
+    });
+
+    if (!editorAssignment && req.user!.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Not authorized to manage this review' });
+    }
+
+    const updatedReview = await prisma.review.update({
+      where: { id: reviewId },
+      data: {
+        canViewPlagiarismReport,
+        canViewQualityReport,
+        canViewGrammarReport
+      }
+    });
+
+    return res.json({ success: true, data: updatedReview });
+  } catch (error) {
+    console.error('Update review permissions error:', error);
+    return res.status(500).json({ success: false, error: 'Internal server error' });
   }
 };
 
@@ -2299,6 +2338,146 @@ export const declineReviewerInvitation = async (req: AuthenticatedRequest, res: 
     });
   } catch (error) {
     console.error('Decline reviewer invitation error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const runGrammarCheck = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { submissionId } = req.params;
+
+    const submission = await prisma.submission.findUnique({
+      where: { id: submissionId },
+      include: {
+        files: true
+      }
+    });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        error: 'Submission not found'
+      });
+    }
+
+    // Find the main manuscript file
+    const mainFile = submission.files.find(f => f.isMainFile) || submission.files[0];
+
+    if (!mainFile) {
+      return res.status(400).json({
+        success: false,
+        error: 'No manuscript file found for grammar check'
+      });
+    }
+
+    // Import services
+    const { textgearService } = await import('../services/textgearService');
+    const { backblazeService } = await import('../services/backblazeService');
+
+    let text: string;
+
+    // Check if file is stored in B2 (has b2FileId or filePath is a URL)
+    if (mainFile.b2FileId || mainFile.filePath.startsWith('http')) {
+      // Download file from B2 using backblaze service
+      const fileName = mainFile.filePath.split('/').pop() || mainFile.originalName;
+      const fileBuffer = await backblazeService.downloadFile(fileName);
+
+      // Extract text from buffer
+      const pdfParse = (await import('pdf-parse')).default;
+      const pdfData = await pdfParse(fileBuffer);
+      text = pdfData.text;
+
+      // Run grammar check on extracted text
+      const result = await textgearService.checkGrammar(text);
+
+      // Store result in database
+      const grammarCheck = await prisma.grammarCheck.create({
+        data: {
+          submissionId,
+          totalErrors: result.totalErrors,
+          grammarErrors: result.grammarErrors,
+          spellingErrors: result.spellingErrors,
+          punctuationErrors: result.punctuationErrors,
+          styleErrors: result.styleErrors,
+          overallScore: result.overallScore,
+          errors: result.errors || [],
+          status: result.status,
+          provider: 'TEXTGEAR',
+          errorMessage: result.errorMessage,
+          checkedBy: req.user?.id
+        }
+      });
+
+      return res.json({
+        success: true,
+        data: {
+          totalErrors: result.totalErrors,
+          errorBreakdown: {
+            grammar: result.grammarErrors,
+            spelling: result.spellingErrors,
+            punctuation: result.punctuationErrors,
+            style: result.styleErrors
+          },
+          score: result.overallScore,
+          errors: result.errors,
+          status: result.status,
+          summary: textgearService.getSummary(result),
+          report: {
+            status: result.status,
+            timestamp: grammarCheck.checkedAt,
+            checkId: grammarCheck.id
+          }
+        }
+      });
+    } else {
+      // Local file - use direct PDF check
+      const result = await textgearService.checkGrammarFromPDF(mainFile.filePath);
+
+      // Store result in database
+      const grammarCheck = await prisma.grammarCheck.create({
+        data: {
+          submissionId,
+          totalErrors: result.totalErrors,
+          grammarErrors: result.grammarErrors,
+          spellingErrors: result.spellingErrors,
+          punctuationErrors: result.punctuationErrors,
+          styleErrors: result.styleErrors,
+          overallScore: result.overallScore,
+          errors: result.errors || [],
+          status: result.status,
+          provider: 'TEXTGEAR',
+          errorMessage: result.errorMessage,
+          checkedBy: req.user?.id
+        }
+      });
+
+      return res.json({
+        success: true,
+        data: {
+          totalErrors: result.totalErrors,
+          errorBreakdown: {
+            grammar: result.grammarErrors,
+            spelling: result.spellingErrors,
+            punctuation: result.punctuationErrors,
+            style: result.styleErrors
+          },
+          score: result.overallScore,
+          errors: result.errors,
+          status: result.status,
+          summary: textgearService.getSummary(result),
+          report: {
+            status: result.status,
+            timestamp: grammarCheck.checkedAt,
+            checkId: grammarCheck.id
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Run grammar check error:', error);
     return res.status(500).json({
       success: false,
       error: 'Internal server error'
