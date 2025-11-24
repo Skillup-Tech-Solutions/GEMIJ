@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+    xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>{{subject}}</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
+    </style>
+    <![endif]-->
+    <style>
+        /* Reset styles */
+        body {
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        /* Base styles */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1e293b;
+            background-color: #f8fafc;
+        }
+
+        /* Container */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+
+        /* Header */
+        .email-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        .email-header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .email-header p {
+            margin: 8px 0 0 0;
+            color: #e0e7ff;
+            font-size: 14px;
+        }
+
+        /* Content */
+        .email-content {
+            padding: 40px 32px;
+        }
+
+        .email-content h2 {
+            margin: 0 0 16px 0;
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .email-content p {
+            margin: 0 0 16px 0;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .email-content ul,
+        .email-content ol {
+            margin: 0 0 16px 0;
+            padding-left: 24px;
+            color: #475569;
+        }
+
+        .email-content li {
+            margin-bottom: 8px;
+        }
+
+        /* Info box */
+        .info-box {
+            background-color: #f1f5f9;
+            border-left: 4px solid #3b82f6;
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .info-box strong {
+            color: #0f172a;
+        }
+
+        /* Warning box */
+        .warning-box {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box p {
+            margin: 0;
+            color: #92400e;
+            font-size: 14px;
+        }
+
+        /* Success box */
+        .success-box {
+            background-color: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .success-box p {
+            margin: 0;
+            color: #065f46;
+            font-size: 14px;
+        }
+
+        /* Button */
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            margin: 24px 0;
+            background-color: #3b82f6;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #2563eb;
+        }
+
+        /* Secondary button */
+        .button-secondary {
+            background-color: #64748b;
+        }
+
+        .button-secondary:hover {
+            background-color: #475569;
+        }
+
+        /* Details table */
+        .details-table {
+            width: 100%;
+            margin: 24px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .details-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .details-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .details-table .label {
+            font-weight: 500;
+            color: #64748b;
+            width: 40%;
+            font-size: 14px;
+        }
+
+        .details-table .value {
+            color: #0f172a;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .email-footer {
+            background-color: #f8fafc;
+            padding: 32px 24px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .email-footer p {
+            margin: 0 0 8px 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .email-footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .email-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 24px 0;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-content {
+                padding: 24px 20px !important;
+            }
+
+            .email-header {
+                padding: 24px 20px !important;
+            }
+
+            .email-footer {
+                padding: 24px 20px !important;
+            }
+
+            .button {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+        }
+    </style>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: #f8fafc;">
+    <!-- Wrapper table for email clients -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                <!-- Main container -->
+                <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0"
+                    border="0"
+                    style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                    <!-- Header -->
+                    <tr>
+                        <td class="email-header"
+                            style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 32px 24px; text-align: center;">
+                            <h1
+                                style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
+                                {{journalName}}</h1>
+                            <p style="margin: 8px 0 0 0; color: #e0e7ff; font-size: 14px;">Global Excellence in
+                                Multidisciplinary Innovation Journal</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td class="email-content" style="padding: 40px 32px;">
+                            {{{content}}}
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td class="email-footer"
+                            style="background-color: #f8fafc; padding: 32px 24px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 8px 0; color: #64748b; font-size: 13px;">
+                                This email was sent by <strong>{{journalName}}</strong>
+                            </p>
+                            <p style="margin: 0 0 8px 0; color: #64748b; font-size: 13px;">
+                                If you have any questions, please contact us at <a href="mailto:{{supportEmail}}"
+                                    style="color: #3b82f6; text-decoration: none;">{{supportEmail}}</a>
+                            </p>
+                            <p style="margin: 16px 0 0 0; color: #94a3b8; font-size: 12px;">
+                                © {{currentYear}} {{journalName}}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Calendar, FileText, Download, ExternalLink } from 'lucide-react';
 import issueService, { Issue } from '@/services/issueService';
+import { buildPdfUrl } from '@/utils/url';
 import { submissionService } from '@/services/submissionService';
 import { Submission } from '@/types';
 
@@ -150,7 +151,7 @@ const IssuePage: React.FC = () => {
                                     <div className="flex-1">
                                         <div className="flex items-center space-x-3 mb-2">
                                             <span className="text-sm font-medium text-gray-500">
-                                                Article {index + 1}
+                                                Article {article.articleNumber || index + 1}
                                             </span>
                                             <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">
                                                 {article.manuscriptType}
@@ -181,7 +182,7 @@ const IssuePage: React.FC = () => {
 
                                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                                     <div className="text-sm text-gray-500">
-                                        DOI: 10.XXXX/placeholder
+                                        DOI: {article.doi || 'Pending'}
                                     </div>
                                     <div className="flex space-x-3">
                                         <button
@@ -192,7 +193,7 @@ const IssuePage: React.FC = () => {
                                             View Article
                                         </button>
                                         <button
-                                            onClick={() => window.open(article.manuscriptFile, '_blank')}
+                                            onClick={() => window.open(buildPdfUrl(article.manuscriptFile), '_blank')}
                                             className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                                         >
                                             <Download className="h-4 w-4 mr-2" />

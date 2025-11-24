@@ -200,9 +200,9 @@ const SubmissionDetails: React.FC = () => {
                     Pay Publication Fee
                   </Button>
                 )}
-                {submission.status === SubmissionStatus.PUBLISHED && submission.doi && (
+                {submission.status === SubmissionStatus.PUBLISHED && (submission.article?.id || submission.doi) && (
                   <Button
-                    onClick={() => navigate(`/article/${submission.doi}`)}
+                    onClick={() => navigate(`/article/${submission.article?.id || submission.doi}`)}
                     variant="outline"
                   >
                     View Published Article

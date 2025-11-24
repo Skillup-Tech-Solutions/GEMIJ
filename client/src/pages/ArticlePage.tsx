@@ -31,7 +31,14 @@ const ArticlePage: React.FC = () => {
     const loadArticle = async (articleId: string) => {
         try {
             setLoading(true);
-            const response = await publicService.getArticleById(articleId);
+            let response;
+
+            // Check if the param looks like a DOI (contains "10." and "/")
+            if (articleId.includes('10.') && articleId.includes('/')) {
+                response = await publicService.getArticle(articleId);
+            } else {
+                response = await publicService.getArticleById(articleId);
+            }
             setArticle(response);
         } catch (error) {
             console.error('Failed to load article:', error);
@@ -39,6 +46,53 @@ const ArticlePage: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // Update Head Metadata for Indexing (Google Scholar / Highwire Press)
+    useEffect(() => {
+        if (!article) return;
+
+        // Update Title
+        document.title = article.title;
+
+        // Helper to create/update meta tag
+        const setMetaTag = (name: string, content: string) => {
+            let element = document.querySelector(`meta[name="${name}"]`);
+            if (!element) {
+                element = document.createElement('meta');
+                element.setAttribute('name', name);
+                document.head.appendChild(element);
+            }
+            element.setAttribute('content', content);
+        };
+
+        setMetaTag('citation_title', article.title);
+        setMetaTag('citation_doi', article.doi);
+        if (article.articleNumber) {
+            setMetaTag('citation_article_number', article.articleNumber);
+        }
+        setMetaTag('citation_publication_date', new Date(article.publishedAt).toISOString().split('T')[0]);
+        setMetaTag('citation_pdf_url', buildPdfUrl(article.pdfPath));
+
+        // Authors
+        // Remove existing author tags first to avoid duplicates on re-render
+        document.querySelectorAll('meta[name="citation_author"]').forEach(el => el.remove());
+        article.authors.forEach((author: any) => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'citation_author');
+            meta.setAttribute('content', `${author.lastName}, ${author.firstName}`);
+            document.head.appendChild(meta);
+            if (author.affiliation) {
+                const aff = document.createElement('meta');
+                aff.setAttribute('name', 'citation_author_institution');
+                aff.setAttribute('content', author.affiliation);
+                document.head.appendChild(aff);
+            }
+        });
+
+        return () => {
+            // Cleanup could be done here but might be overkill for this simple implementation
+        };
+    }, [article]);
 
     const handleDownloadPDF = () => {
         if (article?.id) {
@@ -75,13 +129,13 @@ const ArticlePage: React.FC = () => {
 
         switch (citationFormat) {
             case 'apa':
-                return `${authorNames} (${year}). ${article.title}. Journal Name, Volume(Issue), ${article.pages}. DOI: ${article.doi}`;
+                return `${authorNames} (${year}). ${article.title}. Journal Name, Volume(Issue), ${article.pages}${article.articleNumber ? `, Article ${article.articleNumber}` : ''}. DOI: ${article.doi}`;
             case 'mla':
-                return `${authorNames} "${article.title}." Journal Name, vol. X, no. Y, ${year}, pp. ${article.pages}.`;
+                return `${authorNames} "${article.title}." Journal Name, vol. X, no. Y, ${year}, ${article.articleNumber ? `Article ${article.articleNumber}` : `pp. ${article.pages}`}.`;
             case 'chicago':
-                return `${authorNames} "${article.title}." Journal Name X, no. Y (${year}): ${article.pages}.`;
+                return `${authorNames} "${article.title}." Journal Name X, no. Y (${year}): ${article.articleNumber ? article.articleNumber : article.pages}.`;
             case 'bibtex':
-                return `@article{author${year},\n  author = {${authorNames}},\n  title = {${article.title}},\n  journal = {Journal Name},\n  year = {${year}}\n}`;
+                return `@article{author${year},\n  author = {${authorNames}},\n  title = {${article.title}},\n  journal = {Journal Name},\n  year = {${year}}${article.articleNumber ? `,\n  articleno = {${article.articleNumber}}` : ''}\n}`;
             default:
                 return '';
         }
@@ -176,6 +230,12 @@ const ArticlePage: React.FC = () => {
                             <FileText className="h-4 w-4 mr-2" />
                             <span>DOI: {article.doi}</span>
                         </div>
+                        {article.articleNumber && (
+                            <div className="flex items-center">
+                                <FileText className="h-4 w-4 mr-2" />
+                                <span>Article No: {article.articleNumber}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

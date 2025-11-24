@@ -521,10 +521,13 @@ export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
+    // Sanitize filename to remove special characters that might cause issues
+    const sanitizedFilename = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+
     // Upload proof to Backblaze B2
     const b2Result = await backblazeService.uploadFile(
       req.file.buffer,
-      req.file.originalname,
+      sanitizedFilename,
       req.file.mimetype
     );
 

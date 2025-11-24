@@ -140,6 +140,7 @@ model Submission {
   plagiarismChecks    PlagiarismCheck[]
   qualityAssessments  QualityAssessment[]
   grammarChecks       GrammarCheck[]
+  article             Article?
 
   @@map("submissions")
 }
@@ -299,6 +300,7 @@ model Article {
   authors      Json
   doi          String   @unique
   pages        String
+  articleNumber String?
   pdfPath      String
   publishedAt  DateTime @default(now())
   views        Int      @default(0)
@@ -306,6 +308,9 @@ model Article {
 
   issueId      String
   issue        Issue    @relation(fields: [issueId], references: [id])
+
+  submissionId String?  @unique
+  submission   Submission? @relation(fields: [submissionId], references: [id])
 
   @@map("articles")
 }

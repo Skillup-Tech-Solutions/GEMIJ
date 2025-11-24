@@ -15,6 +15,7 @@ import {
   getPaymentById,
   markPaymentAsPaid,
   updateUserRole,
+  deleteUser,
   getAllPageContent,
   updatePageContent
 } from '../controllers/adminController';
@@ -41,6 +42,7 @@ router.put('/payments/:paymentId/paid', markPaymentAsPaid);
 // Users
 router.get('/users', getAdminUsers);
 router.put('/users/:id/role', updateUserRole);
+router.delete('/users/:id', deleteUser);
 
 // Settings
 router.get('/settings', getSystemSettings);

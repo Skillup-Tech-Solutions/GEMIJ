@@ -80,7 +80,9 @@ const PaymentDetails: React.FC = () => {
 
     const handleViewProof = () => {
         if (!payment?.proofUrl) return;
-        const fullUrl = payment.proofUrl.startsWith('http') ? payment.proofUrl : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${payment.proofUrl}`;
+        const fullUrl = payment.proofUrl.startsWith('http')
+            ? payment.proofUrl
+            : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${encodeURI(payment.proofUrl).replace(/,/g, '%2C')}`;
         window.open(fullUrl, '_blank');
     };
 
@@ -243,7 +245,7 @@ const PaymentDetails: React.FC = () => {
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <h4 className="text-base font-medium text-primary-600 mb-1">
-                                            <a href={`/submission/${payment.submissionId}`} target="_blank" rel="noreferrer" className="hover:underline">
+                                            <a href={`/admin/submission/${payment.submissionId}/details`} target="_blank" rel="noreferrer" className="hover:underline">
                                                 {payment.submissionTitle || 'View Submission'}
                                             </a>
                                         </h4>
@@ -252,7 +254,7 @@ const PaymentDetails: React.FC = () => {
                                     <Button
                                         size="sm"
                                         variant="ghost"
-                                        onClick={() => navigate(`/submission/${payment.submissionId}`)}
+                                        onClick={() => navigate(`/admin/submission/${payment.submissionId}/details`)}
                                     >
                                         View Submission
                                     </Button>

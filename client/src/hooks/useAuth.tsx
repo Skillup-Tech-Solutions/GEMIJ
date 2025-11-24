@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string, captchaToken: string) => Promise<void>;
-  register: (userData: any) => Promise<void>;
+  register: (userData: any) => Promise<any>;
   logout: () => void;
   requestPasswordReset: (email: string) => Promise<void>;
   resetPassword: (password: string, token: string) => Promise<void>;
@@ -68,10 +68,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: any) => {
     try {
       const response = await authService.register(userData);
-      setUser(response.user);
-      setToken(response.token);
-      localStorage.setItem('token', response.token);
-      authService.setToken(response.token);
+
+      // Only set user and token if account is immediately active (not pending approval)
+      if (!response.requiresApproval && response.token) {
+        setUser(response.user);
+        setToken(response.token);
+        localStorage.setItem('token', response.token);
+        authService.setToken(response.token);
+      }
+
+      // Return the response so caller can check requiresApproval
+      return response;
     } catch (error) {
       throw error;
     }

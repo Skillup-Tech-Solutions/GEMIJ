@@ -20,11 +20,20 @@ const ArticleView: React.FC = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       if (!id) return;
-      
+
       try {
         setIsLoading(true);
         setError(null);
-        const articleData = await publicService.getArticleById(id);
+        setIsLoading(true);
+        setError(null);
+        let articleData;
+
+        // Check if the param looks like a DOI (contains "10." and "/")
+        if (id.includes('10.') && id.includes('/')) {
+          articleData = await publicService.getArticle(id);
+        } else {
+          articleData = await publicService.getArticleById(id);
+        }
         setArticle(articleData);
       } catch (error) {
         console.error('Failed to fetch article:', error);
@@ -98,14 +107,14 @@ const ArticleView: React.FC = () => {
   const generateCitation = (format: string) => {
     const authors = article.authors.map((a: any) => `${a.firstName} ${a.lastName}`).join(', ');
     const year = new Date(article.publishedAt).getFullYear();
-    
+
     switch (format) {
       case 'apa':
-        return `${authors} (${year}). ${article.title}. International Journal of Advanced Technology, Engineering and Management, ${article.issue.volume}(${article.issue.number}), ${article.pages}. https://doi.org/${article.doi}`;
+        return `${authors} (${year}). ${article.title}. International Journal of Advanced Technology, Engineering and Management, ${article.issue.volume}(${article.issue.number}), ${article.pages}${article.articleNumber ? `, Article ${article.articleNumber}` : ''}. https://doi.org/${article.doi}`;
       case 'mla':
-        return `${authors}. "${article.title}." International Journal of Advanced Technology, Engineering and Management, vol. ${article.issue.volume}, no. ${article.issue.number}, ${year}, pp. ${article.pages}.`;
+        return `${authors}. "${article.title}." International Journal of Advanced Technology, Engineering and Management, vol. ${article.issue.volume}, no. ${article.issue.number}, ${year}, ${article.articleNumber ? `Article ${article.articleNumber}` : `pp. ${article.pages}`}.`;
       case 'chicago':
-        return `${authors}. "${article.title}." International Journal of Advanced Technology, Engineering and Management ${article.issue.volume}, no. ${article.issue.number} (${year}): ${article.pages}.`;
+        return `${authors}. "${article.title}." International Journal of Advanced Technology, Engineering and Management ${article.issue.volume}, no. ${article.issue.number} (${year}): ${article.articleNumber ? article.articleNumber : article.pages}.`;
       case 'ris':
         return `TY  - JOUR
 AU  - ${article.authors.map((a: any) => `${a.firstName} ${a.lastName}`).join('\nAU  - ')}
@@ -115,6 +124,7 @@ VL  - ${article.issue.volume}
 IS  - ${article.issue.number}
 SP  - ${article.pages.split('-')[0]}
 EP  - ${article.pages.split('-')[1] || article.pages.split('-')[0]}
+${article.articleNumber ? `M1  - ${article.articleNumber}` : ''}
 PY  - ${year}
 DO  - ${article.doi}
 UR  - https://doi.org/${article.doi}
@@ -128,7 +138,7 @@ ER  -`;
   journal={International Journal of Advanced Technology, Engineering and Management},
   volume={${article.issue.volume}},
   number={${article.issue.number}},
-  pages={${article.pages}},
+  pages={${article.pages}},${article.articleNumber ? `\n  articleno={${article.articleNumber}},` : ''}
   year={${year}},
   doi={${article.doi}},
   url={https://doi.org/${article.doi}}
@@ -159,7 +169,7 @@ ER  -`;
         <h1 className="text-3xl font-bold text-secondary-900 mb-4">
           {article.title}
         </h1>
-        
+
         <div className="space-y-2 mb-6">
           {article.authors.map((author: any, index: number) => (
             <div key={index} className="text-secondary-700">
@@ -173,14 +183,15 @@ ER  -`;
             * Corresponding author
           </p>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-4 text-sm text-secondary-600 mb-6">
           <span>Volume {article.issue.volume}, Issue {article.issue.number}</span>
           <span>Pages: {article.pages}</span>
+          {article.articleNumber && <span>Article No: {article.articleNumber}</span>}
           <span>DOI: {article.doi}</span>
           <span>Published: {new Date(article.publishedAt).toLocaleDateString()}</span>
         </div>
-        
+
         <div className="flex space-x-4">
           <a
             href={buildPdfUrl(article.pdfPath)}
@@ -196,7 +207,7 @@ ER  -`;
             description={article.abstract}
             className="px-6 py-2"
           />
-          <button 
+          <button
             onClick={() => setActiveTab('citation')}
             className="border border-secondary-300 text-secondary-700 px-6 py-2 rounded-md hover:bg-secondary-50 transition-colors"
           >
@@ -215,7 +226,7 @@ ER  -`;
             <div className="text-secondary-600 text-sm">Views</div>
           </div>
         </div>
-        
+
         <div className="card">
           <div className="card-body text-center">
             <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -224,7 +235,7 @@ ER  -`;
             <div className="text-secondary-600 text-sm">Downloads</div>
           </div>
         </div>
-        
+
         <div className="card">
           <div className="card-body text-center">
             <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -248,11 +259,10 @@ ER  -`;
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.id
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-secondary-500 hover:text-secondary-700 hover:border-secondary-300'
-              }`}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-secondary-500 hover:text-secondary-700 hover:border-secondary-300'
+                }`}
             >
               {tab.label}
             </button>
@@ -270,7 +280,7 @@ ER  -`;
             </p>
           </div>
         )}
-        
+
         {activeTab === 'fulltext' && (
           <div>
             <h2 className="text-xl font-semibold text-secondary-900 mb-4">Full Text PDF</h2>
@@ -305,7 +315,7 @@ ER  -`;
             </div>
           </div>
         )}
-        
+
         {activeTab === 'keywords' && (
           <div>
             <h2 className="text-xl font-semibold text-secondary-900 mb-4">Keywords</h2>
@@ -321,7 +331,7 @@ ER  -`;
             </div>
           </div>
         )}
-        
+
         {activeTab === 'references' && (
           <div>
             <h2 className="text-xl font-semibold text-secondary-900 mb-4">References</h2>
@@ -330,11 +340,11 @@ ER  -`;
             </div>
           </div>
         )}
-        
+
         {activeTab === 'citation' && (
           <div>
             <h2 className="text-xl font-semibold text-secondary-900 mb-4">How to Cite</h2>
-            
+
             {/* Export Buttons */}
             <div className="flex flex-wrap gap-2 mb-6">
               <button
@@ -350,7 +360,7 @@ ER  -`;
                 Export BibTeX
               </button>
             </div>
-            
+
             <div className="space-y-6">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -368,7 +378,7 @@ ER  -`;
                   </p>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-secondary-900">MLA Style</h3>
@@ -385,7 +395,7 @@ ER  -`;
                   </p>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-secondary-900">Chicago Style</h3>
@@ -402,7 +412,7 @@ ER  -`;
                   </p>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-secondary-900">RIS Format</h3>
@@ -419,7 +429,7 @@ ER  -`;
                   </pre>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-secondary-900">BibTeX Format</h3>

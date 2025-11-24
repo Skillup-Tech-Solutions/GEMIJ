@@ -20,7 +20,8 @@
     "test:watch": "jest --watch",
     "test:visitor-flow": "tsx src/scripts/test-visitor-flow.ts",
     "test-email": "tsx testEmail.ts",
-    "db:update": "tsx src/scripts/update-db.ts"
+    "db:update": "tsx src/scripts/update-db.ts",
+    "test-mailjet": "tsx src/scripts/mailjet.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.6.0",
@@ -39,6 +40,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "node-mailjet": "^6.0.11",
     "pdf-parse": "^1.1.1",
     "pdfkit": "^0.17.2",
     "prisma": "^5.6.0",
@@ -58,6 +60,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.9.0",
+    "@types/node-mailjet": "^3.3.12",
     "@types/pdf-parse": "^1.1.5",
     "@types/pdfkit": "^0.17.3",
     "@types/uuid": "^9.0.7",

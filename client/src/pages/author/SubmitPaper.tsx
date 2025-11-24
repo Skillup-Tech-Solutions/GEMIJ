@@ -210,15 +210,138 @@ const SubmitPaper: React.FC = () => {
     });
   };
 
+  const validateStep1 = (): string | null => {
+    if (!formData.title || formData.title.trim().length < 10) {
+      return 'Title must be at least 10 characters long';
+    }
+    if (!formData.abstract || formData.abstract.trim().length < 100) {
+      return 'Abstract must be at least 100 characters long';
+    }
+    const keywords = formData.keywords.split(',').map(k => k.trim()).filter(k => k);
+    if (keywords.length < 3) {
+      return 'Please provide at least 3 keywords separated by commas';
+    }
+    if (!formData.manuscriptType) {
+      return 'Please select a manuscript type';
+    }
+    if (!formData.researchArea) {
+      return 'Please select a research area';
+    }
+    return null;
+  };
+
+  const validateStep2 = (): string | null => {
+    if (formData.authors.length === 0) {
+      return 'At least one author is required';
+    }
+
+    for (let i = 0; i < formData.authors.length; i++) {
+      const author = formData.authors[i];
+      if (!author.firstName || !author.firstName.trim()) {
+        return `Author ${i + 1}: First name is required`;
+      }
+      if (!author.lastName || !author.lastName.trim()) {
+        return `Author ${i + 1}: Last name is required`;
+      }
+      if (!author.email || !author.email.trim()) {
+        return `Author ${i + 1}: Email is required`;
+      }
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(author.email)) {
+        return `Author ${i + 1}: Please enter a valid email address`;
+      }
+      if (!author.affiliation || !author.affiliation.trim()) {
+        return `Author ${i + 1}: Affiliation is required`;
+      }
+    }
+
+    const hasCorresponding = formData.authors.some(a => a.isCorresponding);
+    if (!hasCorresponding) {
+      return 'At least one author must be marked as corresponding author';
+    }
+
+    return null;
+  };
+
+  const validateStep3 = (): string | null => {
+    if (!files.manuscript) {
+      return 'Manuscript file is required';
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (files.manuscript.size > maxSize) {
+      return 'Manuscript file size must not exceed 10MB';
+    }
+
+    const allowedTypes = ['.pdf', '.doc', '.docx'];
+    const fileExt = files.manuscript.name.toLowerCase().substring(files.manuscript.name.lastIndexOf('.'));
+    if (!allowedTypes.includes(fileExt)) {
+      return 'Manuscript must be in PDF, DOC, or DOCX format';
+    }
+
+    return null;
+  };
+
+  const validateStep4 = (): string | null => {
+    if (!formData.conflictOfInterest || !formData.conflictOfInterest.trim()) {
+      return 'Conflict of Interest Statement is required. Please declare any conflicts or state "None declared"';
+    }
+    return null;
+  };
+
+  const validateStep5 = (): string | null => {
+    if (!formData.declarations.originalWork) {
+      return 'You must confirm that this is original work';
+    }
+    if (!formData.declarations.noConflictOfInterest) {
+      return 'You must confirm the conflict of interest declaration';
+    }
+    if (!formData.declarations.copyrightTransfer) {
+      return 'You must agree to copyright transfer';
+    }
+    return null;
+  };
+
+  const validateCurrentStep = (): string | null => {
+    switch (currentStep) {
+      case 1:
+        return validateStep1();
+      case 2:
+        return validateStep2();
+      case 3:
+        return validateStep3();
+      case 4:
+        return validateStep4();
+      case 5:
+        return validateStep5();
+      default:
+        return null;
+    }
+  };
+
   const nextStep = () => {
+    setError(null);
+
+    // Validate current step before proceeding
+    const validationError = validateCurrentStep();
+    if (validationError) {
+      setError(validationError);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const prevStep = () => {
+    setError(null);
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -288,7 +411,18 @@ const SubmitPaper: React.FC = () => {
       });
     } catch (error: any) {
       console.error('Submission error:', error);
-      setError(error.response?.data?.error || 'Failed to submit manuscript. Please try again.');
+
+      // Parse backend validation errors
+      if (error.response?.data?.details && Array.isArray(error.response.data.details)) {
+        const fieldErrors = error.response.data.details.map((err: any) =>
+          `${err.field}: ${err.message}`
+        ).join('\n');
+        setError(`Please correct the following errors:\n${fieldErrors}`);
+      } else {
+        setError(error.response?.data?.error || 'Failed to submit manuscript. Please try again.');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setIsSubmitting(false);
     }

@@ -17,6 +17,7 @@ export interface User {
 export interface AuthResponse {
   user: User;
   token: string;
+  requiresApproval?: boolean;
 }
 
 export interface Submission {
@@ -39,6 +40,8 @@ export interface Submission {
   volume?: number;
   issue?: number;
   pages?: string;
+  articleNumber?: string;
+  article?: Article;
   createdAt: string;
   updatedAt: string;
   author: User;
@@ -143,6 +146,7 @@ export interface Article {
   authors: any[];
   doi: string;
   pages: string;
+  articleNumber?: string;
   pdfPath: string;
   publishedAt: string;
   views: number;

@@ -5,9 +5,9 @@ export const buildServerUrl = (path: string): string => {
     return path;
   }
   if (path.startsWith('/')) {
-    return `${SERVER_URL}${path}`;
+    return `${SERVER_URL}${encodeURI(path).replace(/,/g, '%2C')}`;
   }
-  return `${SERVER_URL}/${path}`;
+  return `${SERVER_URL}/${encodeURI(path).replace(/,/g, '%2C')}`;
 };
 
 export const buildPdfUrl = (pdfPath: string): string => {

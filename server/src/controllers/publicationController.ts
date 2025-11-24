@@ -223,7 +223,7 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
         if (!doi) {
             // Simple DOI generation - in production, integrate with CrossRef API
             const year = new Date().getFullYear();
-            const uniqueId = submission.id.slice(0, 8);
+            const uniqueId = validatedData.articleNumber || submission.id.slice(0, 8);
             doi = `10.XXXX/journal.${year}.${uniqueId}`;
         }
 
@@ -232,6 +232,41 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
         let issue = submission.issue;
         let conferenceId = submission.conferenceId;
         let issueIdForArticle: string | undefined;
+
+        // Auto-generate Article Number if not provided
+        if (!validatedData.articleNumber) {
+            const currentYear = new Date().getFullYear();
+            const prefix = `${currentYear}.`;
+
+            // Find the highest existing article number for this year
+            const lastArticle = await prisma.submission.findFirst({
+                where: {
+                    status: 'PUBLISHED',
+                    articleNumber: {
+                        startsWith: prefix
+                    }
+                },
+                orderBy: {
+                    articleNumber: 'desc'
+                },
+                select: {
+                    articleNumber: true
+                }
+            });
+
+            let nextSequence = 1;
+            if (lastArticle && lastArticle.articleNumber) {
+                const parts = lastArticle.articleNumber.split('.');
+                if (parts.length === 2) {
+                    const lastSeq = parseInt(parts[1], 10);
+                    if (!isNaN(lastSeq)) {
+                        nextSequence = lastSeq + 1;
+                    }
+                }
+            }
+            // Format as YYYY.NNNN (pad with zeros to 4 digits)
+            validatedData.articleNumber = `${currentYear}.${nextSequence.toString().padStart(4, '0')}`;
+        }
 
         if (validatedData.destination === 'CURRENT_ISSUE' || validatedData.destination === 'PAST_ISSUE') {
             if (!validatedData.issueId) {
@@ -357,9 +392,11 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
                     authors: authorsList,
                     doi,
                     pages: validatedData.pages || '',
+                    articleNumber: validatedData.articleNumber,
                     pdfPath,
                     publishedAt: new Date(),
-                    issueId: issueIdForArticle
+                    issueId: issueIdForArticle,
+                    submissionId: submission.id
                 },
                 update: {
                     title: validatedData.title || submission.title,
@@ -367,6 +404,7 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
                     keywords: validatedData.keywords || submission.keywords,
                     authors: authorsList,
                     pages: validatedData.pages || '',
+                    articleNumber: validatedData.articleNumber,
                     pdfPath,
                     issueId: issueIdForArticle
                 }

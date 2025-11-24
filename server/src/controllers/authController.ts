@@ -19,6 +19,7 @@ const registerSchema = z.object({
   affiliation: z.string().optional(),
   country: z.string().optional(),
   orcid: z.string().optional(),
+  role: z.enum(['AUTHOR', 'REVIEWER', 'EDITOR']).optional().default('AUTHOR'),
   captchaToken: z.string().min(1, "Captcha verification is required")
 });
 
@@ -57,10 +58,15 @@ export const register = async (req: Request, res: Response) => {
 
     const hashedPassword = await hashPassword(validatedData.password);
 
+    // Determine if account needs admin approval
+    const requiresApproval = userData.role === 'REVIEWER' || userData.role === 'EDITOR';
+    const isActive = !requiresApproval;
+
     const user = await prisma.user.create({
       data: {
         ...userData,
-        password: hashedPassword
+        password: hashedPassword,
+        isActive
       },
       select: {
         id: true,
@@ -73,21 +79,59 @@ export const register = async (req: Request, res: Response) => {
       }
     });
 
-    const token = generateToken({
+    // Send appropriate email based on role
+    if (requiresApproval) {
+      // Send pending approval email to user
+      await EmailService.sendEmail({
+        to: user.email,
+        subject: 'Account Pending Approval',
+        template: 'accountPendingApproval',
+        variables: {
+          userName: `${user.firstName} ${user.lastName}`,
+          role: user.role
+        }
+      });
+
+      // Notify admins about new user pending approval
+      const admins = await prisma.user.findMany({
+        where: { role: 'ADMIN', isActive: true },
+        select: { email: true, firstName: true, lastName: true }
+      });
+
+      for (const admin of admins) {
+        await EmailService.sendEmail({
+          to: admin.email,
+          subject: 'New User Pending Approval',
+          template: 'newUserPendingApproval',
+          variables: {
+            adminName: `${admin.firstName} ${admin.lastName}`,
+            userName: `${user.firstName} ${user.lastName}`,
+            userEmail: user.email,
+            userRole: user.role
+          }
+        });
+      }
+    }
+
+    // Only generate token for active users
+    const token = isActive ? generateToken({
       id: user.id,
       email: user.email,
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName
-    });
+    }) : null;
 
     return res.status(201).json({
       success: true,
       data: {
         user,
-        token
+        token,
+        requiresApproval
       },
-      message: 'User registered successfully'
+      message: requiresApproval
+        ? 'Account created successfully. Your account is pending admin approval.'
+        : 'User registered successfully'
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

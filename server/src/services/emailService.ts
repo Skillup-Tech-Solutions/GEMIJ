@@ -1,7 +1,9 @@
-import sgMail from '@sendgrid/mail';
 import handlebars from 'handlebars';
 import { PrismaClient } from '@prisma/client';
 import { EmailTemplateData } from '../types';
+import { IEmailProvider } from './email/IEmailProvider';
+import { SendGridProvider } from './email/SendGridProvider';
+import { MailjetProvider } from './email/MailjetProvider';
 
 const prisma = new PrismaClient();
 
@@ -24,39 +26,77 @@ async function getApcSettings() {
   };
 }
 
-// Initialize SendGrid with API key
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-if (SENDGRID_API_KEY) {
-  sgMail.setApiKey(SENDGRID_API_KEY);
+// Initialize email providers
+const sendGridProvider = new SendGridProvider();
+const mailjetProvider = new MailjetProvider();
+
+// Select email provider based on environment variable
+function getEmailProvider(): IEmailProvider {
+  const providerName = process.env.EMAIL_PROVIDER?.toLowerCase();
+
+  // Explicit provider selection
+  if (providerName === 'sendgrid') {
+    if (!sendGridProvider.isConfigured()) {
+      throw new Error('SendGrid provider selected but not configured. Please set SENDGRID_API_KEY.');
+    }
+    return sendGridProvider;
+  }
+
+  if (providerName === 'mailjet') {
+    if (!mailjetProvider.isConfigured()) {
+      throw new Error('Mailjet provider selected but not configured. Please set MAILJET_API_KEY and MAILJET_API_SECRET.');
+    }
+    return mailjetProvider;
+  }
+
+  // Auto-select based on what's configured (prefer SendGrid for backward compatibility)
+  if (sendGridProvider.isConfigured()) {
+    console.log('[EmailService] Using SendGrid provider (auto-selected)');
+    return sendGridProvider;
+  }
+
+  if (mailjetProvider.isConfigured()) {
+    console.log('[EmailService] Using Mailjet provider (auto-selected)');
+    return mailjetProvider;
+  }
+
+  throw new Error('No email provider configured. Please set either SENDGRID_API_KEY or MAILJET_API_KEY/MAILJET_API_SECRET.');
 }
 
 
 export class EmailService {
   static async sendEmail(data: EmailTemplateData): Promise<void> {
     try {
-      // Check if SendGrid is configured
-      if (!SENDGRID_API_KEY) {
-        console.log(`Email would be sent to ${data.to} with template ${data.template} (SendGrid not configured)`);
-        return;
-      }
-      const template = await prisma.emailTemplate.findUnique({
-        where: { name: data.template }
-      });
+      const provider = getEmailProvider();
+
+      // Import template from file instead of database
+      const { getEmailTemplate } = await import('../templates/emailTemplates');
+      const template = getEmailTemplate(data.template);
 
       if (!template) {
         throw new Error(`Email template '${data.template}' not found`);
       }
 
+      // Compile subject
       const compiledSubject = handlebars.compile(template.subject)(data.variables);
-      const compiledHtml = handlebars.compile(template.htmlContent)(data.variables);
-      const compiledText = template.textContent
-        ? handlebars.compile(template.textContent)(data.variables)
+
+      // Generate HTML from template function, then compile it with Handlebars to replace variables
+      const htmlTemplate = typeof template.html === 'function'
+        ? template.html(data.variables)
+        : template.html;
+
+      // Compile the HTML to replace all {{variable}} placeholders
+      const compiledHtml = handlebars.compile(htmlTemplate)(data.variables);
+
+      // Compile text
+      const compiledText = template.text
+        ? handlebars.compile(template.text)(data.variables)
         : undefined;
 
       const fromEmail = process.env.FROM_EMAIL || 'gemij@em9745.ahamednazeer.qzz.io';
       const fromName = process.env.FROM_NAME || 'GEMIJ Journal';
 
-      const msg = {
+      await provider.sendEmail({
         to: data.to,
         from: {
           email: fromEmail,
@@ -65,19 +105,15 @@ export class EmailService {
         subject: compiledSubject,
         html: compiledHtml,
         text: compiledText || compiledSubject
-      };
+      });
 
-      await sgMail.send(msg);
-
-      console.log(`Email sent successfully to ${data.to}`);
+      console.log(`[EmailService] Email sent successfully to ${data.to} using ${provider.getName()}`);
     } catch (error: any) {
-      console.error('Email sending failed:', error);
-      if (error.response) {
-        console.error('SendGrid error response:', error.response.body);
-      }
+      console.error('[EmailService] Email sending failed:', error);
       throw error;
     }
   }
+
 
   static async sendSubmissionReceived(submissionId: string): Promise<void> {
     const submission = await prisma.submission.findUnique({
@@ -97,6 +133,17 @@ export class EmailService {
         authorName: `${submission.author.firstName} ${submission.author.lastName}`,
         submissionTitle: submission.title,
         submissionId: submission.id,
+        submittedDate: submission.submittedAt
+          ? new Date(submission.submittedAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+          : new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }),
         journalName: process.env.JOURNAL_NAME,
         journalUrl: process.env.JOURNAL_URL
       }
@@ -130,7 +177,8 @@ export class EmailService {
         submissionAbstract: review.submission.abstract,
         dueDate: review.dueDate.toLocaleDateString(),
         reviewUrl,
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
   }
@@ -159,7 +207,8 @@ export class EmailService {
         dueDate: review.dueDate.toLocaleDateString(),
         daysUntilDue,
         reviewUrl,
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
 
@@ -190,6 +239,8 @@ export class EmailService {
       decision === 'REJECTED' ? 'decision_reject' :
         'decision_revision';
 
+    const submissionUrl = `${process.env.JOURNAL_URL}/author/submissions/${submission.id}`;
+
     await this.sendEmail({
       to: submission.author.email,
       subject: `Decision on Your Submission: ${submission.title}`,
@@ -199,8 +250,9 @@ export class EmailService {
         submissionTitle: submission.title,
         submissionId: submission.id,
         decision,
-        comments: comments || '',
+        decisionComments: comments || '',
         reviewCount: submission.reviews.length,
+        submissionUrl,
         journalName: process.env.JOURNAL_NAME,
         journalUrl: process.env.JOURNAL_URL
       }
@@ -228,10 +280,12 @@ export class EmailService {
       variables: {
         authorName: `${submission.author.firstName} ${submission.author.lastName}`,
         submissionTitle: submission.title,
+        submissionId: submission.id,
         apcAmount,
         currency,
         paymentUrl,
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
   }
@@ -273,7 +327,8 @@ export class EmailService {
         amount,
         currency,
         invoiceNumber: payment?.invoiceNumber || 'N/A',
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
   }
@@ -308,7 +363,8 @@ export class EmailService {
           volume: submission.volume,
           issue: submission.issue,
           pages: submission.pages,
-          journalName: process.env.JOURNAL_NAME
+          journalName: process.env.JOURNAL_NAME,
+          journalUrl: process.env.JOURNAL_URL
         }
       });
     }
@@ -335,7 +391,8 @@ export class EmailService {
         reviewerName: `${review.reviewer.firstName} ${review.reviewer.lastName}`,
         submissionTitle: review.submission.title,
         certificateUrl,
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
   }
@@ -348,7 +405,8 @@ export class EmailService {
       variables: {
         userName,
         resetUrl,
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
   }
@@ -390,7 +448,8 @@ export class EmailService {
           submissionId: review.submission.id,
           recommendation: review.recommendation,
           submissionUrl,
-          journalName: process.env.JOURNAL_NAME
+          journalName: process.env.JOURNAL_NAME,
+          journalUrl: process.env.JOURNAL_URL
         }
       });
     }
@@ -479,7 +538,8 @@ export class EmailService {
         apcAmount,
         currency,
         paymentUrl,
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
   }
@@ -522,7 +582,8 @@ export class EmailService {
           submissionId: submission.id,
           revisionNumber: submission.revisions[0]?.revisionNumber || 1,
           submissionUrl,
-          journalName: process.env.JOURNAL_NAME
+          journalName: process.env.JOURNAL_NAME,
+          journalUrl: process.env.JOURNAL_URL
         }
       });
     }
@@ -549,7 +610,8 @@ export class EmailService {
         submissionTitle: submission.title,
         submissionId: submission.id,
         submissionUrl,
-        journalName: process.env.JOURNAL_NAME
+        journalName: process.env.JOURNAL_NAME,
+        journalUrl: process.env.JOURNAL_URL
       }
     });
   }

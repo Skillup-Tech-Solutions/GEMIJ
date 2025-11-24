@@ -60,10 +60,15 @@ export const createSubmission = async (req: AuthenticatedRequest, res: Response)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const fieldErrors = error.errors.map(err => ({
+        field: err.path.join('.') || 'unknown',
+        message: err.message
+      }));
+
       return res.status(400).json({
         success: false,
-        error: 'Validation failed',
-        details: error.errors
+        error: 'Please correct the following errors',
+        details: fieldErrors
       });
     }
 
@@ -219,7 +224,8 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
         },
         plagiarismChecks: true,
         qualityAssessments: true,
-        grammarChecks: true
+        grammarChecks: true,
+        article: true
       }
     });
 
@@ -377,10 +383,15 @@ export const updateSubmission = async (req: AuthenticatedRequest, res: Response)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const fieldErrors = error.errors.map(err => ({
+        field: err.path.join('.') || 'unknown',
+        message: err.message
+      }));
+
       return res.status(400).json({
         success: false,
-        error: 'Validation failed',
-        details: error.errors
+        error: 'Please correct the following errors',
+        details: fieldErrors
       });
     }
 
@@ -483,17 +494,27 @@ export const submitForReview = async (req: AuthenticatedRequest, res: Response) 
       }
     });
 
-    // Notify editors about new submission
-    const editors = await prisma.user.findMany({
-      where: {
-        role: 'EDITOR',
-        isActive: true
+    // Notify assigned editors about new submission
+    const assignedEditors = await prisma.editorAssignment.findMany({
+      where: { submissionId: id },
+      include: {
+        editor: {
+          select: {
+            id: true,
+            isActive: true
+          }
+        }
       }
     });
 
-    if (editors.length > 0) {
+    const activeAssignedEditors = assignedEditors
+      .filter(assignment => assignment.editor.isActive)
+      .map(assignment => assignment.editor);
+
+    // Only notify assigned editors
+    if (activeAssignedEditors.length > 0) {
       await prisma.notification.createMany({
-        data: editors.map(editor => ({
+        data: activeAssignedEditors.map(editor => ({
           userId: editor.id,
           type: 'NEW_SUBMISSION',
           title: 'New Submission Received',

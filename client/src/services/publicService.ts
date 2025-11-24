@@ -25,7 +25,7 @@ class PublicService {
   }
 
   async getArticle(doi: string): Promise<Article> {
-    const response = await axios.get<ApiResponse<Article>>(`${API_URL}/public/articles/${doi}`);
+    const response = await axios.get<ApiResponse<Article>>(`${API_URL}/public/articles/doi/${doi}`);
     return response.data.data!;
   }
 

@@ -1,7 +1,7 @@
 const Mailjet = require('node-mailjet');
 
-const apiKey = process.env.MJ_APIKEY_PUBLIC || '51928dbbb6770c992640e23fb24a2b8e';
-const apiSecret = process.env.MJ_APIKEY_PRIVATE || '67d2e09c9f21247e39dfc9ec74a49af8';
+const apiKey = process.env.MJ_APIKEY_PUBLIC || '5098c404ab2364fffe0a7cde4f44532b';
+const apiSecret = process.env.MJ_APIKEY_PRIVATE || 'fd025f7be7629fcc69529e8391495aeb';
 
 const mailjet = new Mailjet({
   apiKey: apiKey,
@@ -14,7 +14,7 @@ async function sendTestEmail() {
       Messages: [
         {
           From: {
-            Email: 'from@gemij.dpdns.org',   // replace with your sender
+            Email: 'from@gemijjournal.online',   // replace with your sender
             Name: 'Mailjet Test',
           },
           To: [

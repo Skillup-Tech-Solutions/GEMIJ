@@ -11,10 +11,11 @@ const Register: React.FC = () => {
     password: '',
     confirmPassword: '',
     affiliation: '',
-    role: 'author'
+    role: 'AUTHOR'
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
   const [captchaToken, setCaptchaToken] = useState('');
@@ -72,6 +73,7 @@ const Register: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setSuccessMessage('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -92,8 +94,16 @@ const Register: React.FC = () => {
     }
 
     try {
-      await register({ ...formData, captchaToken });
-      navigate('/dashboard');
+      const response = await register({ ...formData, captchaToken });
+
+      // Check if account requires approval
+      if (response?.requiresApproval) {
+        setSuccessMessage('Account created successfully! Your account is pending admin approval. You will receive an email once approved.');
+        // Don't navigate, show success message
+      } else {
+        // Navigate to dashboard for immediately active accounts
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       // Reset captcha on error
       setCaptchaToken('');
@@ -195,10 +205,13 @@ const Register: React.FC = () => {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="author">Author</option>
-                <option value="reviewer">Reviewer</option>
-                <option value="editor">Editor</option>
+                <option value="AUTHOR">Author</option>
+                <option value="REVIEWER">Reviewer</option>
+                <option value="EDITOR">Editor</option>
               </select>
+              <p className="mt-1 text-xs text-secondary-600">
+                <strong>Note:</strong> Reviewer and Editor roles require admin approval before you can access the system.
+              </p>
             </div>
 
             <div>
@@ -305,6 +318,12 @@ const Register: React.FC = () => {
 
           {error && (
             <div className="text-red-600 text-sm text-center">{error}</div>
+          )}
+
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 text-green-800 text-sm p-3 rounded-md text-center">
+              {successMessage}
+            </div>
           )}
 
           {/* hCaptcha */}

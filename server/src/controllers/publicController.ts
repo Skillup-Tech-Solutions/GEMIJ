@@ -228,7 +228,10 @@ export const downloadArticle = async (req: Request, res: Response) => {
     }
 
     // Fallback for local files (or if signing failed but we want to try anyway, though likely 401)
-    return res.download(article.pdfPath, `${article.doi.replace('/', '_')}.pdf`);
+    const filename = article.articleNumber
+      ? `Article_${article.articleNumber}.pdf`
+      : `${article.doi.replace('/', '_')}.pdf`;
+    return res.download(article.pdfPath, filename);
   } catch (error) {
     console.error('Download article error:', error);
     return res.status(500).json({
@@ -277,7 +280,10 @@ export const downloadArticleById = async (req: Request, res: Response) => {
 
     const path = require('path');
     const fullPath = path.join(__dirname, '../../', article.pdfPath);
-    return res.download(fullPath, `${article.doi.replace('/', '_')}.pdf`);
+    const filename = article.articleNumber
+      ? `Article_${article.articleNumber}.pdf`
+      : `${article.doi.replace('/', '_')}.pdf`;
+    return res.download(fullPath, filename);
   } catch (error) {
     console.error('Download article by ID error:', error);
     return res.status(500).json({

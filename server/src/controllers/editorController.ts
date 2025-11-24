@@ -45,23 +45,15 @@ export const getEditorSubmissions = async (req: AuthenticatedRequest, res: Respo
     const where: any = {};
 
     if (req.user!.role === 'EDITOR') {
-      where.OR = [
-        {
-          editorAssignments: {
-            some: {
-              editorId: req.user!.id
-            }
-          }
-        },
-        {
-          editorAssignments: {
-            none: {}
-          },
-          status: 'SUBMITTED'
+      // Only show submissions assigned to this editor
+      where.editorAssignments = {
+        some: {
+          editorId: req.user!.id
         }
-      ];
+      };
     }
 
+    // Apply status filter if provided
     if (status && status !== 'all') {
       where.status = status;
     }
@@ -548,21 +540,11 @@ export const getReviewers = async (req: AuthenticatedRequest, res: Response) => 
 export const getEditorStats = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const baseWhere: any = req.user!.role === 'EDITOR' ? {
-      OR: [
-        {
-          editorAssignments: {
-            some: {
-              editorId: req.user!.id
-            }
-          }
-        },
-        {
-          editorAssignments: {
-            none: {}
-          },
-          status: 'SUBMITTED'
+      editorAssignments: {
+        some: {
+          editorId: req.user!.id
         }
-      ]
+      }
     } : {};
 
     const [

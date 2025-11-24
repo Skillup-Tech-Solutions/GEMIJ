@@ -83,9 +83,10 @@ const PaymentManagement: React.FC = () => {
   };
 
   const handleViewProof = (proofUrl: string) => {
-    // Construct full URL if needed, assuming proofUrl is relative path from upload middleware
-    // In a real app, you might need a specific endpoint to serve secure files
-    const fullUrl = proofUrl.startsWith('http') ? proofUrl : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${proofUrl}`;
+    // Properly encode the URL to handle special characters
+    const fullUrl = proofUrl.startsWith('http')
+      ? proofUrl
+      : `${import.meta.env.VITE_API_URL?.replace('/api', '')}/${encodeURI(proofUrl).replace(/,/g, '%2C')}`;
     window.open(fullUrl, '_blank');
   };
 
@@ -416,8 +417,8 @@ const PaymentManagement: React.FC = () => {
                             {formatCurrency(payment.amount, payment.currency)}
                           </div>
                           {payment.paymentMethod && (
-                            <div className="text-sm text-secondary-500">
-                              {payment.paymentMethod}
+                            <div className="text-xs text-secondary-500 mt-0.5">
+                              {payment.paymentMethod.charAt(0).toUpperCase() + payment.paymentMethod.slice(1).toLowerCase().replace('_', ' ')}
                             </div>
                           )}
                         </td>

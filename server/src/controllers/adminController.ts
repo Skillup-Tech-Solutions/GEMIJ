@@ -377,7 +377,7 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
         paymentDate: payment.paidAt?.toISOString() ?? null,
         createdAt: payment.createdAt.toISOString(),
         transactionId: payment.stripePaymentId ?? null,
-        paymentMethod: payment.stripePaymentId ? 'ONLINE' : 'OFFLINE',
+        paymentMethod: payment.paymentMethod || (payment.stripePaymentId ? 'ONLINE' : 'OFFLINE'),
         invoiceNumber,
         proofUrl
       };
@@ -1194,6 +1194,67 @@ export const updateUserRole = async (req: AuthenticatedRequest, res: Response) =
     });
   } catch (error) {
     console.error('Update user role error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        _count: {
+          select: {
+            submissions: true,
+            reviews: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Prevent deleting admin users
+    if (user.role === 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        error: 'Cannot delete admin users'
+      });
+    }
+
+    // Check if user has active submissions or reviews
+    if (user._count.submissions > 0 || user._count.reviews > 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot delete user with active submissions or reviews. Please reassign or remove them first.'
+      });
+    }
+
+    // Delete the user
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    return res.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
     return res.status(500).json({
       success: false,
       error: 'Internal server error'
