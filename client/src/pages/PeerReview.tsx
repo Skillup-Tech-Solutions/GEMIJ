@@ -20,13 +20,13 @@ const PeerReview: React.FC = () => {
           <div className="card">
             <div className="card-body">
               <p className="text-secondary-700 leading-relaxed mb-4">
-                IJATEM employs a rigorous double-blind peer review process to ensure the quality 
-                and integrity of published research. Our review system is designed to be fair, 
-                transparent, and constructive, helping authors improve their work while maintaining 
+                GEMIJ employs a rigorous double-blind peer review process to ensure the quality
+                and integrity of published research. Our review system is designed to be fair,
+                transparent, and constructive, helping authors improve their work while maintaining
                 high publication standards.
               </p>
               <p className="text-secondary-700 leading-relaxed">
-                The entire process typically takes 6-8 weeks from submission to initial decision, 
+                The entire process typically takes 6-8 weeks from submission to initial decision,
                 though this may vary depending on reviewer availability and the complexity of the manuscript.
               </p>
             </div>
@@ -51,7 +51,7 @@ const PeerReview: React.FC = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                 2
@@ -65,7 +65,7 @@ const PeerReview: React.FC = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                 3
@@ -79,7 +79,7 @@ const PeerReview: React.FC = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                 4
@@ -93,7 +93,7 @@ const PeerReview: React.FC = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                 5
@@ -129,7 +129,7 @@ const PeerReview: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -144,7 +144,7 @@ const PeerReview: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -159,7 +159,7 @@ const PeerReview: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -191,12 +191,12 @@ const PeerReview: React.FC = () => {
                   </h3>
                 </div>
                 <p className="text-secondary-700">
-                  Manuscript meets all publication standards and requires no changes. 
+                  Manuscript meets all publication standards and requires no changes.
                   Proceeds directly to production phase.
                 </p>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <div className="flex items-center mb-3">
@@ -206,12 +206,12 @@ const PeerReview: React.FC = () => {
                   </h3>
                 </div>
                 <p className="text-secondary-700">
-                  Manuscript is acceptable but requires minor changes such as clarifications, 
+                  Manuscript is acceptable but requires minor changes such as clarifications,
                   additional references, or minor methodological improvements.
                 </p>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <div className="flex items-center mb-3">
@@ -221,12 +221,12 @@ const PeerReview: React.FC = () => {
                   </h3>
                 </div>
                 <p className="text-secondary-700">
-                  Manuscript has potential but requires significant improvements in methodology, 
+                  Manuscript has potential but requires significant improvements in methodology,
                   analysis, or presentation. May require additional experiments or data.
                 </p>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <div className="flex items-center mb-3">
@@ -236,7 +236,7 @@ const PeerReview: React.FC = () => {
                   </h3>
                 </div>
                 <p className="text-secondary-700">
-                  Manuscript does not meet publication standards due to fundamental flaws, 
+                  Manuscript does not meet publication standards due to fundamental flaws,
                   insufficient novelty, or scope mismatch. Authors may submit to other venues.
                 </p>
               </div>
@@ -263,7 +263,7 @@ const PeerReview: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -273,41 +273,41 @@ const PeerReview: React.FC = () => {
                   <div>
                     <h4 className="font-medium text-secondary-900 mb-1">Confidential Comments to Editor</h4>
                     <p className="text-secondary-700 text-sm">
-                      Private assessment of manuscript quality, recommendation, and any concerns 
+                      Private assessment of manuscript quality, recommendation, and any concerns
                       about ethics or methodology.
                     </p>
                   </div>
-                  
+
                   <div>
                     <h4 className="font-medium text-secondary-900 mb-1">Comments to Authors</h4>
                     <p className="text-secondary-700 text-sm">
-                      Constructive feedback focusing on specific improvements, clarifications, 
+                      Constructive feedback focusing on specific improvements, clarifications,
                       and suggestions for strengthening the work.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
                   Become a Reviewer
                 </h3>
                 <p className="text-secondary-700 mb-4">
-                  We are always seeking qualified experts to join our reviewer pool. 
+                  We are always seeking qualified experts to join our reviewer pool.
                   Reviewers play a crucial role in maintaining the quality of scientific literature.
                 </p>
                 <div className="space-y-2">
                   <p className="text-secondary-700">
-                    <strong>Requirements:</strong> PhD or equivalent, active research experience, 
+                    <strong>Requirements:</strong> PhD or equivalent, active research experience,
                     publication record in relevant field
                   </p>
                   <p className="text-secondary-700">
                     <strong>Time Commitment:</strong> 2-4 reviews per year, 2-3 weeks per review
                   </p>
                   <p className="text-secondary-700">
-                    <strong>Benefits:</strong> Recognition certificate, reviewer credits, 
+                    <strong>Benefits:</strong> Recognition certificate, reviewer credits,
                     early access to cutting-edge research
                   </p>
                 </div>
@@ -328,7 +328,7 @@ const PeerReview: React.FC = () => {
           <div className="card">
             <div className="card-body">
               <p className="text-secondary-700 mb-4">
-                Authors who believe their manuscript was unfairly rejected may submit an appeal 
+                Authors who believe their manuscript was unfairly rejected may submit an appeal
                 within 30 days of the decision. Appeals should include:
               </p>
               <ul className="text-secondary-700 space-y-2 mb-4">
@@ -338,7 +338,7 @@ const PeerReview: React.FC = () => {
                 <li>• Request for specific action (re-review, different reviewers, etc.)</li>
               </ul>
               <p className="text-secondary-700">
-                Appeals are reviewed by the Editor-in-Chief and may result in a second review 
+                Appeals are reviewed by the Editor-in-Chief and may result in a second review
                 by different reviewers or confirmation of the original decision.
               </p>
             </div>
@@ -357,16 +357,16 @@ const PeerReview: React.FC = () => {
                   <p className="text-secondary-700">
                     Questions about the review process<br />
                     or editorial decisions:<br />
-                    <strong>editor@ijatem.com</strong>
+                    <strong>editor@GEMIJ.com</strong>
                   </p>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">Reviewer Applications</h3>
                   <p className="text-secondary-700">
                     Applications to join our<br />
                     reviewer panel:<br />
-                    <strong>reviewers@ijatem.com</strong>
+                    <strong>reviewers@GEMIJ.com</strong>
                   </p>
                 </div>
               </div>

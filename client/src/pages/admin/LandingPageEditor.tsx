@@ -19,7 +19,7 @@ const LandingPageEditor: React.FC = () => {
         hero: {
             badgeText: 'Peer-Reviewed Academic Journal',
             title: 'Advancing Knowledge in Engineering & Management',
-            subtitle: 'IJATEM (ISSN 2583-7052) bridges the gap between theoretical innovation and practical application. Join a global community of researchers.',
+            subtitle: 'GEMIJ (ISSN 2583-7052) bridges the gap between theoretical innovation and practical application. Join a global community of researchers.',
             backgroundImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop',
             primaryButtonText: 'Submit Manuscript',
             primaryButtonLink: '/submit-paper',
@@ -85,7 +85,7 @@ const LandingPageEditor: React.FC = () => {
             secondaryButtonText: 'Read Guidelines',
             secondaryButtonLink: '/author-guidelines',
             contactInfo: [
-                { icon: '📧', text: 'submit.ijatem@gmail.com' },
+                { icon: '📧', text: 'submit.GEMIJ@gmail.com' },
                 { icon: '⚡', text: 'Fast Review Process' },
                 { icon: '🌍', text: 'International Reach' }
             ]
@@ -94,15 +94,15 @@ const LandingPageEditor: React.FC = () => {
             badgeText: 'New',
             message: 'Call for Papers: Vol IV, Issue 11',
             deadline: '30th Nov',
-            email: 'submit.ijatem@gmail.com',
-            phone: '+91 98405 11458'
+            email: 'submit.GEMIJ@gmail.com',
+            phone: '+91 8220669990'
         },
         footer: {
             journalName: 'GEMIJ',
             journalTagline: 'International Journal',
             description: 'A premier peer-reviewed international journal dedicated to advancing knowledge in engineering and management disciplines.',
-            email: 'submit.ijatem@gmail.com',
-            phone: '+91 98405 11458',
+            email: 'submit.GEMIJ@gmail.com',
+            phone: '+91 8220669990',
             quickLinks: [
                 { name: 'About Us', href: '/about' },
                 { name: 'Aim and Scope', href: '/aim-scope' },
@@ -160,7 +160,7 @@ const LandingPageEditor: React.FC = () => {
                 hero: {
                     ...defaultConfig.hero,
                     title: '🚀 Innovate. Publish. Impact.',
-                    subtitle: 'Join the future of academic publishing with IJATEM - where cutting-edge research meets global visibility.',
+                    subtitle: 'Join the future of academic publishing with GEMIJ - where cutting-edge research meets global visibility.',
                 }
             }
         },

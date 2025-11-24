@@ -15,7 +15,7 @@ const EditorialBoard: React.FC = () => {
     title: 'Editor-in-Chief',
     affiliation: 'Department of Computer Science, Stanford University, USA',
     expertise: ['Artificial Intelligence', 'Machine Learning', 'Data Science'],
-    email: 'editor@ijatem.com'
+    email: 'editor@GEMIJ.com'
   };
 
   const associateEditors: BoardMember[] = [
@@ -113,7 +113,7 @@ const EditorialBoard: React.FC = () => {
               </span>
             </div>
           </div>
-          
+
           <div className="flex-1">
             <h3 className={`text-lg font-semibold mb-1 ${isChief ? 'text-primary-900' : 'text-secondary-900'}`}>
               {member.name}
@@ -124,25 +124,24 @@ const EditorialBoard: React.FC = () => {
             <p className="text-secondary-600 text-sm mb-3">
               {member.affiliation}
             </p>
-            
+
             <div className="mb-3">
               <h4 className="text-sm font-medium text-secondary-900 mb-2">Areas of Expertise:</h4>
               <div className="flex flex-wrap gap-2">
                 {member.expertise.map((area, index) => (
                   <span
                     key={index}
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      isChief 
-                        ? 'bg-primary-100 text-primary-800' 
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isChief
+                        ? 'bg-primary-100 text-primary-800'
                         : 'bg-secondary-100 text-secondary-800'
-                    }`}
+                      }`}
                   >
                     {area}
                   </span>
                 ))}
               </div>
             </div>
-            
+
             {member.email && (
               <p className="text-sm text-secondary-600">
                 <strong>Contact:</strong> {member.email}
@@ -207,7 +206,7 @@ const EditorialBoard: React.FC = () => {
               <div className="text-secondary-600">Total Members</div>
             </div>
           </div>
-          
+
           <div className="card">
             <div className="card-body text-center">
               <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -220,7 +219,7 @@ const EditorialBoard: React.FC = () => {
               <div className="text-secondary-600">Countries</div>
             </div>
           </div>
-          
+
           <div className="card">
             <div className="card-body text-center">
               <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -233,7 +232,7 @@ const EditorialBoard: React.FC = () => {
               <div className="text-secondary-600">Expertise Areas</div>
             </div>
           </div>
-          
+
           <div className="card">
             <div className="card-body text-center">
               <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -265,7 +264,7 @@ const EditorialBoard: React.FC = () => {
               </ul>
             </div>
           </div>
-          
+
           <div className="card">
             <div className="card-body">
               <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -280,7 +279,7 @@ const EditorialBoard: React.FC = () => {
               </ul>
             </div>
           </div>
-          
+
           <div className="card">
             <div className="card-body">
               <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -306,10 +305,10 @@ const EditorialBoard: React.FC = () => {
               Join Our Editorial Board
             </h2>
             <p className="text-primary-700 mb-6 max-w-2xl mx-auto">
-              We are always looking for distinguished researchers and practitioners to join our editorial board. 
+              We are always looking for distinguished researchers and practitioners to join our editorial board.
               Board members play a crucial role in maintaining the quality and reputation of our journal.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <h3 className="font-semibold text-primary-900 mb-2">Requirements</h3>
@@ -320,7 +319,7 @@ const EditorialBoard: React.FC = () => {
                   <li>• Editorial or review experience</li>
                 </ul>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-primary-900 mb-2">Benefits</h3>
                 <ul className="text-primary-700 text-sm space-y-1">
@@ -331,7 +330,7 @@ const EditorialBoard: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <button className="bg-primary-600 text-white px-8 py-3 rounded-md hover:bg-primary-700 transition-colors">
               Apply to Join Board
             </button>

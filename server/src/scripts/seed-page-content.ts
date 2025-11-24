@@ -3,12 +3,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const pageContent = {
-    mission: `<div class="space-y-6">
+  mission: `<div class="space-y-6">
     <section class="card">
       <div class="card-body">
         <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Mission Statement</h2>
         <p class="text-secondary-700 leading-relaxed mb-4">
-          The International Journal of Advanced Technology, Engineering and Management (IJATEM) is committed to 
+          The International Journal of Advanced Technology, Engineering and Management (GEMIJ) is committed to 
           advancing knowledge and fostering innovation in the fields of technology, engineering, and management sciences.
         </p>
         <p class="text-secondary-700 leading-relaxed mb-4">
@@ -31,7 +31,7 @@ const pageContent = {
     </section>
   </div>`,
 
-    vision: `<div class="space-y-6">
+  vision: `<div class="space-y-6">
     <section class="card">
       <div class="card-body">
         <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Vision Statement</h2>
@@ -58,12 +58,12 @@ const pageContent = {
     </section>
   </div>`,
 
-    aim_scope: `<div class="space-y-6">
+  aim_scope: `<div class="space-y-6">
     <section class="card">
       <div class="card-body">
         <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Journal Aim</h2>
         <p class="text-secondary-700 leading-relaxed">
-          IJATEM aims to publish original, high-quality research that advances the state-of-the-art in technology, 
+          GEMIJ aims to publish original, high-quality research that advances the state-of-the-art in technology, 
           engineering, and management sciences.
         </p>
       </div>
@@ -93,12 +93,12 @@ const pageContent = {
     </section>
   </div>`,
 
-    processing_charge: `<div class="space-y-6">
+  processing_charge: `<div class="space-y-6">
     <section class="card">
       <div class="card-body">
         <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Open Access Publishing Model</h2>
         <p class="text-secondary-700 leading-relaxed">
-          IJATEM operates under an open access publishing model. To sustain this model, we charge an 
+          GEMIJ operates under an open access publishing model. To sustain this model, we charge an 
           Article Processing Charge (APC) for accepted manuscripts.
         </p>
       </div>
@@ -114,12 +114,12 @@ const pageContent = {
     </section>
   </div>`,
 
-    indexing: `<div class="space-y-6">
+  indexing: `<div class="space-y-6">
     <section class="card">
       <div class="card-body">
         <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Our Commitment to Visibility</h2>
         <p class="text-secondary-700 leading-relaxed">
-          IJATEM is committed to ensuring maximum visibility and discoverability of published research.
+          GEMIJ is committed to ensuring maximum visibility and discoverability of published research.
         </p>
       </div>
     </section>
@@ -146,10 +146,10 @@ const pageContent = {
     </section>
   </div>`,
 
-    call_for_paper: `<div class="space-y-6">
+  call_for_paper: `<div class="space-y-6">
     <section class="card bg-primary-50 border-2 border-primary-200">
       <div class="card-body">
-        <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Submit Your Research to IJATEM</h2>
+        <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Submit Your Research to GEMIJ</h2>
         <p class="text-secondary-700 leading-relaxed mb-4">
           We invite researchers, academics, and industry professionals to submit their original research for publication.
         </p>
@@ -162,7 +162,7 @@ const pageContent = {
     </section>
     <section class="card">
       <div class="card-body">
-        <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Why Publish with IJATEM?</h2>
+        <h2 class="text-2xl font-semibold text-secondary-900 mb-4">Why Publish with GEMIJ?</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="flex items-start">
             <span class="text-primary-600 mr-3 text-2xl">✓</span>
@@ -183,7 +183,7 @@ const pageContent = {
     </section>
   </div>`,
 
-    contact: `<div class="space-y-6">
+  contact: `<div class="space-y-6">
     <section class="card">
       <div class="card-body">
         <h2 class="text-2xl font-semibold text-secondary-900 mb-6">Editorial Office</h2>
@@ -191,7 +191,7 @@ const pageContent = {
           <div>
             <h3 class="font-semibold text-secondary-900 mb-3">Address</h3>
             <p class="text-secondary-700 leading-relaxed">
-              IJATEM Editorial Office<br />
+              GEMIJ Editorial Office<br />
               123 Academic Street<br />
               Research City, RC 12345<br />
               India
@@ -200,7 +200,7 @@ const pageContent = {
           <div>
             <h3 class="font-semibold text-secondary-900 mb-3">Contact Information</h3>
             <div class="space-y-2 text-secondary-700">
-              <p><span class="font-medium">Email:</span> <a href="mailto:editor@ijatem.com" class="text-primary-600 hover:text-primary-700">editor@ijatem.com</a></p>
+              <p><span class="font-medium">Email:</span> <a href="mailto:editor@GEMIJ.com" class="text-primary-600 hover:text-primary-700">editor@GEMIJ.com</a></p>
               <p><span class="font-medium">Phone:</span> +91 (555) 123-4567</p>
             </div>
           </div>
@@ -211,28 +211,28 @@ const pageContent = {
 };
 
 async function seedPageContent() {
-    console.log('🌱 Seeding page content...');
+  console.log('🌱 Seeding page content...');
 
-    try {
-        for (const [slug, content] of Object.entries(pageContent)) {
-            const key = `page_${slug}_content`;
+  try {
+    for (const [slug, content] of Object.entries(pageContent)) {
+      const key = `page_${slug}_content`;
 
-            await prisma.systemSettings.upsert({
-                where: { key },
-                update: { value: content, type: 'string' },
-                create: { key, value: content, type: 'string' }
-            });
+      await prisma.systemSettings.upsert({
+        where: { key },
+        update: { value: content, type: 'string' },
+        create: { key, value: content, type: 'string' }
+      });
 
-            console.log(`✓ Seeded content for: ${slug}`);
-        }
-
-        console.log('✅ Page content seeding completed successfully!');
-    } catch (error) {
-        console.error('❌ Error seeding page content:', error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
+      console.log(`✓ Seeded content for: ${slug}`);
     }
+
+    console.log('✅ Page content seeding completed successfully!');
+  } catch (error) {
+    console.error('❌ Error seeding page content:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 seedPageContent();

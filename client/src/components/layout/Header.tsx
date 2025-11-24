@@ -114,15 +114,15 @@ const Header: React.FC = () => {
 
                     <div className="flex items-center gap-2">
                       <span className="text-slate-500">|</span>
-                      <a href={`mailto:${landingConfig?.announcementBar?.email || 'submit.ijatem@gmail.com'}`} className="hover:text-white transition-colors flex items-center gap-1.5">
-                        <span className="text-white font-semibold">{landingConfig?.announcementBar?.email || 'submit.ijatem@gmail.com'}</span>
+                      <a href={`mailto:${landingConfig?.announcementBar?.email || 'submit.GEMIJ@gmail.com'}`} className="hover:text-white transition-colors flex items-center gap-1.5">
+                        <span className="text-white font-semibold">{landingConfig?.announcementBar?.email || 'submit.GEMIJ@gmail.com'}</span>
                       </a>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <span className="text-slate-500">|</span>
                       <span className="flex items-center gap-1.5">
-                        <span className="text-white font-semibold">{landingConfig?.announcementBar?.phone || '+91 98405 11458'}</span>
+                        <span className="text-white font-semibold">{landingConfig?.announcementBar?.phone || '+91 8220669990'}</span>
                       </span>
                     </div>
                   </div>

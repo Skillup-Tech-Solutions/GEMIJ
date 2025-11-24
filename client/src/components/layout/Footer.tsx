@@ -51,17 +51,17 @@ const Footer: React.FC = () => {
               {footerConfig?.description || 'A premier peer-reviewed international journal dedicated to advancing knowledge in engineering and management disciplines.'}
             </p>
             <div className="space-y-3 pt-2">
-              <a href={`mailto:${footerConfig?.email || 'submit.ijatem@gmail.com'}`} className="flex items-center gap-3 text-sm hover:text-white transition-colors group">
+              <a href={`mailto:${footerConfig?.email || 'submit.GEMIJ@gmail.com'}`} className="flex items-center gap-3 text-sm hover:text-white transition-colors group">
                 <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-blue-600 transition-colors shadow-sm">
                   <Mail className="h-4 w-4" />
                 </div>
-                <span className="group-hover:text-blue-400 transition-colors">{footerConfig?.email || 'submit.ijatem@gmail.com'}</span>
+                <span className="group-hover:text-blue-400 transition-colors">{footerConfig?.email || 'submit.GEMIJ@gmail.com'}</span>
               </a>
               <div className="flex items-center gap-3 text-sm group">
                 <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shadow-sm">
                   <Phone className="h-4 w-4" />
                 </div>
-                <span>{footerConfig?.phone || '+91 98405 11458'}</span>
+                <span>{footerConfig?.phone || '+91 8220669990'}</span>
               </div>
             </div>
           </div>

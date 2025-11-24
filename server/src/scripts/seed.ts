@@ -182,7 +182,7 @@ const emailTemplates = [
 
 const systemSettings = [
   { key: 'journal_name', value: 'International Journal of Advanced Technology and Engineering Management', type: 'string' },
-  { key: 'journal_abbreviation', value: 'IJATEM', type: 'string' },
+  { key: 'journal_abbreviation', value: 'GEMIJ', type: 'string' },
   { key: 'journal_issn', value: '2345-6789', type: 'string' },
   { key: 'apc_amount', value: '299.00', type: 'decimal' },
   { key: 'apc_currency', value: 'INR', type: 'string' },
@@ -337,7 +337,7 @@ async function main() {
         { firstName: 'Dr. Sarah', lastName: 'Johnson', affiliation: 'MIT Technology Institute', email: 'sarah.johnson@mit.edu' },
         { firstName: 'Prof. Michael', lastName: 'Chen', affiliation: 'Stanford University', email: 'michael.chen@stanford.edu' }
       ],
-      doi: '10.1234/ijatem.2024.001',
+      doi: '10.1234/GEMIJ.2024.001',
       pages: '1-15',
       pdfPath: '/uploads/articles/ai-supply-chain-2024.pdf',
       views: 1250,
@@ -351,7 +351,7 @@ async function main() {
         { firstName: 'Dr. Ahmed', lastName: 'Hassan', affiliation: 'Cairo University', email: 'ahmed.hassan@cu.edu.eg' },
         { firstName: 'Dr. Lisa', lastName: 'Wang', affiliation: 'University of Toronto', email: 'lisa.wang@utoronto.ca' }
       ],
-      doi: '10.1234/ijatem.2024.002',
+      doi: '10.1234/GEMIJ.2024.002',
       pages: '16-28',
       pdfPath: '/uploads/articles/blockchain-iot-2024.pdf',
       views: 980,
@@ -365,7 +365,7 @@ async function main() {
         { firstName: 'Prof. Robert', lastName: 'Smith', affiliation: 'Georgia Tech', email: 'robert.smith@gatech.edu' },
         { firstName: 'Dr. Maria', lastName: 'Rodriguez', affiliation: 'Technical University of Madrid', email: 'maria.rodriguez@upm.es' }
       ],
-      doi: '10.1234/ijatem.2024.003',
+      doi: '10.1234/GEMIJ.2024.003',
       pages: '29-42',
       pdfPath: '/uploads/articles/ml-predictive-maintenance-2024.pdf',
       views: 1450,
@@ -383,7 +383,7 @@ async function main() {
         { firstName: 'Dr. Elena', lastName: 'Petrov', affiliation: 'Technical University of Denmark', email: 'elena.petrov@dtu.dk' },
         { firstName: 'Prof. James', lastName: 'Wilson', affiliation: 'University of California Berkeley', email: 'james.wilson@berkeley.edu' }
       ],
-      doi: '10.1234/ijatem.2024.004',
+      doi: '10.1234/GEMIJ.2024.004',
       pages: '1-18',
       pdfPath: '/uploads/articles/renewable-energy-grid-2024.pdf',
       views: 890,
@@ -397,7 +397,7 @@ async function main() {
         { firstName: 'Dr. Thomas', lastName: 'Mueller', affiliation: 'Technical University of Munich', email: 'thomas.mueller@tum.de' },
         { firstName: 'Dr. Priya', lastName: 'Sharma', affiliation: 'Indian Institute of Technology Delhi', email: 'priya.sharma@iitd.ac.in' }
       ],
-      doi: '10.1234/ijatem.2024.005',
+      doi: '10.1234/GEMIJ.2024.005',
       pages: '19-35',
       pdfPath: '/uploads/articles/sustainable-manufacturing-lca-2024.pdf',
       views: 720,
@@ -415,7 +415,7 @@ async function main() {
         { firstName: 'Prof. Hans', lastName: 'Schmidt', affiliation: 'RWTH Aachen University', email: 'hans.schmidt@rwth-aachen.de' },
         { firstName: 'Dr. Yuki', lastName: 'Tanaka', affiliation: 'University of Tokyo', email: 'yuki.tanaka@u-tokyo.ac.jp' }
       ],
-      doi: '10.1234/ijatem.2024.006',
+      doi: '10.1234/GEMIJ.2024.006',
       pages: '1-22',
       pdfPath: '/uploads/articles/digital-twin-industry40-2024.pdf',
       views: 1100,

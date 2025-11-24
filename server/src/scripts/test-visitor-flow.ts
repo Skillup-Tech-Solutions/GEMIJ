@@ -27,7 +27,7 @@ class VisitorFlowTester {
       const issues = await prisma.issue.findMany({
         include: { articles: true }
       });
-      
+
       if (issues.length >= 3) {
         this.addResult('Database Issues', 'PASS', `Found ${issues.length} issues in database`);
       } else {
@@ -67,7 +67,7 @@ class VisitorFlowTester {
       const currentIssueResponse = await axios.get(`${API_URL}/public/current-issue`);
       if (currentIssueResponse.status === 200 && currentIssueResponse.data.data) {
         const issue = currentIssueResponse.data.data;
-        this.addResult('GET /public/current-issue', 'PASS', 
+        this.addResult('GET /public/current-issue', 'PASS',
           `Retrieved current issue: Vol ${issue.volume}, No ${issue.number} with ${issue.articles?.length || 0} articles`);
       } else {
         this.addResult('GET /public/current-issue', 'FAIL', 'Invalid response structure');
@@ -77,7 +77,7 @@ class VisitorFlowTester {
       const archiveResponse = await axios.get(`${API_URL}/public/archive?page=1&limit=10`);
       if (archiveResponse.status === 200 && archiveResponse.data.data) {
         const issues = archiveResponse.data.data;
-        this.addResult('GET /public/archive', 'PASS', 
+        this.addResult('GET /public/archive', 'PASS',
           `Retrieved ${issues.length} issues from archive`);
       } else {
         this.addResult('GET /public/archive', 'FAIL', 'Invalid response structure');
@@ -87,17 +87,17 @@ class VisitorFlowTester {
       const issueResponse = await axios.get(`${API_URL}/public/issues/1/1`);
       if (issueResponse.status === 200 && issueResponse.data.data) {
         const issue = issueResponse.data.data;
-        this.addResult('GET /public/issues/:volume/:number', 'PASS', 
+        this.addResult('GET /public/issues/:volume/:number', 'PASS',
           `Retrieved specific issue with ${issue.articles?.length || 0} articles`);
       } else {
         this.addResult('GET /public/issues/:volume/:number', 'FAIL', 'Invalid response structure');
       }
 
       // Test article endpoint
-      const articleResponse = await axios.get(`${API_URL}/public/articles/10.1234/ijatem.2024.001`);
+      const articleResponse = await axios.get(`${API_URL}/public/articles/10.1234/GEMIJ.2024.001`);
       if (articleResponse.status === 200 && articleResponse.data.data) {
         const article = articleResponse.data.data;
-        this.addResult('GET /public/articles/:doi', 'PASS', 
+        this.addResult('GET /public/articles/:doi', 'PASS',
           `Retrieved article: "${article.title.substring(0, 50)}..."`);
       } else {
         this.addResult('GET /public/articles/:doi', 'FAIL', 'Invalid response structure');
@@ -107,7 +107,7 @@ class VisitorFlowTester {
       const searchResponse = await axios.get(`${API_URL}/public/search?q=artificial intelligence`);
       if (searchResponse.status === 200 && searchResponse.data.data) {
         const articles = searchResponse.data.data;
-        this.addResult('GET /public/search', 'PASS', 
+        this.addResult('GET /public/search', 'PASS',
           `Search returned ${articles.length} articles for "artificial intelligence"`);
       } else {
         this.addResult('GET /public/search', 'FAIL', 'Invalid response structure');
@@ -117,14 +117,14 @@ class VisitorFlowTester {
       const statsResponse = await axios.get(`${API_URL}/public/stats`);
       if (statsResponse.status === 200 && statsResponse.data.data) {
         const stats = statsResponse.data.data;
-        this.addResult('GET /public/stats', 'PASS', 
+        this.addResult('GET /public/stats', 'PASS',
           `Retrieved stats: ${stats.totalArticles} articles, ${stats.totalIssues} issues`);
       } else {
         this.addResult('GET /public/stats', 'FAIL', 'Invalid response structure');
       }
 
     } catch (error: any) {
-      this.addResult('API Connection', 'FAIL', 
+      this.addResult('API Connection', 'FAIL',
         `API connection failed: ${error.message}. Make sure the server is running on ${API_URL}`);
     }
   }
@@ -134,13 +134,13 @@ class VisitorFlowTester {
 
     try {
       // Test article download endpoint
-      const downloadResponse = await axios.get(`${API_URL}/public/articles/10.1234/ijatem.2024.001/download`, {
+      const downloadResponse = await axios.get(`${API_URL}/public/articles/10.1234/GEMIJ.2024.001/download`, {
         responseType: 'blob',
         timeout: 5000
       });
-      
+
       if (downloadResponse.status === 200 && downloadResponse.data) {
-        this.addResult('Article PDF Download', 'PASS', 
+        this.addResult('Article PDF Download', 'PASS',
           `Successfully downloaded PDF (${downloadResponse.data.size || 'unknown size'} bytes)`);
       } else {
         this.addResult('Article PDF Download', 'FAIL', 'Download failed or empty response');
@@ -161,45 +161,45 @@ class VisitorFlowTester {
     try {
       // Scenario 1: Home page → Current Issue → Article View
       console.log('Scenario 1: Home → Current Issue → Article View');
-      
+
       // Get current issue (simulating home page)
       const homeResponse = await axios.get(`${API_URL}/public/current-issue`);
       if (homeResponse.status === 200 && homeResponse.data.data?.articles?.length > 0) {
         const firstArticle = homeResponse.data.data.articles[0];
-        
+
         // Get specific article (simulating article click)
         const articleResponse = await axios.get(`${API_URL}/public/articles/${firstArticle.doi}`);
         if (articleResponse.status === 200) {
-          this.addResult('Visitor Flow: Home → Current Issue → Article', 'PASS', 
+          this.addResult('Visitor Flow: Home → Current Issue → Article', 'PASS',
             `Successfully navigated to article: "${firstArticle.title.substring(0, 40)}..."`);
         } else {
-          this.addResult('Visitor Flow: Home → Current Issue → Article', 'FAIL', 
+          this.addResult('Visitor Flow: Home → Current Issue → Article', 'FAIL',
             'Failed to retrieve article from current issue');
         }
       } else {
-        this.addResult('Visitor Flow: Home → Current Issue → Article', 'FAIL', 
+        this.addResult('Visitor Flow: Home → Current Issue → Article', 'FAIL',
           'No articles found in current issue');
       }
 
       // Scenario 2: Archive browsing
       console.log('Scenario 2: Archive browsing');
-      
+
       const archiveResponse = await axios.get(`${API_URL}/public/archive`);
       if (archiveResponse.status === 200 && archiveResponse.data.data?.length > 0) {
         const issues = archiveResponse.data.data;
-        this.addResult('Visitor Flow: Archive Browsing', 'PASS', 
+        this.addResult('Visitor Flow: Archive Browsing', 'PASS',
           `Successfully browsed archive with ${issues.length} issues`);
       } else {
-        this.addResult('Visitor Flow: Archive Browsing', 'FAIL', 
+        this.addResult('Visitor Flow: Archive Browsing', 'FAIL',
           'Archive browsing failed or no issues found');
       }
 
       // Scenario 3: Search functionality
       console.log('Scenario 3: Search functionality');
-      
+
       const searchTerms = ['machine learning', 'blockchain', 'sustainability'];
       let searchSuccessCount = 0;
-      
+
       for (const term of searchTerms) {
         try {
           const searchResponse = await axios.get(`${API_URL}/public/search?q=${encodeURIComponent(term)}`);
@@ -210,17 +210,17 @@ class VisitorFlowTester {
           // Continue with other search terms
         }
       }
-      
+
       if (searchSuccessCount === searchTerms.length) {
-        this.addResult('Visitor Flow: Search Functionality', 'PASS', 
+        this.addResult('Visitor Flow: Search Functionality', 'PASS',
           `All ${searchTerms.length} search queries executed successfully`);
       } else {
-        this.addResult('Visitor Flow: Search Functionality', 'FAIL', 
+        this.addResult('Visitor Flow: Search Functionality', 'FAIL',
           `Only ${searchSuccessCount}/${searchTerms.length} search queries succeeded`);
       }
 
     } catch (error: any) {
-      this.addResult('Visitor Flow Scenarios', 'FAIL', 
+      this.addResult('Visitor Flow Scenarios', 'FAIL',
         `Error testing visitor flows: ${error.message}`);
     }
   }
@@ -279,7 +279,7 @@ class VisitorFlowTester {
 
 async function main() {
   const tester = new VisitorFlowTester();
-  
+
   try {
     await tester.runAllTests();
   } catch (error) {

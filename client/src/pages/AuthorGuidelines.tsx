@@ -34,7 +34,7 @@ const AuthorGuidelines: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -51,7 +51,7 @@ const AuthorGuidelines: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -68,7 +68,7 @@ const AuthorGuidelines: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -104,7 +104,7 @@ const AuthorGuidelines: React.FC = () => {
                     <li>• ORCID IDs (recommended)</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">2. Abstract</h3>
                   <ul className="text-secondary-700 space-y-1 ml-4">
@@ -113,7 +113,7 @@ const AuthorGuidelines: React.FC = () => {
                     <li>• Clear and concise summary of the work</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">3. Keywords</h3>
                   <ul className="text-secondary-700 space-y-1 ml-4">
@@ -122,7 +122,7 @@ const AuthorGuidelines: React.FC = () => {
                     <li>• Avoid words already in the title</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">4. Main Text</h3>
                   <ul className="text-secondary-700 space-y-1 ml-4">
@@ -133,7 +133,7 @@ const AuthorGuidelines: React.FC = () => {
                     <li>• Conclusions</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">5. Additional Sections</h3>
                   <ul className="text-secondary-700 space-y-1 ml-4">
@@ -168,7 +168,7 @@ const AuthorGuidelines: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -193,10 +193,10 @@ const AuthorGuidelines: React.FC = () => {
           <div className="card">
             <div className="card-body">
               <p className="text-secondary-700 mb-4">
-                IJATEM follows the IEEE reference style. All references should be numbered consecutively 
+                GEMIJ follows the IEEE reference style. All references should be numbered consecutively
                 in the order they appear in the text.
               </p>
-              
+
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">Journal Articles</h3>
@@ -204,14 +204,14 @@ const AuthorGuidelines: React.FC = () => {
                     [1] A. Author, "Title of paper," Journal Name, vol. X, no. Y, pp. XX-YY, Month Year.
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">Conference Papers</h3>
                   <div className="bg-secondary-50 p-3 rounded text-sm font-mono text-secondary-700">
                     [2] B. Author, "Title of paper," in Proc. Conference Name, City, Country, Year, pp. XX-YY.
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">Books</h3>
                   <div className="bg-secondary-50 p-3 rounded text-sm font-mono text-secondary-700">
@@ -241,7 +241,7 @@ const AuthorGuidelines: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -255,7 +255,7 @@ const AuthorGuidelines: React.FC = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="card">
               <div className="card-body">
                 <h3 className="text-lg font-semibold text-secondary-900 mb-3">
@@ -282,25 +282,25 @@ const AuthorGuidelines: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">Originality</h3>
                   <p className="text-secondary-700">
-                    All submissions must be original work that has not been published elsewhere 
+                    All submissions must be original work that has not been published elsewhere
                     or is under consideration for publication in another journal.
                   </p>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">Authorship</h3>
                   <p className="text-secondary-700">
-                    All listed authors must have made significant contributions to the work and 
-                    agree to the submission. Changes to authorship after submission require 
+                    All listed authors must have made significant contributions to the work and
+                    agree to the submission. Changes to authorship after submission require
                     written consent from all authors.
                   </p>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-secondary-900 mb-2">Conflicts of Interest</h3>
                   <p className="text-secondary-700">
-                    Authors must declare any financial or personal relationships that could 
-                    influence the work. This includes funding sources, employment, and 
+                    Authors must declare any financial or personal relationships that could
+                    influence the work. This includes funding sources, employment, and
                     personal relationships.
                   </p>
                 </div>
@@ -320,10 +320,10 @@ const AuthorGuidelines: React.FC = () => {
               </p>
               <div className="space-y-2">
                 <p className="text-secondary-700">
-                  <strong>Editorial Office:</strong> editor@ijatem.com
+                  <strong>Editorial Office:</strong> editor@GEMIJ.com
                 </p>
                 <p className="text-secondary-700">
-                  <strong>Technical Support:</strong> support@ijatem.com
+                  <strong>Technical Support:</strong> support@GEMIJ.com
                 </p>
                 <p className="text-secondary-700">
                   <strong>Response Time:</strong> 24-48 hours

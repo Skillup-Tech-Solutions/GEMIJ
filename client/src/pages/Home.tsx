@@ -122,7 +122,7 @@ const Home: React.FC = () => {
 
             <p className="text-xl md:text-2xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto animate-fade-in-up delay-200 font-light">
               {hero.subtitle || (
-                <><strong className="text-white font-semibold">IJATEM (ISSN 2583-7052)</strong> bridges the gap between theoretical innovation and practical application. Join a global community of researchers.</>
+                <><strong className="text-white font-semibold">GEMIJ (ISSN 2583-7052)</strong> bridges the gap between theoretical innovation and practical application. Join a global community of researchers.</>
               )}
             </p>
 
@@ -352,7 +352,7 @@ const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20 pt-16 border-t border-slate-800/50">
             {(cta.contactInfo || [
-              { icon: '📧', text: 'submit.ijatem@gmail.com' },
+              { icon: '📧', text: 'submit.GEMIJ@gmail.com' },
               { icon: '⚡', text: 'Fast Review Process' },
               { icon: '🌍', text: 'International Reach' }
             ]).map((info: any, index: number) => (
