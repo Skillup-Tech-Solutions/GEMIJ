@@ -15,6 +15,7 @@ import {
   getPaymentById,
   markPaymentAsPaid,
   updateUserRole,
+  updateUserStatus,
   deleteUser,
   getAllPageContent,
   updatePageContent
@@ -42,6 +43,7 @@ router.put('/payments/:paymentId/paid', markPaymentAsPaid);
 // Users
 router.get('/users', getAdminUsers);
 router.put('/users/:id/role', updateUserRole);
+router.put('/users/:id/status', updateUserStatus);
 router.delete('/users/:id', deleteUser);
 
 // Settings

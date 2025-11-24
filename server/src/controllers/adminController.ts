@@ -1201,6 +1201,53 @@ export const updateUserRole = async (req: AuthenticatedRequest, res: Response) =
   }
 };
 
+export const updateUserStatus = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const normalizedStatus = status?.toUpperCase();
+    if (!['ACTIVE', 'INACTIVE'].includes(normalizedStatus)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid status. Must be ACTIVE or INACTIVE'
+      });
+    }
+
+    const isActive = normalizedStatus === 'ACTIVE';
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { isActive },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isActive: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        role: user.role,
+        status: user.isActive ? 'ACTIVE' : 'INACTIVE'
+      }
+    });
+  } catch (error) {
+    console.error('Update user status error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
 export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
