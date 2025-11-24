@@ -33,7 +33,7 @@ async function sendTestEmail() {
 
     console.log('Email sent!');
     console.log(JSON.stringify(request.body, null, 2));
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error sending Mailjet email:');
     if (err.statusCode) console.error('Status:', err.statusCode);
     console.error(err.message || err);
