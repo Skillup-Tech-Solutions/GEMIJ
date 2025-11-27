@@ -12,6 +12,9 @@ export interface Issue {
     coverImage?: string;
     publishedAt?: string;
     isCurrent: boolean;
+    featured: boolean;
+    visible: boolean;
+    displayOrder?: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -24,6 +27,10 @@ export interface Conference {
     description?: string;
     year: number;
     isActive: boolean;
+    coverImage?: string;
+    featured: boolean;
+    visible: boolean;
+    displayOrder?: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -37,6 +44,9 @@ export interface CreateIssueData {
     coverImage?: string;
     publishedAt?: string;
     isCurrent?: boolean;
+    featured?: boolean;
+    visible?: boolean;
+    displayOrder?: number;
 }
 
 export interface CreateConferenceData {
@@ -46,6 +56,10 @@ export interface CreateConferenceData {
     description?: string;
     year: number;
     isActive?: boolean;
+    coverImage?: string;
+    featured?: boolean;
+    visible?: boolean;
+    displayOrder?: number;
 }
 
 const issueService = {

@@ -43,10 +43,14 @@ export const getArchive = async (req: Request, res: Response) => {
 
     const [issues, total] = await Promise.all([
       prisma.issue.findMany({
-        where: { publishedAt: { not: null } },
+        where: {
+          publishedAt: { not: null },
+          visible: true
+        },
         skip,
         take: Number(limit),
         orderBy: [
+          { displayOrder: 'desc' },
           { volume: 'desc' },
           { number: 'desc' }
         ],
@@ -57,7 +61,10 @@ export const getArchive = async (req: Request, res: Response) => {
         }
       }),
       prisma.issue.count({
-        where: { publishedAt: { not: null } }
+        where: {
+          publishedAt: { not: null },
+          visible: true
+        }
       })
     ]);
 
@@ -158,8 +165,13 @@ export const getArticleById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const article = await prisma.article.findUnique({
-      where: { id },
+    const article = await prisma.article.findFirst({
+      where: {
+        OR: [
+          { id },
+          { articleNumber: id }
+        ]
+      },
       include: {
         issue: true
       }

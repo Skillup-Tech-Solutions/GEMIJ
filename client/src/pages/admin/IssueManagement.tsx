@@ -19,7 +19,10 @@ const IssueManagement: React.FC = () => {
     description: '',
     year: new Date().getFullYear().toString(),
     publishedAt: '',
-    isCurrent: false
+    isCurrent: false,
+    featured: false,
+    visible: true,
+    displayOrder: '0'
   });
 
   useEffect(() => {
@@ -49,7 +52,10 @@ const IssueManagement: React.FC = () => {
         description: issue.description || '',
         year: issue.year.toString(),
         publishedAt: issue.publishedAt ? new Date(issue.publishedAt).toISOString().slice(0, 10) : '',
-        isCurrent: issue.isCurrent
+        isCurrent: issue.isCurrent,
+        featured: issue.featured,
+        visible: issue.visible,
+        displayOrder: (issue.displayOrder || 0).toString()
       });
     } else {
       setEditingIssue(null);
@@ -60,7 +66,10 @@ const IssueManagement: React.FC = () => {
         description: '',
         year: new Date().getFullYear().toString(),
         publishedAt: '',
-        isCurrent: false
+        isCurrent: false,
+        featured: false,
+        visible: true,
+        displayOrder: '0'
       });
     }
     setModalOpen(true);
@@ -76,7 +85,10 @@ const IssueManagement: React.FC = () => {
         description: formData.description,
         year: parseInt(formData.year),
         publishedAt: formData.publishedAt || undefined,
-        isCurrent: formData.isCurrent
+        isCurrent: formData.isCurrent,
+        featured: formData.featured,
+        visible: formData.visible,
+        displayOrder: parseInt(formData.displayOrder)
       };
 
       if (editingIssue) {
@@ -336,6 +348,46 @@ const IssueManagement: React.FC = () => {
               <label htmlFor="isCurrent" className="ml-2 block text-sm text-gray-900">
                 Set as Current Issue
               </label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="featured"
+                checked={formData.featured}
+                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+                Featured Issue (highlight on browse pages)
+              </label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="visible"
+                checked={formData.visible}
+                onChange={(e) => setFormData({ ...formData, visible: e.target.checked })}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label htmlFor="visible" className="ml-2 block text-sm text-gray-900">
+                Visible on public pages
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Display Order
+              </label>
+              <input
+                type="number"
+                value={formData.displayOrder}
+                onChange={(e) => setFormData({ ...formData, displayOrder: e.target.value })}
+                placeholder="0 (higher numbers appear first)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+              />
+              <p className="mt-1 text-xs text-gray-500">Higher numbers appear first in browse pages</p>
             </div>
 
             <div className="flex justify-end space-x-3 pt-4">

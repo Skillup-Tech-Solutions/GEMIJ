@@ -283,6 +283,10 @@ model Issue {
   coverImage  String?
   publishedAt DateTime?
   isCurrent   Boolean   @default(false)
+  year        Int       @default(2024)
+  featured    Boolean   @default(false)
+  visible     Boolean   @default(true)
+  displayOrder Int?     @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -390,6 +394,10 @@ model Conference {
   description     String?
   year            Int
   isActive        Boolean  @default(true)
+  coverImage      String?
+  featured        Boolean  @default(false)
+  visible         Boolean  @default(true)
+  displayOrder    Int?     @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -18,7 +18,10 @@ const ConferenceManagement: React.FC = () => {
         category: '',
         description: '',
         year: new Date().getFullYear().toString(),
-        isActive: true
+        isActive: true,
+        featured: false,
+        visible: true,
+        displayOrder: '0'
     });
 
     useEffect(() => {
@@ -47,7 +50,10 @@ const ConferenceManagement: React.FC = () => {
                 category: conference.category || '',
                 description: conference.description || '',
                 year: conference.year.toString(),
-                isActive: conference.isActive
+                isActive: conference.isActive,
+                featured: conference.featured,
+                visible: conference.visible,
+                displayOrder: (conference.displayOrder || 0).toString()
             });
         } else {
             setEditingConference(null);
@@ -57,7 +63,10 @@ const ConferenceManagement: React.FC = () => {
                 category: '',
                 description: '',
                 year: new Date().getFullYear().toString(),
-                isActive: true
+                isActive: true,
+                featured: false,
+                visible: true,
+                displayOrder: '0'
             });
         }
         setModalOpen(true);
@@ -72,7 +81,10 @@ const ConferenceManagement: React.FC = () => {
                 category: formData.category || undefined,
                 description: formData.description || undefined,
                 year: parseInt(formData.year),
-                isActive: formData.isActive
+                isActive: formData.isActive,
+                featured: formData.featured,
+                visible: formData.visible,
+                displayOrder: parseInt(formData.displayOrder)
             };
 
             if (editingConference) {
@@ -306,6 +318,46 @@ const ConferenceManagement: React.FC = () => {
                             <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
                                 Active Conference
                             </label>
+                        </div>
+
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="featured"
+                                checked={formData.featured}
+                                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                            />
+                            <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+                                Featured Conference (highlight on browse pages)
+                            </label>
+                        </div>
+
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="visible"
+                                checked={formData.visible}
+                                onChange={(e) => setFormData({ ...formData, visible: e.target.checked })}
+                                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                            />
+                            <label htmlFor="visible" className="ml-2 block text-sm text-gray-900">
+                                Visible on public pages
+                            </label>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Display Order
+                            </label>
+                            <input
+                                type="number"
+                                value={formData.displayOrder}
+                                onChange={(e) => setFormData({ ...formData, displayOrder: e.target.value })}
+                                placeholder="0 (higher numbers appear first)"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Higher numbers appear first in browse pages</p>
                         </div>
 
                         <div className="flex justify-end space-x-3 pt-4">

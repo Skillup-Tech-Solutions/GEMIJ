@@ -311,7 +311,7 @@ const Home: React.FC = () => {
                       </div>
                     </div>
                     <Link
-                      to={`/articles/${article.doi}`}
+                      to={`/article/${article.articleNumber || article.id}`}
                       className="block w-full text-center py-3.5 rounded-xl bg-slate-50 text-slate-700 font-bold hover:bg-blue-600 hover:text-white transition-all duration-300"
                     >
                       Read Article
