@@ -86,6 +86,10 @@ model User {
   payments          Payment[]
   notifications     Notification[]
 
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -142,6 +146,14 @@ model Submission {
   grammarChecks       GrammarCheck[]
   article             Article?
 
+  @@index([authorId])
+  @@index([status])
+  @@index([submittedAt])
+  @@index([createdAt])
+  @@index([conferenceId])
+  @@index([publicationDestination])
+  @@index([authorId, status])
+  @@index([status, submittedAt])
   @@map("submissions")
 }
 
@@ -157,6 +169,8 @@ model CoAuthor {
   submissionId String
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
+  @@index([submissionId])
+  @@index([email])
   @@map("co_authors")
 }
 
@@ -175,6 +189,8 @@ model SubmissionFile {
   submissionId String
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
+  @@index([submissionId])
+  @@index([b2FileId])
   @@map("submission_files")
 }
 
@@ -207,6 +223,12 @@ model Review {
   shareQualityWithAuthor    Boolean @default(false)
   shareGrammarWithAuthor    Boolean @default(false)
 
+  @@index([reviewerId])
+  @@index([submissionId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([submissionId, status])
+  @@index([reviewerId, status])
   @@map("reviews")
 }
 
@@ -220,6 +242,9 @@ model EditorAssignment {
   submissionId String
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
+  @@index([editorId])
+  @@index([submissionId])
+  @@index([editorId, submissionId])
   @@map("editor_assignments")
 }
 
@@ -233,6 +258,8 @@ model Revision {
   submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   files           RevisionFile[]
 
+  @@index([submissionId])
+  @@index([submittedAt])
   @@map("revisions")
 }
 
@@ -249,6 +276,7 @@ model RevisionFile {
   revisionId   String
   revision     Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 
+  @@index([revisionId])
   @@map("revision_files")
 }
 
@@ -271,6 +299,11 @@ model Payment {
   submissionId String
   submission   Submission @relation(fields: [submissionId], references: [id])
 
+  @@index([userId])
+  @@index([submissionId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt])
   @@map("payments")
 }
 
@@ -293,6 +326,12 @@ model Issue {
   articles    Article[]
 
   @@unique([volume, number])
+  @@index([publishedAt])
+  @@index([isCurrent])
+  @@index([year])
+  @@index([featured])
+  @@index([visible])
+  @@index([displayOrder])
   @@map("issues")
 }
 
@@ -316,6 +355,9 @@ model Article {
   submissionId String?  @unique
   submission   Submission? @relation(fields: [submissionId], references: [id])
 
+  @@index([issueId])
+  @@index([publishedAt])
+  @@index([doi])
   @@map("articles")
 }
 
@@ -329,6 +371,8 @@ model ReviewerInvitation {
   reviewId      String             @unique
   review        Review             @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
+  @@index([status])
+  @@index([invitedAt])
   @@map("reviewer_invitations")
 }
 
@@ -345,6 +389,11 @@ model Notification {
   submissionId String?
   submission   Submission? @relation(fields: [submissionId], references: [id])
 
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
   @@map("notifications")
 }
 
@@ -383,6 +432,8 @@ model SubmissionTimeline {
   submissionId String
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
+  @@index([submissionId])
+  @@index([createdAt])
   @@map("submission_timeline")
 }
 
@@ -403,6 +454,11 @@ model Conference {
 
   submissions     Submission[]
 
+  @@index([year])
+  @@index([isActive])
+  @@index([featured])
+  @@index([visible])
+  @@index([displayOrder])
   @@map("conferences")
 }
 
@@ -478,6 +534,9 @@ model PlagiarismCheck {
   checkedAt         DateTime @default(now())
   checkedBy         String?  // User ID who initiated check
   
+  @@index([submissionId])
+  @@index([status])
+  @@index([checkedAt])
   @@map("plagiarism_checks")
 }
 
@@ -509,6 +568,8 @@ model QualityAssessment {
   assessedAt        DateTime @default(now())
   assessedBy        String?  // User ID who initiated assessment
   
+  @@index([submissionId])
+  @@index([assessedAt])
   @@map("quality_assessments")
 }
 
@@ -534,5 +595,8 @@ model GrammarCheck {
   checkedAt         DateTime @default(now())
   checkedBy         String?  // User ID who initiated check
   
+  @@index([submissionId])
+  @@index([status])
+  @@index([checkedAt])
   @@map("grammar_checks")
 }
