@@ -18,8 +18,16 @@ import {
   updateUserStatus,
   deleteUser,
   getAllPageContent,
-  updatePageContent
+  updatePageContent,
+  performSystemBackup
 } from '../controllers/adminController';
+import {
+  getBackupHistory,
+  getBackupDetails,
+  getBackupStatus,
+  downloadBackup,
+  deleteBackup
+} from '../controllers/backupController';
 import { authenticate, authorize } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 
@@ -34,6 +42,7 @@ router.get('/stats/submissions', getSubmissionStats);
 router.get('/stats/users', getUserActivityStats);
 router.get('/stats/financial', getFinancialStats);
 router.get('/system/health', getSystemHealth);
+router.post('/system/backup', performSystemBackup);
 
 // Payments
 router.get('/payments', getAdminPayments);
@@ -58,5 +67,12 @@ router.get('/issues', getAdminIssues);
 // Page Content Management
 router.get('/page-content', getAllPageContent);
 router.put('/page-content/:slug', updatePageContent);
+
+// Backup Management
+router.get('/backups', getBackupHistory);
+router.get('/backups/:id', getBackupDetails);
+router.get('/backups/:id/status', getBackupStatus);
+router.get('/backups/:id/download', downloadBackup);
+router.delete('/backups/:id', deleteBackup);
 
 export default router;

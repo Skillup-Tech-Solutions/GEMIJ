@@ -10,7 +10,7 @@ interface ModalProps {
     size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-const Modal: React.FC<ModalProps> = ({
+const Modal: React.FC<ModalProps> = React.memo(({
     isOpen,
     onClose,
     title,
@@ -84,6 +84,6 @@ const Modal: React.FC<ModalProps> = ({
         </div>,
         document.body
     );
-};
+});
 
 export default Modal;

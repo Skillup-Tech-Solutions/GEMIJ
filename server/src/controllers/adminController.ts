@@ -1,13 +1,16 @@
 import { Response } from 'express';
 import os from 'os';
-import { PrismaClient, PaymentStatus, SubmissionStatus, UserRole, Prisma } from '@prisma/client';
+import { PaymentStatus, SubmissionStatus, UserRole, Prisma } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import { TimelineService } from '../services/timelineService';
 import { createNotification } from './notificationController';
 import { EmailService } from '../services/emailService';
 import { backblazeService } from '../services/backblazeService';
+import { cacheService } from '../services/cacheService';
+import { backupService } from '../services/backupService';
 
-const prisma = new PrismaClient();
+
 
 type SystemHealth = 'healthy' | 'warning' | 'critical';
 
@@ -342,13 +345,46 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
       prisma.payment.count({ where })
     ]);
 
-    const formattedPayments = await Promise.all(payments.map(async (payment) => {
+    // Batch sign payment proof URLs (prevents N+1 API calls)
+    const proofFileNamesToSign: string[] = [];
+    const proofFileMap = new Map<string, any>();
+
+    payments.forEach((payment) => {
+      if (payment.proofUrl && payment.proofUrl.includes('/file/')) {
+        try {
+          const urlParts = payment.proofUrl.split('/file/');
+          if (urlParts.length > 1) {
+            const pathParts = urlParts[1].split('/');
+            if (pathParts.length > 1) {
+              const fileName = pathParts.slice(1).join('/');
+              proofFileNamesToSign.push(fileName);
+              proofFileMap.set(fileName, payment);
+            }
+          }
+        } catch (error) {
+          console.error('[Admin] Failed to parse proof URL:', error);
+        }
+      }
+    });
+
+    // Get all signed URLs in a single batch API call
+    let signedProofUrls = new Map<string, string>();
+    if (proofFileNamesToSign.length > 0) {
+      try {
+        signedProofUrls = await backblazeService.getBatchAuthorizedDownloadUrls(proofFileNamesToSign);
+      } catch (error) {
+        console.error('[Admin] Failed to batch sign proof URLs:', error);
+      }
+    }
+
+    const formattedPayments = payments.map((payment) => {
       const amount = Number(payment.amount);
       const authorName = `${payment.user.firstName ?? ''} ${payment.user.lastName ?? ''}`.trim();
       const invoiceNumber = `INV-${payment.createdAt.getFullYear()}-${payment.id.substring(0, 6).toUpperCase()}`;
 
       let proofUrl = payment.proofUrl;
 
+      // Apply signed URL if available
       if (proofUrl && proofUrl.includes('/file/')) {
         try {
           const urlParts = proofUrl.split('/file/');
@@ -356,11 +392,14 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
             const pathParts = urlParts[1].split('/');
             if (pathParts.length > 1) {
               const fileName = pathParts.slice(1).join('/');
-              proofUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
+              const signedUrl = signedProofUrls.get(fileName);
+              if (signedUrl) {
+                proofUrl = signedUrl;
+              }
             }
           }
         } catch (error) {
-          console.error('[Admin] Failed to sign proof URL:', error);
+          console.error('[Admin] Failed to apply signed proof URL:', error);
         }
       }
 
@@ -381,7 +420,7 @@ export const getAdminPayments = async (req: AuthenticatedRequest, res: Response)
         invoiceNumber,
         proofUrl
       };
-    }));
+    });
 
     return res.json({
       success: true,
@@ -843,6 +882,8 @@ export const updateLandingPageConfig = async (req: AuthenticatedRequest, res: Re
       }
     });
 
+    cacheService.del('landing_page_config');
+
     return res.json({
       success: true,
       message: 'Landing page configuration updated successfully'
@@ -906,6 +947,8 @@ export const updateSystemSettings = async (req: AuthenticatedRequest, res: Respo
 
     await Promise.all(updates);
 
+    cacheService.del('public_settings');
+
     return res.json({
       success: true,
       message: 'Settings updated successfully'
@@ -967,9 +1010,19 @@ export const uploadPaymentQrCode = async (req: AuthenticatedRequest, res: Respon
       })
     ]);
 
+    // Sign the URL for immediate display
+    let signedUrl = b2Result.url;
+    try {
+      signedUrl = await backblazeService.getAuthorizedDownloadUrl(b2Result.fileName);
+    } catch (error) {
+      console.error('Failed to sign uploaded QR code URL:', error);
+    }
+
+    cacheService.del('public_settings');
+
     return res.json({
       success: true,
-      data: { url: b2Result.url },
+      data: { url: signedUrl },
       message: 'QR code uploaded successfully'
     });
   } catch (error) {
@@ -1410,6 +1463,51 @@ export const updatePageContent = async (req: AuthenticatedRequest, res: Response
     return res.status(500).json({
       success: false,
       error: 'Internal server error'
+    });
+  }
+};
+
+export const performSystemBackup = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+    }
+
+    console.log(`[System Backup] Backup initiated by user ${userId}`);
+
+    // Start the backup (it will create a record immediately for real-time tracking)
+    // The service will handle pg_dump availability and update the record accordingly
+    const result = await backupService.createBackup(userId);
+
+    // Always return the backup ID so frontend can track status
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to perform system backup',
+        backupId: result.backupId // Return ID even on failure for status tracking
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'System backup completed successfully',
+      data: {
+        backupId: result.backupId,
+        backupTime: new Date().toISOString(),
+        fileName: result.fileName,
+        fileSize: result.fileSize,
+        uploadUrl: result.uploadUrl
+      }
+    });
+  } catch (error) {
+    console.error('Perform system backup error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to perform system backup'
     });
   }
 };

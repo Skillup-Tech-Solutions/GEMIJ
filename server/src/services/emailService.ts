@@ -1,11 +1,12 @@
 import handlebars from 'handlebars';
 import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { EmailTemplateData } from '../types';
 import { IEmailProvider } from './email/IEmailProvider';
 import { SendGridProvider } from './email/SendGridProvider';
 import { MailjetProvider } from './email/MailjetProvider';
 
-const prisma = new PrismaClient();
+
 
 // Helper function to fetch APC settings from database
 async function getApcSettings() {
@@ -29,6 +30,9 @@ async function getApcSettings() {
 // Initialize email providers
 const sendGridProvider = new SendGridProvider();
 const mailjetProvider = new MailjetProvider();
+
+// Define base URL for email links with fallbacks
+const BASE_URL = process.env.JOURNAL_URL || process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:3000';
 
 // Select email provider based on environment variable
 function getEmailProvider(): IEmailProvider {
@@ -145,7 +149,7 @@ export class EmailService {
             day: 'numeric'
           }),
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -165,7 +169,7 @@ export class EmailService {
 
     if (!review) return;
 
-    const reviewUrl = `${process.env.JOURNAL_URL}/reviewer/reviews/${review.id}`;
+    const reviewUrl = `${BASE_URL}/reviewer/reviews/${review.id}`;
 
     await this.sendEmail({
       to: review.reviewer.email,
@@ -178,7 +182,7 @@ export class EmailService {
         dueDate: review.dueDate.toLocaleDateString(),
         reviewUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -194,7 +198,7 @@ export class EmailService {
 
     if (!review || review.status !== 'IN_PROGRESS') return;
 
-    const reviewUrl = `${process.env.JOURNAL_URL}/reviewer/reviews/${review.id}`;
+    const reviewUrl = `${BASE_URL}/reviewer/reviews/${review.id}`;
     const daysUntilDue = Math.ceil((review.dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
     await this.sendEmail({
@@ -208,7 +212,7 @@ export class EmailService {
         daysUntilDue,
         reviewUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
 
@@ -239,7 +243,7 @@ export class EmailService {
       decision === 'REJECTED' ? 'decision_reject' :
         'decision_revision';
 
-    const submissionUrl = `${process.env.JOURNAL_URL}/author/submissions/${submission.id}`;
+    const submissionUrl = `${BASE_URL}/author/submissions/${submission.id}`;
 
     await this.sendEmail({
       to: submission.author.email,
@@ -254,7 +258,7 @@ export class EmailService {
         reviewCount: submission.reviews.length,
         submissionUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -269,7 +273,7 @@ export class EmailService {
 
     if (!submission) return;
 
-    const paymentUrl = `${process.env.JOURNAL_URL}/author/submissions/${submission.id}/payment`;
+    const paymentUrl = `${BASE_URL}/author/submissions/${submission.id}/payment`;
     // Fetch APC settings from database instead of environment variables
     const { amount: apcAmount, currency } = await getApcSettings();
 
@@ -285,7 +289,7 @@ export class EmailService {
         currency,
         paymentUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -328,7 +332,7 @@ export class EmailService {
         currency,
         invoiceNumber: payment?.invoiceNumber || 'N/A',
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -344,7 +348,7 @@ export class EmailService {
 
     if (!submission) return;
 
-    const articleUrl = `${process.env.JOURNAL_URL}/articles/${submission.doi}`;
+    const articleUrl = `${BASE_URL}/articles/${submission.doi}`;
 
     const allEmails = [
       submission.author.email,
@@ -364,7 +368,7 @@ export class EmailService {
           issue: submission.issue,
           pages: submission.pages,
           journalName: process.env.JOURNAL_NAME,
-          journalUrl: process.env.JOURNAL_URL
+          journalUrl: BASE_URL
         }
       });
     }
@@ -381,7 +385,7 @@ export class EmailService {
 
     if (!review) return;
 
-    const certificateUrl = `${process.env.JOURNAL_URL}/reviewer/reviews/${review.id}/certificate`;
+    const certificateUrl = `${BASE_URL}/reviewer/reviews/${review.id}/certificate`;
 
     await this.sendEmail({
       to: review.reviewer.email,
@@ -392,7 +396,7 @@ export class EmailService {
         submissionTitle: review.submission.title,
         certificateUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -406,7 +410,7 @@ export class EmailService {
         userName,
         resetUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -435,7 +439,7 @@ export class EmailService {
     const editors = review.submission.editorAssignments.map(ea => ea.editor);
 
     for (const editor of editors) {
-      const submissionUrl = `${process.env.JOURNAL_URL}/editor/submission/${review.submission.id}`;
+      const submissionUrl = `${BASE_URL}/editor/submission/${review.submission.id}`;
 
       await this.sendEmail({
         to: editor.email,
@@ -449,7 +453,7 @@ export class EmailService {
           recommendation: review.recommendation,
           submissionUrl,
           journalName: process.env.JOURNAL_NAME,
-          journalUrl: process.env.JOURNAL_URL
+          journalUrl: BASE_URL
         }
       });
     }
@@ -486,7 +490,7 @@ export class EmailService {
       decision === 'REJECT' ? 'decision_reject' :
         'decision_revision';
 
-    const submissionUrl = `${process.env.JOURNAL_URL}/author/submissions/${submission.id}`;
+    const submissionUrl = `${BASE_URL}/author/submissions/${submission.id}`;
 
     await this.sendEmail({
       to: submission.author.email,
@@ -502,7 +506,7 @@ export class EmailService {
         reviewCount: submission.reviews.length,
         submissionUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -520,7 +524,7 @@ export class EmailService {
 
     const hasPayment = submission.payments && submission.payments.length > 0;
     const paymentUrl = hasPayment
-      ? `${process.env.JOURNAL_URL}/author/submissions/${submission.id}/payment`
+      ? `${BASE_URL}/author/submissions/${submission.id}/payment`
       : null;
 
     // Fetch APC settings from database instead of environment variables
@@ -539,7 +543,7 @@ export class EmailService {
         currency,
         paymentUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }
@@ -569,7 +573,7 @@ export class EmailService {
     const editors = submission.editorAssignments.map(ea => ea.editor);
 
     for (const editor of editors) {
-      const submissionUrl = `${process.env.JOURNAL_URL}/editor/submission/${submission.id}/revision`;
+      const submissionUrl = `${BASE_URL}/editor/submission/${submission.id}/revision`;
 
       await this.sendEmail({
         to: editor.email,
@@ -583,7 +587,7 @@ export class EmailService {
           revisionNumber: submission.revisions[0]?.revisionNumber || 1,
           submissionUrl,
           journalName: process.env.JOURNAL_NAME,
-          journalUrl: process.env.JOURNAL_URL
+          journalUrl: BASE_URL
         }
       });
     }
@@ -599,7 +603,7 @@ export class EmailService {
 
     if (!submission) return;
 
-    const submissionUrl = `${process.env.JOURNAL_URL}/author/submissions/${submission.id}`;
+    const submissionUrl = `${BASE_URL}/author/submissions/${submission.id}`;
 
     await this.sendEmail({
       to: submission.author.email,
@@ -611,7 +615,7 @@ export class EmailService {
         submissionId: submission.id,
         submissionUrl,
         journalName: process.env.JOURNAL_NAME,
-        journalUrl: process.env.JOURNAL_URL
+        journalUrl: BASE_URL
       }
     });
   }

@@ -1,5 +1,6 @@
 import { Response } from 'express';
-import { PrismaClient, SubmissionStatus } from '@prisma/client';
+import { SubmissionStatus } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest, SubmissionData, PaginationParams } from '../types';
 import { z } from 'zod';
 import multer from 'multer';
@@ -7,7 +8,7 @@ import path from 'path';
 import { EmailService } from '../services/emailService';
 import { backblazeService } from '../services/backblazeService';
 
-const prisma = new PrismaClient();
+
 
 const submissionSchema = z.object({
   title: z.string().min(1),
@@ -132,10 +133,14 @@ export const getSubmissions = async (req: AuthenticatedRequest, res: Response) =
       prisma.submission.count({ where })
     ]);
 
-    // Sign file URLs
-    await Promise.all(submissions.map(async (submission) => {
+    // Batch sign file URLs (prevents N+1 API calls to Backblaze)
+    // Collect all file names first
+    const fileNamesToSign: string[] = [];
+    const fileMap = new Map<string, any>(); // Map original path -> file object
+
+    submissions.forEach((submission) => {
       if (submission.files && submission.files.length > 0) {
-        await Promise.all(submission.files.map(async (file: any) => {
+        submission.files.forEach((file: any) => {
           if (file.filePath && file.filePath.includes('/file/')) {
             try {
               const urlParts = file.filePath.split('/file/');
@@ -143,16 +148,34 @@ export const getSubmissions = async (req: AuthenticatedRequest, res: Response) =
                 const pathParts = urlParts[1].split('/');
                 if (pathParts.length > 1) {
                   const fileName = pathParts.slice(1).join('/');
-                  file.filePath = await backblazeService.getAuthorizedDownloadUrl(fileName);
+                  fileNamesToSign.push(fileName);
+                  fileMap.set(fileName, file);
                 }
               }
             } catch (error) {
-              console.error('Failed to sign file URL:', error);
+              console.error('Failed to parse file path:', error);
             }
           }
-        }));
+        });
       }
-    }));
+    });
+
+    // Get all signed URLs in a single batch API call
+    if (fileNamesToSign.length > 0) {
+      try {
+        const signedUrlMap = await backblazeService.getBatchAuthorizedDownloadUrls(fileNamesToSign);
+
+        // Apply signed URLs back to file objects
+        signedUrlMap.forEach((signedUrl, fileName) => {
+          const file = fileMap.get(fileName);
+          if (file) {
+            file.filePath = signedUrl;
+          }
+        });
+      } catch (error) {
+        console.error('Failed to batch sign file URLs:', error);
+      }
+    }
 
     return res.json({
       success: true,
@@ -258,9 +281,13 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
       if (!hasGrammarAccess) grammarChecks = [];
     }
 
-    // Sign file URLs
+    // Batch sign file URLs (prevents N+1 API calls to Backblaze)
+    const fileNamesToSign: string[] = [];
+    const fileMap = new Map<string, any>();
+
+    // Collect submission file names
     if (submission.files && submission.files.length > 0) {
-      await Promise.all(submission.files.map(async (file: any) => {
+      submission.files.forEach((file: any) => {
         if (file.filePath && file.filePath.includes('/file/')) {
           try {
             const urlParts = file.filePath.split('/file/');
@@ -268,21 +295,22 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
               const pathParts = urlParts[1].split('/');
               if (pathParts.length > 1) {
                 const fileName = pathParts.slice(1).join('/');
-                file.filePath = await backblazeService.getAuthorizedDownloadUrl(fileName);
+                fileNamesToSign.push(fileName);
+                fileMap.set(fileName, file);
               }
             }
           } catch (error) {
-            console.error('Failed to sign file URL:', error);
+            console.error('Failed to parse file path:', error);
           }
         }
-      }));
+      });
     }
 
-    // Sign revision file URLs
+    // Collect revision file names
     if (submission.revisions && submission.revisions.length > 0) {
-      await Promise.all(submission.revisions.map(async (revision) => {
+      submission.revisions.forEach((revision) => {
         if (revision.files && revision.files.length > 0) {
-          await Promise.all(revision.files.map(async (file: any) => {
+          revision.files.forEach((file: any) => {
             if (file.filePath && file.filePath.includes('/file/')) {
               try {
                 const urlParts = file.filePath.split('/file/');
@@ -290,16 +318,34 @@ export const getSubmission = async (req: AuthenticatedRequest, res: Response) =>
                   const pathParts = urlParts[1].split('/');
                   if (pathParts.length > 1) {
                     const fileName = pathParts.slice(1).join('/');
-                    file.filePath = await backblazeService.getAuthorizedDownloadUrl(fileName);
+                    fileNamesToSign.push(fileName);
+                    fileMap.set(fileName, file);
                   }
                 }
               } catch (error) {
-                console.error('Failed to sign revision file URL:', error);
+                console.error('Failed to parse revision file path:', error);
               }
             }
-          }));
+          });
         }
-      }));
+      });
+    }
+
+    // Get all signed URLs in a single batch API call
+    if (fileNamesToSign.length > 0) {
+      try {
+        const signedUrlMap = await backblazeService.getBatchAuthorizedDownloadUrls(fileNamesToSign);
+
+        // Apply signed URLs back to file objects
+        signedUrlMap.forEach((signedUrl, fileName) => {
+          const file = fileMap.get(fileName);
+          if (file) {
+            file.filePath = signedUrl;
+          }
+        });
+      } catch (error) {
+        console.error('Failed to batch sign file URLs:', error);
+      }
     }
 
     return res.json({

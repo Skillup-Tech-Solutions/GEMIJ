@@ -194,7 +194,7 @@ ER  -`;
 
         <div className="flex space-x-4">
           <a
-            href={buildPdfUrl(article.pdfPath)}
+            href={buildPdfUrl(article.pdfPath, article.id)}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition-colors"
@@ -289,7 +289,7 @@ ER  -`;
                 <span className="text-secondary-700">Embedded PDF Viewer</span>
                 <div className="flex space-x-2">
                   <a
-                    href={buildPdfUrl(article.pdfPath)}
+                    href={buildPdfUrl(article.pdfPath, article.id)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary-600 hover:text-primary-700 text-sm"
@@ -297,7 +297,7 @@ ER  -`;
                     Open in New Tab
                   </a>
                   <a
-                    href={buildPdfUrl(article.pdfPath)}
+                    href={buildPdfUrl(article.pdfPath, article.id)}
                     download
                     className="text-primary-600 hover:text-primary-700 text-sm"
                   >
@@ -307,7 +307,7 @@ ER  -`;
               </div>
               <div className="border border-secondary-200 rounded-lg overflow-hidden">
                 <iframe
-                  src={`${buildPdfUrl(article.pdfPath)}#toolbar=1&navpanes=1&scrollbar=1`}
+                  src={`${buildPdfUrl(article.pdfPath, article.id)}#toolbar=1&navpanes=1&scrollbar=1`}
                   className="w-full h-96 md:h-[600px]"
                   title="Article PDF"
                 />

@@ -71,7 +71,7 @@ const ArticlePage: React.FC = () => {
             setMetaTag('citation_article_number', article.articleNumber);
         }
         setMetaTag('citation_publication_date', new Date(article.publishedAt).toISOString().split('T')[0]);
-        setMetaTag('citation_pdf_url', buildPdfUrl(article.pdfPath));
+        setMetaTag('citation_pdf_url', buildPdfUrl(article.pdfPath, article.id));
 
         // Authors
         // Remove existing author tags first to avoid duplicates on re-render
@@ -96,8 +96,9 @@ const ArticlePage: React.FC = () => {
 
     const handleDownloadPDF = () => {
         if (article?.id) {
-            // Use the backend download endpoint which handles B2 signing and redirection
-            const downloadUrl = `${import.meta.env.VITE_SERVER_URL || 'http://localhost:5000'}/api/public/articles/${article.id}/download`;
+            // Use the backend download endpoint which streams the file
+            // Using relative path to leverage Vite proxy and keep URL clean
+            const downloadUrl = `/api/public/articles/${article.id}/download`;
             window.open(downloadUrl, '_blank');
         }
     };

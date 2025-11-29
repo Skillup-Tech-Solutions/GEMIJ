@@ -1,10 +1,10 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import path from 'path';
 import { backblazeService } from '../services/backblazeService';
 
-const prisma = new PrismaClient();
+
 
 export const uploadFiles = async (req: AuthenticatedRequest, res: Response) => {
   try {

@@ -20,7 +20,7 @@ function getPages(page: number, total: number) {
   return pages;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange, className }) => {
+const Pagination: React.FC<PaginationProps> = React.memo(({ page, totalPages, onPageChange, className }) => {
   const pages = getPages(page, totalPages);
   const go = (p: number) => () => {
     if (p >= 1 && p <= totalPages && p !== page) onPageChange(p);
@@ -80,6 +80,6 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange,
       </button>
     </nav>
   );
-};
+});
 
 export default Pagination;

@@ -8,7 +8,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options?: Array<{ label: string; value: string; disabled?: boolean }>;
 }
 
-const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+const Select = React.memo(React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, helperText, id, options, children, ...props }, ref) => {
     const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -34,10 +34,10 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         >
           {options
             ? options.map((opt) => (
-                <option key={opt.value} value={opt.value} disabled={opt.disabled}>
-                  {opt.label}
-                </option>
-              ))
+              <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+                {opt.label}
+              </option>
+            ))
             : children}
         </select>
         {error && (
@@ -53,7 +53,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       </div>
     );
   }
-);
+));
 
 Select.displayName = 'Select';
 

@@ -346,8 +346,41 @@ class AdminService {
     return response.data.data!;
   }
 
-  async performSystemBackup(): Promise<void> {
-    await axios.post(`${API_URL}/admin/system/backup`);
+  async performSystemBackup(): Promise<{ backupId: string; fileName: string; fileSize: number }> {
+    const response = await axios.post<ApiResponse<{ backupId: string; fileName: string; fileSize: number }>>(`${API_URL}/admin/system/backup`);
+    return response.data.data!;
+  }
+
+  // Backup Management
+  async getBackupHistory(params?: {
+    status?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ backups: any[]; pagination: any }> {
+    const response = await axios.get<ApiResponse<any[]>>(`${API_URL}/admin/backups`, { params });
+    return {
+      backups: response.data.data!,
+      pagination: response.data.pagination!
+    };
+  }
+
+  async getBackupDetails(backupId: string): Promise<any> {
+    const response = await axios.get<ApiResponse<any>>(`${API_URL}/admin/backups/${backupId}`);
+    return response.data.data!;
+  }
+
+  async getBackupStatus(backupId: string): Promise<any> {
+    const response = await axios.get<ApiResponse<any>>(`${API_URL}/admin/backups/${backupId}/status`);
+    return response.data.data!;
+  }
+
+  async downloadBackup(backupId: string): Promise<{ downloadUrl: string; fileName: string }> {
+    const response = await axios.get<ApiResponse<{ downloadUrl: string; fileName: string }>>(`${API_URL}/admin/backups/${backupId}/download`);
+    return response.data.data!;
+  }
+
+  async deleteBackup(backupId: string): Promise<void> {
+    await axios.delete(`${API_URL}/admin/backups/${backupId}`);
   }
 
   async getSystemLogs(params?: {

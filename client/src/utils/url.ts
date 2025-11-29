@@ -10,6 +10,9 @@ export const buildServerUrl = (path: string): string => {
   return `${SERVER_URL}/${encodeURI(path).replace(/,/g, '%2C')}`;
 };
 
-export const buildPdfUrl = (pdfPath: string): string => {
+export const buildPdfUrl = (pdfPath: string, articleId?: string): string => {
+  if (articleId) {
+    return `/api/public/articles/${articleId}/download`;
+  }
   return buildServerUrl(pdfPath);
 };

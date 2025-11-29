@@ -173,6 +173,48 @@ class BackblazeService {
     }
 
     /**
+     * Get batch authorized download URLs for multiple files (optimized for N+1 prevention)
+     * Uses a single authorization token for all files with a common prefix
+     * @param fileNames - Array of file names to sign
+     * @param validDurationInSeconds - How long the URLs should be valid (default: 1 hour)
+     * @returns Map of fileName -> signed URL
+     */
+    async getBatchAuthorizedDownloadUrls(
+        fileNames: string[],
+        validDurationInSeconds: number = 3600
+    ): Promise<Map<string, string>> {
+        try {
+            if (fileNames.length === 0) {
+                return new Map();
+            }
+
+            await this.authorize();
+
+            // Get a single authorization token for the entire bucket
+            // This allows us to sign all URLs with one API call instead of N calls
+            const response = await this.b2.getDownloadAuthorization({
+                bucketId: this.bucketId!,
+                fileNamePrefix: '', // Empty prefix = works for all files in bucket
+                validDurationInSeconds,
+            });
+
+            const authToken = response.data.authorizationToken;
+
+            // Create signed URLs for all files using the same auth token
+            const urlMap = new Map<string, string>();
+            for (const fileName of fileNames) {
+                const signedUrl = `${this.downloadUrl}/file/${this.bucketName}/${fileName}?Authorization=${authToken}`;
+                urlMap.set(fileName, signedUrl);
+            }
+
+            return urlMap;
+        } catch (error) {
+            console.error('B2 Batch get authorized URLs error:', error);
+            throw new Error('Failed to get batch authorized download URLs from Backblaze B2');
+        }
+    }
+
+    /**
      * Download a file from Backblaze B2
      * @param fileName - Name of the file to download
      * @returns File buffer

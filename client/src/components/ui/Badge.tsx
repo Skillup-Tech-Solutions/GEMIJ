@@ -13,7 +13,7 @@ const variantStyles: Record<NonNullable<BadgeProps['variant']>, string> = {
   error: 'bg-red-100 text-red-800',
 };
 
-const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
+const Badge = React.memo(React.forwardRef<HTMLSpanElement, BadgeProps>(
   ({ className, variant = 'neutral', ...props }, ref) => (
     <span
       ref={ref}
@@ -25,7 +25,7 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
       {...props}
     />
   )
-);
+));
 
 Badge.displayName = 'Badge';
 

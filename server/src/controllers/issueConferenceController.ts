@@ -1,9 +1,9 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
+
 
 const issueSchema = z.object({
     volume: z.number().int().positive(),

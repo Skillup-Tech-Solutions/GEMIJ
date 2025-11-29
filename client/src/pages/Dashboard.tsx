@@ -1017,10 +1017,10 @@ const Dashboard: React.FC = () => {
                       Handle Complaints
                     </button>
                     <button
-                      onClick={() => navigate('/admin/monitoring')}
+                      onClick={() => navigate('/admin/backups')}
                       className="w-full text-left bg-yellow-50 text-yellow-700 px-3 py-2 rounded hover:bg-yellow-100 transition-colors"
                     >
-                      System Backup
+                      Backup Management
                     </button>
                   </div>
                 </div>

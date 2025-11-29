@@ -8,7 +8,7 @@ interface StepperProps {
   className?: string;
 }
 
-const Stepper: React.FC<StepperProps> = ({ steps, currentStep, onStepChange, className }) => {
+const Stepper: React.FC<StepperProps> = React.memo(({ steps, currentStep, onStepChange, className }) => {
   return (
     <nav className={cn('w-full', className)} aria-label="Submission progress">
       <ol className="flex items-center justify-between" role="list">
@@ -69,6 +69,6 @@ const Stepper: React.FC<StepperProps> = ({ steps, currentStep, onStepChange, cla
       </ol>
     </nav>
   );
-};
+});
 
 export default Stepper;

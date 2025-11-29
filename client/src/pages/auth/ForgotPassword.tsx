@@ -18,8 +18,9 @@ const ForgotPassword = () => {
     try {
       await requestPasswordReset(email);
       setMessage('Password reset link has been sent to your email.');
-    } catch (err) {
-      setError('Failed to send reset link. Please check the email address.');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Failed to send reset link. Please check the email address.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -9,7 +9,7 @@ interface InfoFieldProps {
   valueClassName?: string;
 }
 
-const InfoField: React.FC<InfoFieldProps> = ({
+const InfoField: React.FC<InfoFieldProps> = React.memo(({
   label,
   value,
   className,
@@ -22,7 +22,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
       <div className={cn('info-value', valueClassName)}>{value}</div>
     </div>
   );
-};
+});
 
 export default InfoField;
 

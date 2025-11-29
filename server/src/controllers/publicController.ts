@@ -1,12 +1,22 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import { backblazeService } from '../services/backblazeService';
+import { cacheService } from '../services/cacheService';
 
-const prisma = new PrismaClient();
+
 
 export const getCurrentIssue = async (req: Request, res: Response) => {
   try {
+    const cacheKey = 'current_issue';
+    const cachedData = cacheService.get(cacheKey);
+    if (cachedData) {
+      return res.json({
+        success: true,
+        data: cachedData
+      });
+    }
+
     const currentIssue = await prisma.issue.findFirst({
       where: { isCurrent: true },
       include: {
@@ -22,6 +32,8 @@ export const getCurrentIssue = async (req: Request, res: Response) => {
         error: 'No current issue found'
       });
     }
+
+    cacheService.set(cacheKey, currentIssue, 15 * 60); // 15 minutes
 
     return res.json({
       success: true,
@@ -40,6 +52,12 @@ export const getArchive = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
+
+    const cacheKey = `archive_page_${page}_limit_${limit} `;
+    const cachedData = cacheService.get(cacheKey);
+    if (cachedData) {
+      return res.json(cachedData);
+    }
 
     const [issues, total] = await Promise.all([
       prisma.issue.findMany({
@@ -68,7 +86,7 @@ export const getArchive = async (req: Request, res: Response) => {
       })
     ]);
 
-    return res.json({
+    const responseData = {
       success: true,
       data: issues,
       pagination: {
@@ -77,7 +95,11 @@ export const getArchive = async (req: Request, res: Response) => {
         total,
         totalPages: Math.ceil(total / Number(limit))
       }
-    });
+    };
+
+    cacheService.set(cacheKey, responseData, 15 * 60); // 15 minutes
+
+    return res.json(responseData);
   } catch (error) {
     console.error('Get archive error:', error);
     return res.status(500).json({
@@ -222,6 +244,11 @@ export const downloadArticle = async (req: Request, res: Response) => {
       data: { downloads: article.downloads + 1 }
     });
 
+    // Determine filename
+    const filename = article.articleNumber
+      ? `Article_${article.articleNumber}.pdf`
+      : `${article.doi.replace('/', '_')}.pdf`;
+
     // Check if it's a B2 URL
     if (article.pdfPath && article.pdfPath.includes('/file/')) {
       try {
@@ -229,20 +256,25 @@ export const downloadArticle = async (req: Request, res: Response) => {
         if (urlParts.length > 1) {
           const pathParts = urlParts[1].split('/');
           if (pathParts.length > 1) {
-            const fileName = pathParts.slice(1).join('/');
-            const signedUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
-            return res.redirect(signedUrl);
+            const b2FileName = pathParts.slice(1).join('/');
+
+            // Download file from B2
+            const fileBuffer = await backblazeService.downloadFile(b2FileName);
+
+            // Set headers
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+            return res.send(fileBuffer);
           }
         }
       } catch (error) {
-        console.error('Failed to sign download URL:', error);
+        console.error('Failed to download file from B2:', error);
+        // Continue to fallback if B2 fails, though it likely won't work if file is only on B2
       }
     }
 
-    // Fallback for local files (or if signing failed but we want to try anyway, though likely 401)
-    const filename = article.articleNumber
-      ? `Article_${article.articleNumber}.pdf`
-      : `${article.doi.replace('/', '_')}.pdf`;
+    // Fallback for local files
     return res.download(article.pdfPath, filename);
   } catch (error) {
     console.error('Download article error:', error);
@@ -273,6 +305,11 @@ export const downloadArticleById = async (req: Request, res: Response) => {
       data: { downloads: article.downloads + 1 }
     });
 
+    // Determine filename
+    const filename = article.articleNumber
+      ? `Article_${article.articleNumber}.pdf`
+      : `${article.doi.replace('/', '_')}.pdf`;
+
     // Check if it's a B2 URL
     if (article.pdfPath && article.pdfPath.includes('/file/')) {
       try {
@@ -280,21 +317,25 @@ export const downloadArticleById = async (req: Request, res: Response) => {
         if (urlParts.length > 1) {
           const pathParts = urlParts[1].split('/');
           if (pathParts.length > 1) {
-            const fileName = pathParts.slice(1).join('/');
-            const signedUrl = await backblazeService.getAuthorizedDownloadUrl(fileName);
-            return res.redirect(signedUrl);
+            const b2FileName = pathParts.slice(1).join('/');
+
+            // Download file from B2
+            const fileBuffer = await backblazeService.downloadFile(b2FileName);
+
+            // Set headers
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+            return res.send(fileBuffer);
           }
         }
       } catch (error) {
-        console.error('Failed to sign download URL:', error);
+        console.error('Failed to download file from B2:', error);
       }
     }
 
     const path = require('path');
     const fullPath = path.join(__dirname, '../../', article.pdfPath);
-    const filename = article.articleNumber
-      ? `Article_${article.articleNumber}.pdf`
-      : `${article.doi.replace('/', '_')}.pdf`;
     return res.download(fullPath, filename);
   } catch (error) {
     console.error('Download article by ID error:', error);
@@ -329,7 +370,7 @@ export const searchArticles = async (req: Request, res: Response) => {
 
     if (year) {
       const startOfYear = new Date(`${year}-01-01`);
-      const endOfYear = new Date(`${year}-12-31`);
+      const endOfYear = new Date(`${year} -12 - 31`);
       where.publishedAt = {
         gte: startOfYear,
         lte: endOfYear
@@ -376,6 +417,15 @@ export const searchArticles = async (req: Request, res: Response) => {
 
 export const getJournalStats = async (req: Request, res: Response) => {
   try {
+    const cacheKey = 'journal_stats';
+    const cachedData = cacheService.get(cacheKey);
+    if (cachedData) {
+      return res.json({
+        success: true,
+        data: cachedData
+      });
+    }
+
     const [
       totalArticles,
       totalIssues,
@@ -414,16 +464,20 @@ export const getJournalStats = async (req: Request, res: Response) => {
       }
     });
 
+    const statsData = {
+      totalArticles,
+      totalIssues,
+      currentYearArticles,
+      totalViews: totalViews._sum.views || 0,
+      totalDownloads: totalDownloads._sum.downloads || 0,
+      recentArticles
+    };
+
+    cacheService.set(cacheKey, statsData, 5 * 60); // 5 minutes
+
     return res.json({
       success: true,
-      data: {
-        totalArticles,
-        totalIssues,
-        currentYearArticles,
-        totalViews: totalViews._sum.views || 0,
-        totalDownloads: totalDownloads._sum.downloads || 0,
-        recentArticles
-      }
+      data: statsData
     });
   } catch (error) {
     console.error('Get journal stats error:', error);
@@ -436,6 +490,15 @@ export const getJournalStats = async (req: Request, res: Response) => {
 
 export const getLandingPageConfig = async (req: Request, res: Response) => {
   try {
+    const cacheKey = 'landing_page_config';
+    const cachedData = cacheService.get(cacheKey);
+    if (cachedData) {
+      return res.json({
+        success: true,
+        data: cachedData
+      });
+    }
+
     const setting = await prisma.systemSettings.findUnique({
       where: { key: 'landing_page_config' }
     });
@@ -448,6 +511,8 @@ export const getLandingPageConfig = async (req: Request, res: Response) => {
     }
 
     const config = JSON.parse(setting.value);
+
+    cacheService.set(cacheKey, config, 60 * 60); // 1 hour
 
     return res.json({
       success: true,
@@ -464,6 +529,15 @@ export const getLandingPageConfig = async (req: Request, res: Response) => {
 
 export const getPublicSettings = async (req: Request, res: Response) => {
   try {
+    const cacheKey = 'public_settings';
+    const cachedData = cacheService.get(cacheKey);
+    if (cachedData) {
+      return res.json({
+        success: true,
+        data: cachedData
+      });
+    }
+
     // Define keys that are safe to expose publicly
     const publicKeys = [
       'journalName',
@@ -524,6 +598,8 @@ export const getPublicSettings = async (req: Request, res: Response) => {
       }
     }
 
+    cacheService.set(cacheKey, settingsObject, 60 * 60); // 1 hour
+
     return res.json({
       success: true,
       data: settingsObject
@@ -540,7 +616,7 @@ export const getPublicSettings = async (req: Request, res: Response) => {
 export const getPageContent = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const key = `page_${slug}_content`;
+    const key = `page_${slug} _content`;
 
     const setting = await prisma.systemSettings.findUnique({
       where: { key }

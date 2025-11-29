@@ -16,7 +16,7 @@ const variants: Record<NonNullable<AlertProps['variant']>, { base: string; icon:
   error: { base: 'bg-red-50 text-red-800 border-red-200', icon: XCircle, role: 'alert' },
 };
 
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(({ className, variant = 'neutral', title, children, onClose, ...props }, ref) => {
+const Alert = React.memo(React.forwardRef<HTMLDivElement, AlertProps>(({ className, variant = 'neutral', title, children, onClose, ...props }, ref) => {
   const { base, icon: Icon, role } = variants[variant];
   return (
     <div
@@ -43,7 +43,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(({ className, variant
       </div>
     </div>
   );
-});
+}));
 
 Alert.displayName = 'Alert';
 

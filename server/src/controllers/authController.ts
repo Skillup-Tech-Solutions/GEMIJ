@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { hashPassword, comparePassword, generateToken } from '../utils/auth';
 import { CreateUserData, LoginData, AuthenticatedRequest } from '../types';
 import { z } from 'zod';
@@ -8,7 +8,7 @@ import { EmailService } from '../services/emailService';
 import { HCaptchaService } from '../services/hcaptchaService';
 import crypto from 'crypto';
 
-const prisma = new PrismaClient();
+
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -356,7 +356,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
       }
     });
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    const baseUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:3000';
+    const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
     await EmailService.sendPasswordResetEmail(user.email, resetUrl, `${user.firstName} ${user.lastName}`);
 
     return res.json({

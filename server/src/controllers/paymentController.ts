@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import Stripe from 'stripe';
 import { TimelineService } from '../services/timelineService';
@@ -7,7 +7,7 @@ import { createNotification } from './notificationController';
 import { EmailService } from '../services/emailService';
 import { backblazeService } from '../services/backblazeService';
 
-const prisma = new PrismaClient();
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16'
 });

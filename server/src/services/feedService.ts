@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { create } from 'xmlbuilder2';
 
-const prisma = new PrismaClient();
+
 
 export class FeedService {
     /**

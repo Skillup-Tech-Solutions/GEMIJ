@@ -1,8 +1,8 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 
-const prisma = new PrismaClient();
+
 
 /**
  * Get notifications for the authenticated user

@@ -7,7 +7,7 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
   helperText?: string;
 }
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+const Textarea = React.memo(React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, label, error, helperText, id, rows = 4, ...props }, ref) => {
     const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -45,7 +45,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       </div>
     );
   }
-);
+));
 
 Textarea.displayName = 'Textarea';
 

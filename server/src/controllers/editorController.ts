@@ -1,11 +1,12 @@
 import { Response } from 'express';
-import { PrismaClient, SubmissionStatus } from '@prisma/client';
+import { SubmissionStatus } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import { z } from 'zod';
 import { EmailService } from '../services/emailService';
 import { createNotification } from './notificationController';
 
-const prisma = new PrismaClient();
+
 
 // Helper function to fetch APC settings from database
 async function getApcSettings() {

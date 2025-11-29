@@ -1,12 +1,12 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest, ReviewData } from '../types';
 import { z } from 'zod';
 import PDFDocument from 'pdfkit';
 import { EmailService } from '../services/emailService';
 import { createNotification } from './notificationController';
 
-const prisma = new PrismaClient();
+
 
 const reviewSchema = z.object({
   recommendation: z.enum(['ACCEPT', 'MINOR_REVISION', 'MAJOR_REVISION', 'REJECT']),

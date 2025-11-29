@@ -1,9 +1,10 @@
 import { Response } from 'express';
-import { PrismaClient, PublicationDestination } from '@prisma/client';
+import { PublicationDestination } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
+
 
 // Get all submissions ready to publish (ACCEPTED + PAID)
 export const getReadyToPublish = async (req: AuthenticatedRequest, res: Response) => {
@@ -224,7 +225,7 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
             // Simple DOI generation - in production, integrate with CrossRef API
             const year = new Date().getFullYear();
             const uniqueId = validatedData.articleNumber || submission.id.slice(0, 8);
-            doi = `10.XXXX/journal.${year}.${uniqueId}`;
+            doi = `10.XXXX / journal.${year}.${uniqueId} `;
         }
 
         // Determine volume and issue based on destination
@@ -265,7 +266,7 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
                 }
             }
             // Format as YYYY.NNNN (pad with zeros to 4 digits)
-            validatedData.articleNumber = `${currentYear}.${nextSequence.toString().padStart(4, '0')}`;
+            validatedData.articleNumber = `${currentYear}.${nextSequence.toString().padStart(4, '0')} `;
         }
 
         if (validatedData.destination === 'CURRENT_ISSUE' || validatedData.destination === 'PAST_ISSUE') {
@@ -437,8 +438,8 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
                 event: 'ARTICLE_PUBLISHED',
                 fromStatus: 'ACCEPTED',
                 toStatus: 'PUBLISHED',
-                description: `Article published to ${validatedData.destination.replace('_', ' ')}`,
-                performedBy: performingUser ? `${performingUser.firstName} ${performingUser.lastName}` : 'Admin'
+                description: `Article published to ${validatedData.destination.replace('_', ' ')} `,
+                performedBy: performingUser ? `${performingUser.firstName} ${performingUser.lastName} ` : 'Admin'
             }
         });
 
@@ -448,7 +449,7 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
                 userId: submission.authorId,
                 type: 'ARTICLE_PUBLISHED',
                 title: 'Your Article Has Been Published',
-                message: `Congratulations! Your article "${submission.title}" has been published. DOI: ${doi}`,
+                message: `Congratulations! Your article "${submission.title}" has been published.DOI: ${doi} `,
                 submissionId: id
             }
         });
@@ -539,14 +540,14 @@ export const getPublicationPreview = async (req: AuthenticatedRequest, res: Resp
         }
 
         // Generate preview URL
-        const previewUrl = `/article/${submission.id}`;
+        const previewUrl = `/ article / ${submission.id} `;
 
         return res.json({
             success: true,
             data: {
                 submission,
                 previewUrl,
-                doi: submission.doi || `10.XXXX/journal.${new Date().getFullYear()}.${submission.id.slice(0, 8)}`
+                doi: submission.doi || `10.XXXX / journal.${new Date().getFullYear()}.${submission.id.slice(0, 8)} `
             }
         });
     } catch (error) {
@@ -613,7 +614,7 @@ export const unpublishArticle = async (req: AuthenticatedRequest, res: Response)
                 fromStatus: 'PUBLISHED',
                 toStatus: 'ACCEPTED',
                 description: 'Article unpublished by admin',
-                performedBy: performingUser ? `${performingUser.firstName} ${performingUser.lastName}` : 'Admin'
+                performedBy: performingUser ? `${performingUser.firstName} ${performingUser.lastName} ` : 'Admin'
             }
         });
 

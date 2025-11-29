@@ -11,7 +11,7 @@ interface StatusCardProps {
   className?: string;
 }
 
-const StatusCard: React.FC<StatusCardProps> = ({
+const StatusCard: React.FC<StatusCardProps> = React.memo(({
   title,
   status,
   statusVariant = 'neutral',
@@ -43,7 +43,7 @@ const StatusCard: React.FC<StatusCardProps> = ({
       )}
     </div>
   );
-};
+});
 
 export default StatusCard;
 

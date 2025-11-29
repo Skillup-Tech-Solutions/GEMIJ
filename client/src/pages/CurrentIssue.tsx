@@ -84,7 +84,7 @@ const CurrentIssue: React.FC = () => {
               {currentIssue.description}
             </p>
           </div>
-          
+
           <div className="flex space-x-3">
             <button className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors">
               Download Issue PDF
@@ -103,7 +103,7 @@ const CurrentIssue: React.FC = () => {
         <h2 className="text-2xl font-semibold text-secondary-900 mb-6">
           Table of Contents
         </h2>
-        
+
         <div className="space-y-6">
           {currentIssue.articles.map((article, index) => (
             <article key={article.id} className="card hover:shadow-md transition-shadow">
@@ -115,16 +115,16 @@ const CurrentIssue: React.FC = () => {
                         {article.title}
                       </Link>
                     </h3>
-                    
+
                     <div className="text-secondary-600 mb-3">
                       <span className="font-medium">Authors:</span>{' '}
                       {article.authors.map((author: any) => `${author.firstName} ${author.lastName}`).join(', ')}
                     </div>
-                    
+
                     <p className="text-secondary-700 mb-4 line-clamp-3">
                       {article.abstract}
                     </p>
-                    
+
                     <div className="flex flex-wrap items-center gap-4 text-sm text-secondary-600">
                       <span>Pages: {article.pages}</span>
                       <span>DOI: {article.doi}</span>
@@ -132,7 +132,7 @@ const CurrentIssue: React.FC = () => {
                         Published: {new Date(article.publishedAt).toLocaleDateString()}
                       </span>
                     </div>
-                    
+
                     <div className="flex flex-wrap gap-2 mt-3">
                       {article.keywords.map((keyword, keyIndex) => (
                         <span
@@ -144,7 +144,7 @@ const CurrentIssue: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="ml-6 flex flex-col space-y-2">
                     <Link
                       to={`/article/${article.id}`}
@@ -153,7 +153,7 @@ const CurrentIssue: React.FC = () => {
                       View Article
                     </Link>
                     <a
-                      href={buildPdfUrl(article.pdfPath)}
+                      href={buildPdfUrl(article.pdfPath, article.id)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="border border-secondary-300 text-secondary-700 px-4 py-2 rounded-md hover:bg-secondary-50 transition-colors text-center text-sm"
@@ -178,7 +178,7 @@ const CurrentIssue: React.FC = () => {
             <div className="text-secondary-600">Articles</div>
           </div>
         </div>
-        
+
         <div className="card">
           <div className="card-body text-center">
             <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -190,7 +190,7 @@ const CurrentIssue: React.FC = () => {
             <div className="text-secondary-600">Total Pages</div>
           </div>
         </div>
-        
+
         <div className="card">
           <div className="card-body text-center">
             <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -199,7 +199,7 @@ const CurrentIssue: React.FC = () => {
             <div className="text-secondary-600">Contributors</div>
           </div>
         </div>
-        
+
         <div className="card">
           <div className="card-body text-center">
             <div className="text-2xl font-bold text-primary-600 mb-1">
@@ -236,7 +236,7 @@ const CurrentIssue: React.FC = () => {
         >
           ← View Previous Issues
         </Link>
-        
+
         <div className="text-secondary-600 text-sm">
           Current Issue • Volume {currentIssue.volume}, Issue {currentIssue.number}
         </div>
