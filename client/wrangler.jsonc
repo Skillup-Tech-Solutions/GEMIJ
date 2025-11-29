@@ -4,6 +4,5 @@
     "assets": {
         "directory": "./dist"
     },
-    "main": null,
     "compatibility_flags": []
 }
