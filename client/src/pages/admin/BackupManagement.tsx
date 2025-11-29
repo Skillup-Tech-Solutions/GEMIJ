@@ -267,7 +267,7 @@ const BackupManagement: React.FC = () => {
             {totalPages > 1 && (
                 <div className="mt-6">
                     <Pagination
-                        currentPage={page}
+                        page={page}
                         totalPages={totalPages}
                         onPageChange={setPage}
                     />
