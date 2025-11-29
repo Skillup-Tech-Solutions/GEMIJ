@@ -1,0 +1,9 @@
+{
+    "name": "gemij-client",
+    "compatibility_date": "2025-11-29",
+    "assets": {
+        "directory": "./dist"
+    },
+    "main": null,
+    "compatibility_flags": []
+}

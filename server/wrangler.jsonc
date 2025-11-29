@@ -1,0 +1,10 @@
+{
+    "name": "gemij-server",
+    "compatibility_date": "2025-11-29",
+    "main": "./dist/index.js",
+    "node_compat": true,
+    "compatibility_flags": [],
+    "vars": {
+        "NODE_ENV": "production"
+    }
+}
