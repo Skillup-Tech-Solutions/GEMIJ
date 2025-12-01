@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BookOpen, Calendar, FileText, ChevronRight, Filter } from 'lucide-react';
 import { publicService } from '@/services/publicService';
 import { Issue } from '@/types';
+import BrowseIssuesSkeleton from '@/components/skeletons/BrowseIssuesSkeleton';
 import { buildServerUrl } from '@/utils/url';
 
 // Extended Issue type for display purposes
@@ -78,14 +79,7 @@ const BrowseIssues: React.FC = () => {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading issues...</p>
-                </div>
-            </div>
-        );
+        return <BrowseIssuesSkeleton />;
     }
 
     return (

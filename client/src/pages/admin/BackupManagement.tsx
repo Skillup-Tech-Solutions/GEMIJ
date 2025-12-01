@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import adminService from '@/services/adminService';
 import { formatBytes, formatDuration } from '@/utils/format';
 import Pagination from '@/components/ui/Pagination';
+import BackupSkeleton from '@/components/skeletons/BackupSkeleton';
 
 interface Backup {
     id: string;
@@ -142,7 +143,7 @@ const BackupManagement: React.FC = () => {
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center h-64">Loading...</div>;
+        return <BackupSkeleton />;
     }
 
     return (

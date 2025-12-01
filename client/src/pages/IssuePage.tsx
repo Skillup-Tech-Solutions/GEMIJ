@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Calendar, FileText, Download, ExternalLink } from 'lucide-react';
-import issueService, { Issue } from '@/services/issueService';
+import issueService from '@/services/issueService'; // Keep issueService, but Issue type is now from '@/types'
 import { buildPdfUrl } from '@/utils/url';
-import { submissionService } from '@/services/submissionService';
-import { Submission } from '@/types';
+import { publicService } from '@/services/publicService'; // Changed from submissionService
+import { Issue, Article } from '@/types'; // Changed from Submission, added Issue and Article
+import IssueSkeleton from '@/components/skeletons/IssueSkeleton';
 
 const IssuePage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [issue, setIssue] = useState<Issue | null>(null);
-    const [articles, setArticles] = useState<Submission[]>([]);
+    const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -30,7 +31,7 @@ const IssuePage: React.FC = () => {
                 setIssue(foundIssue);
                 // TODO: Load articles for this issue
                 // For now, we'll show an empty list
-                setArticles([]);
+                setArticles(foundIssue.articles || []);
             }
         } catch (error) {
             console.error('Failed to load issue:', error);
@@ -45,14 +46,7 @@ const IssuePage: React.FC = () => {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading issue...</p>
-                </div>
-            </div>
-        );
+        return <IssueSkeleton />;
     }
 
     if (!issue) {
@@ -87,7 +81,7 @@ const IssuePage: React.FC = () => {
                                     Volume {issue.volume}, Issue {issue.number}
                                 </h1>
                                 <p className="text-indigo-100 mt-1">
-                                    {issue.year}
+                                    {issue.publishedAt ? new Date(issue.publishedAt).getFullYear() : 'Pending'}
                                 </p>
                             </div>
                         </div>
@@ -153,9 +147,10 @@ const IssuePage: React.FC = () => {
                                             <span className="text-sm font-medium text-gray-500">
                                                 Article {article.articleNumber || index + 1}
                                             </span>
-                                            <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">
+                                            {/* manuscriptType is not in Article type, removing or fetching if needed */}
+                                            {/* <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">
                                                 {article.manuscriptType}
-                                            </span>
+                                            </span> */}
                                         </div>
                                         <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-indigo-600 cursor-pointer">
                                             <button onClick={() => navigate(`/article/${article.id}`)}>
@@ -163,16 +158,11 @@ const IssuePage: React.FC = () => {
                                             </button>
                                         </h3>
                                         <p className="text-gray-700 mb-2">
-                                            {article.author.firstName} {article.author.lastName}
-                                            {article.coAuthors && article.coAuthors.length > 0 && (
-                                                <>
-                                                    {article.coAuthors.map((coAuthor, idx) => (
-                                                        <span key={idx}>
-                                                            , {coAuthor.firstName} {coAuthor.lastName}
-                                                        </span>
-                                                    ))}
-                                                </>
-                                            )}
+                                            {article.authors && article.authors.map((author: any, idx: number) => (
+                                                <span key={idx}>
+                                                    {idx > 0 ? ', ' : ''}{author.firstName} {author.lastName}
+                                                </span>
+                                            ))}
                                         </p>
                                         <p className="text-gray-600 text-sm line-clamp-2">
                                             {article.abstract}
@@ -193,7 +183,7 @@ const IssuePage: React.FC = () => {
                                             View Article
                                         </button>
                                         <button
-                                            onClick={() => window.open(buildPdfUrl(article.manuscriptFile), '_blank')}
+                                            onClick={() => window.open(buildPdfUrl(article.pdfPath), '_blank')}
                                             className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                                         >
                                             <Download className="h-4 w-4 mr-2" />

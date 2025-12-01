@@ -24,6 +24,7 @@ import {
 import Button from '../components/ui/Button';
 import { publicService } from '../services/publicService';
 import { Issue, Article } from '../types';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const Home: React.FC = () => {
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null);
@@ -64,8 +65,20 @@ const Home: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+      <div className="min-h-screen bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
+          <div className="text-center max-w-5xl mx-auto">
+            <div className="flex justify-center mb-8">
+              <Skeleton className="h-8 w-64 rounded-full bg-slate-800" />
+            </div>
+            <Skeleton className="h-20 w-3/4 mx-auto mb-8 bg-slate-800" />
+            <Skeleton className="h-20 w-1/2 mx-auto mb-12 bg-slate-800" />
+            <div className="flex justify-center gap-5">
+              <Skeleton className="h-14 w-48 rounded-full bg-slate-800" />
+              <Skeleton className="h-14 w-48 rounded-full bg-slate-800" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

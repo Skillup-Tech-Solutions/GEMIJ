@@ -8,6 +8,11 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LoadingFallback from '@/components/ui/LoadingFallback';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import ArticleSkeleton from '@/components/skeletons/ArticleSkeleton';
+import BackupSkeleton from '@/components/skeletons/BackupSkeleton';
+import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
+import IssueSkeleton from '@/components/skeletons/IssueSkeleton';
+import BrowseIssuesSkeleton from '@/components/skeletons/BrowseIssuesSkeleton';
 
 // Public Pages
 const Home = lazy(() => import('@/pages/Home'));
@@ -114,9 +119,21 @@ const AppContent: React.FC = () => {
             <Route path="/certificate/:reviewId" element={<ReviewerCertificate />} />
             <Route path="/current-issue" element={<CurrentIssue />} />
             <Route path="/archive" element={<Archive />} />
-            <Route path="/article/:id" element={<ArticlePage />} />
-            <Route path="/issue/:id" element={<IssuePage />} />
-            <Route path="/browse" element={<BrowseIssues />} />
+            <Route path="/article/:id" element={
+              <Suspense fallback={<ArticleSkeleton />}>
+                <ArticlePage />
+              </Suspense>
+            } />
+            <Route path="/issue/:id" element={
+              <Suspense fallback={<IssueSkeleton />}>
+                <IssuePage />
+              </Suspense>
+            } />
+            <Route path="/browse" element={
+              <Suspense fallback={<BrowseIssuesSkeleton />}>
+                <BrowseIssues />
+              </Suspense>
+            } />
             <Route path="/article-view/:id" element={<ArticleView />} />
             <Route path="/search" element={<Search />} />
             <Route path="/about" element={<About />} />
@@ -136,8 +153,10 @@ const AppContent: React.FC = () => {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute>
-                  <Dashboard />
+                <ProtectedRoute fallback={<DashboardSkeleton />}>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <Dashboard />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -503,8 +522,10 @@ const AppContent: React.FC = () => {
             <Route
               path="/admin/backups"
               element={
-                <ProtectedRoute>
-                  <BackupManagement />
+                <ProtectedRoute fallback={<BackupSkeleton />}>
+                  <Suspense fallback={<BackupSkeleton />}>
+                    <BackupManagement />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />

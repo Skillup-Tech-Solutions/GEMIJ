@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+import { Skeleton } from '@/components/ui/Skeleton';
+import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
 import { FileText, Upload, BookOpen, AlertCircle, CheckCircle, Clock, File } from 'lucide-react';
 import { submissionService } from '@/services/submissionService';
 import { reviewerService } from '@/services/reviewerService';
@@ -1037,9 +1054,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="card-body">
                   {loading ? (
-                    <div className="text-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
-                    </div>
+                    <DashboardSkeleton />
                   ) : (
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between items-center">
