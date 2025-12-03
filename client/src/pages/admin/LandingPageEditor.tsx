@@ -19,14 +19,14 @@ const LandingPageEditor: React.FC = () => {
         hero: {
             badgeText: 'Peer-Reviewed Academic Journal',
             title: 'Advancing Knowledge in Engineering & Management',
-            subtitle: 'GEMIJ (ISSN 2583-7052) bridges the gap between theoretical innovation and practical application. Join a global community of researchers.',
+            subtitle: 'GEMIJ (ISSN 2583-7050) bridges the gap between theoretical innovation and practical application. Join a global community of researchers.',
             backgroundImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop',
             primaryButtonText: 'Submit Manuscript',
             primaryButtonLink: '/submit-paper',
             secondaryButtonText: 'Browse Latest Issue',
             secondaryButtonLink: '/current-issue',
             metrics: [
-                { label: 'ISSN Number', value: '2583-7052' },
+                { label: 'ISSN Number', value: '2583-7050' },
                 { label: 'Publication', value: 'Monthly' },
                 { label: 'Access', value: 'Open' },
                 { label: 'Reach', value: 'Global' }

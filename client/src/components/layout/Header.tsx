@@ -186,7 +186,7 @@ const Header: React.FC = () => {
             <div className="hidden md:flex flex-col items-center justify-center">
               <div className="bg-slate-50 border border-slate-100 px-4 py-1.5 rounded-full flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span className="text-xs font-semibold text-slate-600 tracking-wide">ISSN: 2583-7052</span>
+                <span className="text-xs font-semibold text-slate-600 tracking-wide">ISSN: 2583-7050</span>
               </div>
             </div>
 

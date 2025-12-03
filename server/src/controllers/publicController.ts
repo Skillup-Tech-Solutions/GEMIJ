@@ -616,7 +616,7 @@ export const getPublicSettings = async (req: Request, res: Response) => {
 export const getPageContent = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const key = `page_${slug} _content`;
+    const key = `page_${slug}_content`;
 
     const setting = await prisma.systemSettings.findUnique({
       where: { key }

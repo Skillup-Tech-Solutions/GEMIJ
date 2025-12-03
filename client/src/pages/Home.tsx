@@ -135,7 +135,7 @@ const Home: React.FC = () => {
 
             <p className="text-xl md:text-2xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto animate-fade-in-up delay-200 font-light">
               {hero.subtitle || (
-                <><strong className="text-white font-semibold">GEMIJ (ISSN 2583-7052)</strong> bridges the gap between theoretical innovation and practical application. Join a global community of researchers.</>
+                <><strong className="text-white font-semibold">GEMIJ (ISSN 2583-7050)</strong> bridges the gap between theoretical innovation and practical application. Join a global community of researchers.</>
               )}
             </p>
 
@@ -167,7 +167,7 @@ const Home: React.FC = () => {
             {/* Key Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-12 border-t border-white/10 animate-fade-in-up delay-500">
               {(hero.metrics || [
-                { label: 'ISSN Number', value: '2583-7052' },
+                { label: 'ISSN Number', value: '2583-7050' },
                 { label: 'Publication', value: 'Monthly' },
                 { label: 'Access', value: 'Open' },
                 { label: 'Reach', value: 'Global' },
