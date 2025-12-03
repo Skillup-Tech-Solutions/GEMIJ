@@ -124,17 +124,15 @@ const LandingPageEditor: React.FC = () => {
                 title: 'Editor in Chief',
                 name: 'Er.KAVIN K S',
                 address: [
-                    '5-51, Thattan Vilai, North Soorankudy Post,',
-                    'Nagercoil, Kanyakumari District,',
-                    'Tamilnadu, India-629501'
+                    '33, Block K, Kauz Khas,',
+                    'New Delhi,',
+                    'Delhi 110016'
                 ]
             },
             adminAddress: {
                 title: 'Administrative Office',
                 address: [
-                    '14, Third Floor, Prajam Complex,',
-                    'S. T. Hindu College Road,',
-                    'Chettikulam, Nagercoil - 629002.'
+                    'Metro Vihar, Shastri Park, Jagjit Nagar, Delhi, 110053'
                 ]
             },
             copyrightText: 'GEMIJ',

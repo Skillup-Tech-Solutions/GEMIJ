@@ -154,6 +154,16 @@ const Home: React.FC = () => {
               </Link>
             </div>
 
+            {/* IEEE Logo */}
+            <div className="mt-12 animate-fade-in-up delay-400 flex flex-col items-center gap-4">
+              <span className="text-slate-400 text-sm font-medium uppercase tracking-widest">Indexed In</span>
+              <img
+                src="https://ivory-coral.static.domains/12bc982f6bd52852284ffee78defeeab.png"
+                alt="IEEE Indexed"
+                className="h-16 md:h-20 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
+              />
+            </div>
+
             {/* Key Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-12 border-t border-white/10 animate-fade-in-up delay-500">
               {(hero.metrics || [
@@ -238,6 +248,8 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+
 
       {/* Latest Research Articles */}
       {currentIssue && (

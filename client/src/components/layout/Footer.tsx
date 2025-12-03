@@ -79,9 +79,9 @@ const Footer: React.FC = () => {
                   <p className="text-white font-medium">{footerConfig?.editorAddress?.title || 'Editor in Chief'}</p>
                   <p>{footerConfig?.editorAddress?.name || 'Er.KAVIN K S,'}</p>
                   {(footerConfig?.editorAddress?.address || [
-                    '5-51, Thattan Vilai, North Soorankudy Post,',
-                    'Nagercoil, Kanyakumari District,',
-                    'Tamilnadu, India-629501'
+                    '33, Block K, Kauz Khas,',
+                    'New Delhi,',
+                    'Delhi 110016'
                   ]).map((line: string, index: number) => (
                     <p key={index}>{line}</p>
                   ))}
@@ -93,9 +93,7 @@ const Footer: React.FC = () => {
                 <div className="text-sm space-y-1">
                   <p className="text-white font-medium">{footerConfig?.adminAddress?.title || 'Administrative Office'}</p>
                   {(footerConfig?.adminAddress?.address || [
-                    '14, Third Floor, Prajam Complex,',
-                    'S. T. Hindu College Road,',
-                    'Chettikulam, Nagercoil - 629002.'
+                    'Metro Vihar, Shastri Park, Jagjit Nagar, Delhi, 110053'
                   ]).map((line: string, index: number) => (
                     <p key={index}>{line}</p>
                   ))}
