@@ -118,6 +118,49 @@ export class EmailService {
     }
   }
 
+  static async sendDynamicEmail(data: {
+    to: string;
+    subject: string;
+    html: string;
+    text?: string;
+    variables?: Record<string, any>;
+  }): Promise<void> {
+    try {
+      const provider = getEmailProvider();
+      const variables = data.variables || {};
+
+      // Compile subject
+      const compiledSubject = handlebars.compile(data.subject)(variables);
+
+      // Compile HTML
+      const compiledHtml = handlebars.compile(data.html)(variables);
+
+      // Compile text if provided
+      const compiledText = data.text
+        ? handlebars.compile(data.text)(variables)
+        : undefined;
+
+      const fromEmail = process.env.FROM_EMAIL || 'gemij@em9745.ahamednazeer.qzz.io';
+      const fromName = process.env.FROM_NAME || 'GEMIJ Journal';
+
+      await provider.sendEmail({
+        to: data.to,
+        from: {
+          email: fromEmail,
+          name: fromName
+        },
+        subject: compiledSubject,
+        html: compiledHtml,
+        text: compiledText || compiledSubject
+      });
+
+      console.log(`[EmailService] Dynamic email sent successfully to ${data.to} using ${provider.getName()}`);
+    } catch (error: any) {
+      console.error('[EmailService] Dynamic email sending failed:', error);
+      throw error;
+    }
+  }
+
 
   static async sendSubmissionReceived(submissionId: string): Promise<void> {
     const submission = await prisma.submission.findUnique({

@@ -88,6 +88,7 @@ const PageContentEditor = lazy(() => import('@/pages/admin/PageContentEditor'));
 const PublicationDashboard = lazy(() => import('@/pages/admin/PublicationDashboard'));
 const ConferenceManagement = lazy(() => import('@/pages/admin/ConferenceManagement'));
 const BackupManagement = lazy(() => import('@/pages/admin/BackupManagement'));
+const EmailManagement = lazy(() => import('@/pages/admin/EmailManagement'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -526,6 +527,14 @@ const AppContent: React.FC = () => {
                   <Suspense fallback={<BackupSkeleton />}>
                     <BackupManagement />
                   </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/emails"
+              element={
+                <ProtectedRoute>
+                  <EmailManagement />
                 </ProtectedRoute>
               }
             />

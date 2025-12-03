@@ -26,8 +26,8 @@ const Footer: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950"></div>
 
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Journal Info */}
           <div className="space-y-6">
             <div className="flex items-center gap-3">
@@ -63,68 +63,6 @@ const Footer: React.FC = () => {
                 </div>
                 <span>{footerConfig?.phone || '+91 8220669990'}</span>
               </div>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-white font-semibold text-lg mb-6 relative inline-block">
-              Quick Links
-              <span className="absolute -bottom-2 left-0 w-12 h-1 bg-blue-600 rounded-full"></span>
-            </h3>
-            <ul className="space-y-3">
-              {(footerConfig?.quickLinks || [
-                { name: 'About Us', href: '/about' },
-                { name: 'Aim and Scope', href: '/aim-scope' },
-                { name: 'Editorial Board', href: '/editorial-board' },
-                { name: 'Author Guidelines', href: '/author-guidelines' },
-                { name: 'Call For Paper', href: '/call-for-paper' },
-                { name: 'Contact Us', href: '/contact' },
-              ]).map((link: any) => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-sm hover:text-blue-400 hover:translate-x-1 transition-all duration-200 flex items-center gap-2 group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-blue-500 transition-colors"></span>
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* For Authors */}
-          <div>
-            <h3 className="text-white font-semibold text-lg mb-6 relative inline-block">
-              For Authors
-              <span className="absolute -bottom-2 left-0 w-12 h-1 bg-blue-600 rounded-full"></span>
-            </h3>
-            <ul className="space-y-3 mb-8">
-              {(footerConfig?.authorLinks || [
-                { name: 'Payment Information', href: '/payment-information' },
-                { name: 'Publication Ethics', href: '/publication-ethics' },
-                { name: 'Make Online Payment', href: '/make-payment' },
-              ]).map((link: any) => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-sm hover:text-blue-400 hover:translate-x-1 transition-all duration-200 flex items-center gap-2 group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-blue-500 transition-colors"></span>
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            <h4 className="text-white font-medium text-sm uppercase tracking-wider mb-4 text-blue-400">Downloads</h4>
-            <div className="space-y-3">
-              {(footerConfig?.downloads || [
-                { name: 'Paper Template', href: '/paper-template.docx' },
-                { name: 'Copyright Form', href: '/copyright-form.pdf' }
-              ]).map((download: any) => (
-                <a key={download.name} href={download.href} className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors group border border-slate-700/50 hover:border-blue-500/50">
-                  <div className="p-1.5 bg-blue-500/10 rounded-md group-hover:bg-blue-500/20 transition-colors">
-                    <Download className="h-4 w-4 text-blue-400 group-hover:text-blue-300 transition-colors" />
-                  </div>
-                  <span className="text-sm font-medium text-slate-300 group-hover:text-white">{download.name}</span>
-                </a>
-              ))}
             </div>
           </div>
 

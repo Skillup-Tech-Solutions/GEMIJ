@@ -224,8 +224,8 @@ export const publishArticle = async (req: AuthenticatedRequest, res: Response) =
         if (!doi) {
             // Simple DOI generation - in production, integrate with CrossRef API
             const year = new Date().getFullYear();
-            const uniqueId = validatedData.articleNumber || submission.id.slice(0, 8);
-            doi = `10.XXXX / journal.${year}.${uniqueId} `;
+            const randomId = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            doi = `10.1234/GEMIJ.${year}.${randomId}`;
         }
 
         // Determine volume and issue based on destination
@@ -547,7 +547,7 @@ export const getPublicationPreview = async (req: AuthenticatedRequest, res: Resp
             data: {
                 submission,
                 previewUrl,
-                doi: submission.doi || `10.XXXX / journal.${new Date().getFullYear()}.${submission.id.slice(0, 8)} `
+                doi: submission.doi || `10.1234/GEMIJ.${new Date().getFullYear()}.${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`
             }
         });
     } catch (error) {

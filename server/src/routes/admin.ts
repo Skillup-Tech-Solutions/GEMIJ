@@ -22,6 +22,13 @@ import {
   performSystemBackup
 } from '../controllers/adminController';
 import {
+  getEmailTemplates,
+  createEmailTemplate,
+  updateEmailTemplate,
+  deleteEmailTemplate,
+  sendBulkEmail
+} from '../controllers/emailTemplateController';
+import {
   getBackupHistory,
   getBackupDetails,
   getBackupStatus,
@@ -74,5 +81,12 @@ router.get('/backups/:id', getBackupDetails);
 router.get('/backups/:id/status', getBackupStatus);
 router.get('/backups/:id/download', downloadBackup);
 router.delete('/backups/:id', deleteBackup);
+
+// Email Template Management
+router.get('/email-templates', getEmailTemplates);
+router.post('/email-templates', createEmailTemplate);
+router.put('/email-templates/:id', updateEmailTemplate);
+router.delete('/email-templates/:id', deleteEmailTemplate);
+router.post('/email-templates/send-bulk', sendBulkEmail);
 
 export default router;

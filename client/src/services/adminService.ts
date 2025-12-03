@@ -496,6 +496,37 @@ class AdminService {
   async updateLandingPageConfig(config: any): Promise<void> {
     await axios.put(`${API_URL}/admin/landing-page-config`, config);
   }
+
+  // Email Template Management
+  async getEmailTemplates(): Promise<any[]> {
+    const response = await axios.get<ApiResponse<any[]>>(`${API_URL}/admin/email-templates`);
+    return response.data.data!;
+  }
+
+  async createEmailTemplate(template: any): Promise<any> {
+    const response = await axios.post<ApiResponse<any>>(`${API_URL}/admin/email-templates`, template);
+    return response.data.data!;
+  }
+
+  async updateEmailTemplate(id: string, template: any): Promise<any> {
+    const response = await axios.put<ApiResponse<any>>(`${API_URL}/admin/email-templates/${id}`, template);
+    return response.data.data!;
+  }
+
+  async deleteEmailTemplate(id: string): Promise<void> {
+    await axios.delete(`${API_URL}/admin/email-templates/${id}`);
+  }
+
+  async sendBulkEmail(data: {
+    templateId: string;
+    recipientType: string;
+    specificUserIds?: string[];
+    customEmails?: string[];
+    subjectOverride?: string;
+  }): Promise<any> {
+    const response = await axios.post<ApiResponse<any>>(`${API_URL}/admin/email-templates/send-bulk`, data);
+    return response.data.data!;
+  }
 }
 
 export default new AdminService();

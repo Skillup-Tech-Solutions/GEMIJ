@@ -172,45 +172,8 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 bg-white relative z-20 -mt-10 rounded-t-[3rem]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              {features.heading || 'Why Publish With Us?'}
-            </h2>
-            <div className="w-20 h-1.5 bg-blue-600 mx-auto rounded-full mb-6"></div>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              {features.subheading || 'We are committed to disseminating high-quality research with speed, efficiency, and global impact.'}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {(features.items || [
-              { icon: 'FileText', title: 'Open Access', description: 'All articles are freely available to read, download, and share worldwide.' },
-              { icon: 'Users', title: 'Peer Review', description: 'Rigorous double-blind peer review process ensures quality and integrity.' },
-              { icon: 'Award', title: 'Indexed', description: 'Indexed in major databases for maximum visibility and impact.' },
-              { icon: 'TrendingUp', title: 'Fast Publication', description: 'Efficient editorial process with quick turnaround times.' }
-            ]).map((feature: any, index: number) => {
-              const IconComponent = getIcon(feature.icon);
-              return (
-                <div key={index} className="group p-8 rounded-3xl bg-slate-50 hover:bg-white border border-slate-100 hover:border-blue-100 hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-500">
-                  <div className="w-16 h-16 bg-white text-blue-600 rounded-2xl shadow-sm flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
-                    <IconComponent className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">{feature.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* Current Issue Highlight / Call for Papers */}
-      <section className="py-24 bg-slate-50">
+      <section className="py-24 bg-slate-50 relative z-20 -mt-10 rounded-t-[3rem]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative rounded-[2.5rem] overflow-hidden bg-white shadow-2xl shadow-slate-200/50 border border-slate-100">
             <div className="absolute top-0 left-0 w-3 h-full bg-gradient-to-b from-red-500 via-orange-500 to-yellow-500"></div>
